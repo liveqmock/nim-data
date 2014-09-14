@@ -59,6 +59,7 @@ public class DataServiceImpl {
 			if(rs.next()){
 				totalCount = rs.getInt(1);
 			}
+			rs.close();
 			
 			if(limit >0){
 				sql =	"select t2.* from ("+

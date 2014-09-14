@@ -27,16 +27,16 @@ public class JSONConvertUtils {
 	public static BaseEntityI applyJSONToObject(ShiTiLeiI stl,BaseEntityI obj,JSONObject data) throws Exception{
 		if(data==null) return obj;
 		//根据
-		Iterator<String> properties = data.keys();
+		Iterator<?> properties = data.keys();
 		while(properties.hasNext()){
-			String propertyName = properties.next();
+			String propertyName = (String)properties.next();
 			if(!propertyName.startsWith("_")){
 				Object propertyValue = data.get(propertyName);
 				
 				if(propertyValue!=null){
 					ZiDuanI zd = stl.getZiDuan(propertyName);
 					if(zd == null){
-						throw new Exception("实体类\""+stl.getShiTiLeiMC()+"\"中不存在字段\""+zd.getZiDuanDH()+"\"！");
+						throw new Exception("实体类\""+stl.getShiTiLeiMC()+"\"中不存在字段\""+propertyName+"\"！");
 					}
 					ZiDuanLXI zdlx = zd.getZiDuanLX();
 					if(zdlx==null){
@@ -66,7 +66,7 @@ public class JSONConvertUtils {
 							}else if(substlPkValueObj instanceof Integer){
 								substlPkValue = (Integer)substlPkValueObj;
 							}else{
-								throw new Exception("未知的主键值类型\""+substlPkValue+"("+substlPkValue.getClass()+")!");
+								throw new Exception("未知的主键值类型\""+substlPkValueObj+"("+substlPkValueObj.getClass()+")!");
 							}
 						}
 						
@@ -82,7 +82,6 @@ public class JSONConvertUtils {
 						ShiTiLeiI substl = zd.getGuanLianSTL();
 						BaseEntityI subObj = null;
 						if(propertyValue instanceof JSONObject){
-							@SuppressWarnings("unchecked")
 							JSONArray modified = (JSONArray)((JSONObject)propertyValue).get("modified");
 							if(modified!=null && modified.size()>0){
 								for(int i =0;i<modified.size();i++){
@@ -92,7 +91,6 @@ public class JSONConvertUtils {
 									subObj = applyJSONToObject(substl,subObj,subObjData);
 								}
 							}
-							@SuppressWarnings("unchecked")
 							JSONArray inserted = (JSONArray)((JSONObject)propertyValue).get("inserted");
 							if(inserted!=null && inserted.size()>0){
 								for(int i =0;i<inserted.size();i++){
@@ -111,7 +109,6 @@ public class JSONConvertUtils {
 									appendMethod.invoke(obj, new Object[]{obj,subObj});
 								}
 							}
-							@SuppressWarnings("unchecked")
 							JSONArray deleted = (JSONArray)((JSONObject)propertyValue).get("deleted");
 							if(deleted!=null && deleted.size()>0){
 								for(int i =0;i<deleted.size();i++){
@@ -122,7 +119,6 @@ public class JSONConvertUtils {
 							}
 							
 						}else if (propertyValue instanceof List){
-							@SuppressWarnings("unchecked")
 							JSONArray inserted = (JSONArray)propertyValue;
 							if(inserted!=null && inserted.size()>0){
 								for(int i =0;i<inserted.size();i++){
@@ -180,6 +176,7 @@ public class JSONConvertUtils {
 		return obj;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static JSONObject applyEntity2JSONObject(ShiTiLeiI stl,BaseEntityI obj, JSONArray fields) throws Exception{
 		//
 		Object value = null;

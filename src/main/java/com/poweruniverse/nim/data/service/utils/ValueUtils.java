@@ -27,6 +27,7 @@ public class ValueUtils {
 	 * @param fieldSyntax
 	 * @return
 	 */
+	@SuppressWarnings("unchecked")
 	public static Object getValueByProperties(Object obj,String fieldSyntax){
 		if(fieldSyntax==null || fieldSyntax.length()==0){
 			return obj;
@@ -181,6 +182,7 @@ public class ValueUtils {
 		//判断value1是否集合
 		//判断值是否为集合类型
 		if(value1 instanceof Set){
+			@SuppressWarnings("unchecked")
 			Set<Object> setValue = (Set<Object>)value1;
 			//肯定的条件：集合中的某一元素满足此条件即可
 			//否定的条件： 要求集合中的各元素均不满足此条件 
@@ -314,7 +316,7 @@ public class ValueUtils {
 				syntaxString = syntaxLeft+syntaxRight;
 			}else if(synValue instanceof Set){
 				JSONArray valueArray = new JSONArray();
-				for(Object v:((Set) synValue).toArray()){
+				for(Object v:((Set<?>) synValue).toArray()){
 					valueArray.add(v);
 				}
 				syntaxString = syntaxLeft+valueArray+syntaxRight;
