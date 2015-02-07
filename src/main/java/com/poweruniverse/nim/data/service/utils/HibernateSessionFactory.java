@@ -1,7 +1,10 @@
 package com.poweruniverse.nim.data.service.utils;
 
+import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
@@ -11,28 +14,28 @@ import org.hibernate.connection.ConnectionProvider;
 import org.hibernate.engine.SessionFactoryImplementor;
 
 public class HibernateSessionFactory{
-    private static String CONFIG_FILE_LOCATION = "hibernate.cfg.xml";
 	private static final ThreadLocal<Session> threadLocal = new ThreadLocal<Session>();
-    private static SessionFactory sessionFactory;
+    private static Map<String,SessionFactory> sessionFactoryMap = new HashMap<String,SessionFactory>();
     
-    private static SessionFactory getSessionFactory() {
-    	if(sessionFactory==null){
+    public static SessionFactory createSessionFactory(String factoryName,File cfgFile) {
+    	SessionFactory cSessionFactory = sessionFactoryMap.get(factoryName);
+    	if(cSessionFactory==null){
     		try {
-    		    System.out.println("building SessionFactory...");
-    		    sessionFactory = new Configuration ().configure(CONFIG_FILE_LOCATION).buildSessionFactory() ;
-    			System.out.println("sessionFactory build");
+    		    System.out.println("building SessionFactory for "+factoryName+"...");
+    		    cSessionFactory = new Configuration ().configure(cfgFile).buildSessionFactory() ;
+    			System.out.println("sessionFactory "+factoryName+" builded");
     	    } catch (Exception e) {
-    		     System.out.println("%%%% Error Creating SessionFactory %%%%");
+    		     System.out.println("%%%% Error Creating SessionFactory "+factoryName+" ("+cfgFile.getPath()+")%%%%");
     		     e.printStackTrace();
     	    }
     	}
-	    return sessionFactory;
+	    return cSessionFactory;
     }
     
-    public static Connection getConnection(){
+    public static Connection getConnection(String factoryName){
     	Connection conn = null;
     	try {
-			ConnectionProvider cp =((SessionFactoryImplementor)sessionFactory).getConnectionProvider();  
+			ConnectionProvider cp =((SessionFactoryImplementor)sessionFactoryMap.get(factoryName)).getConnectionProvider();  
 			conn = cp.getConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -40,10 +43,10 @@ public class HibernateSessionFactory{
     	 return conn;
     }
     
-    public static Session getSession() throws HibernateException {
+    public static Session getSession(String factoryName) throws HibernateException {
         Session session = (Session) threadLocal.get();
 		if (session == null || !session.isOpen()) {
-		   session = getSessionFactory().openSession();
+		   session = sessionFactory.openSession();
 		   threadLocal.set(session);
 		   System.out.println("Session opened ..."+session.hashCode());
 		}

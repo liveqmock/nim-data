@@ -12,7 +12,7 @@ import net.sf.json.JSONArray;
 
 import org.apache.commons.beanutils.PropertyUtils;
 
-import com.poweruniverse.nim.interfaces.entity.BaseEntityI;
+import com.poweruniverse.nim.data.entity.base.EntityI;
 
 public class ValueUtils {
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -320,8 +320,8 @@ public class ValueUtils {
 					valueArray.add(v);
 				}
 				syntaxString = syntaxLeft+valueArray+syntaxRight;
-			}else if (synValue instanceof BaseEntityI){
-				syntaxString = syntaxLeft+((BaseEntityI)synValue).pkValue()+syntaxRight;
+			}else if (synValue instanceof EntityI){
+				syntaxString = syntaxLeft+((EntityI)synValue).pkValue()+syntaxRight;
 			}else{
 				syntaxString = syntaxLeft+synValue+syntaxRight;
 			}

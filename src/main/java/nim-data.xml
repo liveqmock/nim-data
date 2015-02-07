@@ -1,3 +1,0 @@
-<services>
-	<service class-name="com.poweruniverse.nim.data.service.DataServiceImpl" service-name="data" />
-</services>
