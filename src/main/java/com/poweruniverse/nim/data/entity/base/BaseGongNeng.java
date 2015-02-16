@@ -3,6 +3,7 @@ import java.io.Serializable;
 
 import com.poweruniverse.nim.data.entity.GongNeng;
 import com.poweruniverse.nim.data.entity.GongNengCZ;
+import com.poweruniverse.nim.data.entity.GongNengGZL;
 import com.poweruniverse.nim.data.entity.ShiTiLei;
 import com.poweruniverse.nim.data.entity.XiTong;
 
@@ -121,6 +122,40 @@ public abstract class BaseGongNeng  implements Serializable,Comparable<Object> ,
 	public XiTong getXiTong(){return this.xiTong ;}
 	public void setXiTong(XiTong xiTong){this.xiTong = xiTong;}
 
+	// 集合：工作流集合 （gzls）
+	private java.util.Set<GongNengGZL> gzls = new java.util.TreeSet<GongNengGZL>();
+	public java.util.Set<GongNengGZL> getGzls(){return this.gzls ;}
+	public void setGzls(java.util.Set<GongNengGZL> gzls){this.gzls = gzls;}
+	public void addTogzls(Object parent,Object detail){
+		GongNeng mainObj = (GongNeng)parent;
+		GongNengGZL subObj = (GongNengGZL)detail;
+		subObj.setGongNeng(mainObj);
+		mainObj.getGzls().add(subObj);
+	}
+	public void removeFromgzls(Object parent,Object detail){
+		GongNeng mainObj = (GongNeng)parent;
+		GongNengGZL subObj = (GongNengGZL)detail;
+		subObj.setGongNeng(null);
+		mainObj.getGzls().remove(subObj);
+	}
+	public Object getgzlsById(Object id){
+		java.util.Iterator<GongNengGZL> ds = this.getGzls().iterator();
+		GongNengGZL d = null;
+		while(ds.hasNext()){
+			d = ds.next();
+			if(d.getGongNengGZLDM()!=null && d.getGongNengGZLDM().equals(id)){
+				return d;
+			}
+		}
+		return null;
+	}
+	public GongNengGZL newgzlsByParent(GongNeng parent) throws Exception{
+		GongNengGZL subObj = new GongNengGZL();
+		//
+		subObj.setGongNeng(parent);
+		//
+		return subObj;
+	}
 			
 	// 属性：是否webservice （shiFouWS）
 	private java.lang.Boolean shiFouWS = new java.lang.Boolean(false);

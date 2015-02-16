@@ -6,7 +6,7 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 
 import com.poweruniverse.nim.data.entity.base.BaseXiTong;
-import com.poweruniverse.nim.data.service.utils.SystemSessionFactory;
+import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 
 /*
 * 实体类：系统
@@ -31,7 +31,7 @@ public class XiTong  extends BaseXiTong {
 	public static XiTong getXiTongByDH(String xtdh){
 		XiTong xt = null;
 		if(xtdh!=null){
-			Criteria criteria = SystemSessionFactory.getSession().createCriteria(XiTong.class)
+			Criteria criteria = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createCriteria(XiTong.class)
 	 	  			.add(Restrictions.eq("xiTongDH",xtdh));
 			List<?> xts = criteria.setMaxResults(1).list();
 			if(xts.size()>0){

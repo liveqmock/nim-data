@@ -3,6 +3,7 @@ import java.io.Serializable;
 
 import com.poweruniverse.nim.data.entity.GongNeng;
 import com.poweruniverse.nim.data.entity.GongNengCZ;
+import com.poweruniverse.nim.data.entity.GongNengCZBL;
 
 /*
 * 实体类：功能操作
@@ -55,6 +56,40 @@ public abstract class BaseGongNengCZ  implements Serializable,Comparable<Object>
 	public java.lang.Boolean getDuiXiangXG(){return this.duiXiangXG ;}
 	public void setDuiXiangXG(java.lang.Boolean duiXiangXG){this.duiXiangXG = duiXiangXG;}
 	
+	// 集合：操作变量集合 （czbls）
+	private java.util.Set<GongNengCZBL> czbls = new java.util.TreeSet<GongNengCZBL>();
+	public java.util.Set<GongNengCZBL> getCzbls(){return this.czbls ;}
+	public void setCzbls(java.util.Set<GongNengCZBL> czbls){this.czbls = czbls;}
+	public void addToczbls(Object parent,Object detail){
+		GongNengCZ mainObj = (GongNengCZ)parent;
+		GongNengCZBL subObj = (GongNengCZBL)detail;
+		subObj.setGongNengCZ(mainObj);
+		mainObj.getCzbls().add(subObj);
+	}
+	public void removeFromczbls(Object parent,Object detail){
+		GongNengCZ mainObj = (GongNengCZ)parent;
+		GongNengCZBL subObj = (GongNengCZBL)detail;
+		subObj.setGongNengCZ(null);
+		mainObj.getCzbls().remove(subObj);
+	}
+	public Object getczblsById(Object id){
+		java.util.Iterator<GongNengCZBL> ds = this.getCzbls().iterator();
+		GongNengCZBL d = null;
+		while(ds.hasNext()){
+			d = ds.next();
+			if(d.getCaoZuoBLDM()!=null && d.getCaoZuoBLDM().equals(id)){
+				return d;
+			}
+		}
+		return null;
+	}
+	public GongNengCZBL newczblsByParent(GongNengCZ parent) throws Exception{
+		GongNengCZBL subObj = new GongNengCZBL();
+		//
+		subObj.setGongNengCZ(parent);
+		//
+		return subObj;
+	}
 			
 	// 属性：可以授权 （keYiSQ）
 	private java.lang.Boolean keYiSQ = new java.lang.Boolean(false);

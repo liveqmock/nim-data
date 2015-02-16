@@ -6,7 +6,7 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 
 import com.poweruniverse.nim.data.entity.base.BaseGongNeng;
-import com.poweruniverse.nim.data.service.utils.SystemSessionFactory;
+import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 
 /*
 * 实体类：功能
@@ -37,7 +37,7 @@ public class GongNeng  extends BaseGongNeng  {
 	public static GongNeng getGongNengByDH(String gndh){
 		GongNeng gn = null;
 		if(gndh!=null){
-			Criteria criteria = SystemSessionFactory.getSession().createCriteria(GongNeng.class)
+			Criteria criteria = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createCriteria(GongNeng.class)
 	 	  			.add(Restrictions.eq("gongNengDH",gndh));
 			List<?> gns = criteria.setMaxResults(1).list();
 			if(gns.size()>0){
@@ -51,7 +51,7 @@ public class GongNeng  extends BaseGongNeng  {
 	 * 哪个功能提供这个实体类的选择权限
 	 */
 	public static GongNeng getOperationGNBySTL(ShiTiLei stl,String caoZuoDH){
-		Criteria criteria = SystemSessionFactory.getSession().createCriteria(GongNengCZ.class)
+		Criteria criteria = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createCriteria(GongNengCZ.class)
 				.createAlias("gongNeng", "gncz_gn")
  	  			.add(Restrictions.eq("gncz_gn.shiTiLei.id",stl.getShiTiLeiDM()))
  	  			.add(Restrictions.eq("caoZuoDH",caoZuoDH));
@@ -77,7 +77,7 @@ public class GongNeng  extends BaseGongNeng  {
 
 	//取得此实体类对应的选择功能
 	public static GongNeng getGongNengBySTLDM(Integer stldm){
-		Criteria criteria = SystemSessionFactory.getSession().createCriteria(GongNeng.class)
+		Criteria criteria = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createCriteria(GongNeng.class)
  	  			.add(Restrictions.eq("shiTiLei.id",stldm))
  	  			.add(Restrictions.sqlRestriction("gongNengDM in ( select gncz.gongNengDM from sys_gongNengCZ gncz where gncz.caoZuoDH = 'select')"));
 		List<?> gns = criteria.setMaxResults(1).list();

@@ -19,6 +19,8 @@ import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 
 import com.poweruniverse.nim.data.entity.GongNengCZ;
+import com.poweruniverse.nim.data.entity.GongNengGZL;
+import com.poweruniverse.nim.data.entity.GongNengGZLTJ;
 import com.poweruniverse.nim.data.entity.GongNengLC;
 import com.poweruniverse.nim.data.entity.GongNengLCMX;
 import com.poweruniverse.nim.data.entity.JueSe;
@@ -62,7 +64,29 @@ public class QueryUtils {
 		return criterion;
 	}
 
-	
+	/**
+	 * 根据工作流条件  取得条件集合 
+	 * @param yh
+	 * @param gncz
+	 * @return
+	 */
+	public static List<Permit> getPermitsByGZLTJ(YongHu yh,GongNengGZL gzl){
+		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		if(!sess.contains(yh)){
+			yh =(YongHu)sess.load(YongHu.class, yh.getYongHuDM());
+		}
+		List<Permit> ps = new ArrayList<Permit>();
+		Iterator<GongNengGZLTJ> gzltjmxs = gzl.getMxs().iterator();
+		GongNengGZLTJ gzltjmx = null;
+		while(gzltjmxs.hasNext()){
+			gzltjmx = gzltjmxs.next();
+			if(gzltjmx.getGss() != null){
+				ps.add(new Permit().setFilterByGZLTJGSS(gzltjmx.getGss().iterator()));
+			}
+		}
+		return ps;
+	}
+
 	/**
 	* 根据条件集合 生成hibernate查询语法中的过滤条件
 	* queries =null ：返回null
@@ -218,7 +242,7 @@ public class QueryUtils {
 		//属性字段的类型
 		String type = query.getType();
 		if(type==null){
-			ShiTiLei yhSTL = (ShiTiLei)SystemSessionFactory.getSession().load(ShiTiLei.class,18);
+			ShiTiLei yhSTL = (ShiTiLei)HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).load(ShiTiLei.class,18);
 			type=yhSTL.getZiDuanLX(synString).getZiDuanLXDH();
 		}
 		//值的正确类型
@@ -659,7 +683,7 @@ public class QueryUtils {
 	 * @return
 	 */
 	public static List<Permit> getPermitsByYHAuth(YongHu yh,GongNengCZ gncz,boolean addAssigneeAuth){
-		Session sess = SystemSessionFactory.getSession();
+		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
 		if(!sess.contains(yh)){
 			yh =(YongHu)sess.load(YongHu.class, yh.getYongHuDM());
 		}
@@ -693,7 +717,7 @@ public class QueryUtils {
 				//功能操作需要授权 初始设置basefilters为空集合 表示全部不允许
 				//然后再根据权限加入允许的范围
 					//取当前用户对此功能操作的权限
-				Session sess = SystemSessionFactory.getSession();
+				Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
 				@SuppressWarnings("unchecked")
 				List<JueSeQXGNCZ> yhqxgnczs = (List<JueSeQXGNCZ>)sess.createCriteria(JueSeQXGNCZ.class)
 						.add(Restrictions.eq("gongNengCZ.id", gncz.getGongNengCZDM()))
@@ -742,7 +766,7 @@ public class QueryUtils {
 			//功能操作需要授权 初始设置basefilters为空集合 表示全部不允许
 			//然后再根据权限加入允许的范围
 				//取当前用户对此功能操作的权限
-			Session sess = SystemSessionFactory.getSession();
+			Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
 			@SuppressWarnings("unchecked")
 			List<JueSeQXGNCZ> yhqxgnczs = (List<JueSeQXGNCZ>)sess.createCriteria(JueSeQXGNCZ.class)
 					.add(Restrictions.eq("gongNengCZ.id", gncz.getGongNengCZDM()))

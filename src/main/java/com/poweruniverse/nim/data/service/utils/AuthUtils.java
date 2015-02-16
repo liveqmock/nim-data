@@ -11,12 +11,34 @@ import org.hibernate.criterion.Restrictions;
 
 import com.poweruniverse.nim.data.entity.GongNengCZ;
 import com.poweruniverse.nim.data.entity.JueSe;
+import com.poweruniverse.nim.data.entity.JueSeQXGNCZ;
 import com.poweruniverse.nim.data.entity.LiuChengJS;
 import com.poweruniverse.nim.data.entity.ShiTiLei;
 import com.poweruniverse.nim.data.entity.YongHu;
 import com.poweruniverse.nim.data.entity.YongHuZT;
 
 public class AuthUtils {
+	public static boolean hasGNCZAuth(String gndh,String czdh,Integer yhdm) throws Exception{
+		boolean hasGNCZAuth = false;
+		try {
+			if(yhdm!=null){
+				List<?> jsgnczs = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createCriteria(JueSeQXGNCZ.class)
+						.createAlias("gongNengCZ", "jsgncz_gncz")
+						.createAlias("jsgncz_gncz.gongNeng", "jsgncz_gncz_gn")
+						.add(Restrictions.eq("jsgncz_gncz_gn.gongNengDH",gndh))
+						.add(Restrictions.eq("jsgncz_gncz.caoZuoDH", czdh))
+						.add(Restrictions.sqlRestriction("jueSeDM in (select yhjs.juesedm from sys_yonghujs yhjs where yhjs.yonghudm ="+yhdm+" )"))
+						.list();
+				if(jsgnczs.size()>0){
+					hasGNCZAuth = true;
+				}
+			}
+		} catch (Exception e) {
+			hasGNCZAuth = false;
+		}
+		return hasGNCZAuth;
+	}
+	
 	/**
 	 * 检查用户对特定数据 是否有权限进行某种操作
 	 * 功能action中会调用此方法
@@ -27,8 +49,9 @@ public class AuthUtils {
 	 * @return
 	 * @throws Exception
 	 */
-	public static boolean checkAuth(String gndh,String czdh,Integer id,YongHu yh) throws Exception{
-		GongNengCZ gncz = (GongNengCZ)SystemSessionFactory.getSession().createCriteria(GongNengCZ.class)
+	public static boolean checkAuth(String gndh,String czdh,Integer id,Integer yhdm) throws Exception{
+		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		GongNengCZ gncz = (GongNengCZ)sess.createCriteria(GongNengCZ.class)
 				.createAlias("gongNeng", "gncz_gn")
 				.add(Restrictions.eq("gncz_gn.gongNengDH",gndh))
 				.add(Restrictions.eq("caoZuoDH", czdh)).uniqueResult();
@@ -37,10 +60,14 @@ public class AuthUtils {
 			return false;
 //			throw new Exception();
 		}
-		return checkAuth(gncz,id,yh);
+		return checkAuth(gncz,id,yhdm);
 	}
-	public static boolean checkAuth(GongNengCZ gncz,Integer id,YongHu yh) throws Exception{
-		Session sess = SystemSessionFactory.getSession();
+	public static boolean checkAuth(GongNengCZ gncz,Integer id,Integer yhdm) throws Exception{
+		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		YongHu yh = null;
+		if(yhdm!=null){
+			yh = (YongHu)sess.load(YongHu.class, id);
+		}
 		//功能实体类
 		Class<?> gnStlClass = Class.forName(gncz.getGongNeng().getShiTiLei().getShiTiLeiClassName());
 		if(gncz.getKeYiSQ() && gncz.getDuiXiangXG()){
@@ -126,7 +153,7 @@ public class AuthUtils {
 	
 	public static List<YongHu> getAuthUsers(GongNengCZ gncz,Integer id,JueSe js) throws Exception{
 		List<YongHu> authUsers = new ArrayList<YongHu>();
-		Session sess = SystemSessionFactory.getSession();
+		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
 		Criterion neExpreesion = Restrictions.sqlRestriction("1<>1");
 		
 		//功能实体类
@@ -211,7 +238,7 @@ public class AuthUtils {
 	
 	//检查当前功能对应的数据对象 是否满足后面的条件要求
 	public static boolean meetCondition(ShiTiLei stl,Integer id,YongHu yh,List<Permit> permits) throws Exception{
-		Session sess = SystemSessionFactory.getSession();
+		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
 		//功能实体类
 		Class<?> gnStlClass = Class.forName(stl.getShiTiLeiClassName());
 		//基础查询语法

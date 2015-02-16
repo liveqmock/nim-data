@@ -32,7 +32,7 @@ public class ImageElParser {
 			if(params!=null){
 				parseString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+parseString;
 			}
-			id = FreemarkerUtils.processTemplate(parseString, root,null);
+			id = FreemarkerUtils.processTemplate(parseString, root);
 			imageObj.put("id", id);
 		}
 		

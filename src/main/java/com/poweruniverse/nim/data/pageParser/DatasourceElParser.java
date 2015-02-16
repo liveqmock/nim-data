@@ -16,7 +16,7 @@ import com.poweruniverse.nim.data.entity.ShiTiLei;
 import com.poweruniverse.nim.data.entity.ZiDuan;
 import com.poweruniverse.nim.data.entity.base.EntityI;
 import com.poweruniverse.nim.data.service.utils.DataUtils;
-import com.poweruniverse.nim.data.service.utils.SystemSessionFactory;
+import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 import com.poweruniverse.nim.data.service.utils.JSONConvertUtils;
 
 public class DatasourceElParser {
@@ -119,7 +119,7 @@ public class DatasourceElParser {
 				if(params!=null){
 					sqlString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+sqlString;
 				}
-				sqlString = FreemarkerUtils.processTemplate(sqlString, root,null);
+				sqlString = FreemarkerUtils.processTemplate(sqlString, root);
 			}
 			sqlString = sqlString.replaceAll("\\\\n", " ");
 			
@@ -162,16 +162,19 @@ public class DatasourceElParser {
 					"fields:" +fieldJsonArray.toString()+"\n"+
 			"});\n";
 			if("true".equals(autoLoad)){
-				JSONObject dataResult = DataUtils.getRowsBySQL(sqlString,start,limit,fieldJsonArray);
+				Map<String,Object> dataResult = DataUtils.getListBySQL(sqlString,start,limit,fieldJsonArray);
+				JSONArray rows =  (JSONArray)dataResult.get("objs");
+				int totalCount = (Integer)dataResult.get("totalCount");
+				
 				dataScriptContent += varName+"_init_data = {\n" +
 						"start:" +start+",\n"+
 						"limit:" +limit+",\n"+
-						"totalCount:" +dataResult.getInt("totalCount")+",\n"+
-						"rows:" +dataResult.getJSONArray("rows")+"\n"+
+						"totalCount:" +totalCount+",\n"+
+						"rows:" +rows+"\n"+
 				"};\n";
 				dataLoadContent += varName+".loadData("+varName+"_init_data);\n\n";
 				
-				root.put(name, dataResult.getJSONArray("rows"));
+				root.put(name, rows);
 			}
 			//注册
 			dataScriptContent += "_page_widget.register('dataset',"+varName+");\n";
@@ -433,7 +436,7 @@ public class DatasourceElParser {
 					sqlString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+sqlString;
 				}
 				try {
-					sqlString = FreemarkerUtils.processTemplate(sqlString, root,null);
+					sqlString = FreemarkerUtils.processTemplate(sqlString, root);
 				} catch (Exception e) {
 					//出错的情况下 不autoload
 					
@@ -462,7 +465,7 @@ public class DatasourceElParser {
 					"fields:" +fieldJsonArray.toString()+"\n"+
 			"});\n";
 			if("true".equals(autoLoad)){
-				JSONObject obj = DataUtils.getRowBySQL(sqlString,fieldJsonArray);
+				JSONObject obj = DataUtils.getObjectBySQL(sqlString,fieldJsonArray);
 				dataScriptContent += ""+varName+"_init_data = {\n" +
 						"start:0,"+
 						"limit:1,"+
@@ -487,7 +490,7 @@ public class DatasourceElParser {
 					if(params!=null){
 						idString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+idString;
 					}
-					idString = FreemarkerUtils.processTemplate(idString, root,null);
+					idString = FreemarkerUtils.processTemplate(idString, root);
 				}
 				idString = idString.replaceAll("\\\\n", "");
 				id = Integer.valueOf(idString);
@@ -575,7 +578,7 @@ public class DatasourceElParser {
 					if(params!=null){
 						idString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+idString;
 					}
-					idString = FreemarkerUtils.processTemplate(idString, root,null);
+					idString = FreemarkerUtils.processTemplate(idString, root);
 				}
 				idString = idString.replaceAll("\\\\n", "");
 				id = Integer.valueOf(idString);
@@ -676,7 +679,7 @@ public class DatasourceElParser {
 				if(params!=null){
 					sqlString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+sqlString;
 				}
-				sqlString = FreemarkerUtils.processTemplate(sqlString, root,null);
+				sqlString = FreemarkerUtils.processTemplate(sqlString, root);
 			}
 			sqlString = sqlString.replaceAll("\\\\n", " ");
 			
@@ -694,7 +697,7 @@ public class DatasourceElParser {
 					"listenerDefs:" +listenersObj.toString()+",\n"+
 			"});\n";
 			if("true".equals(autoLoad)){
-				Object dataVariable_value = SystemSessionFactory.getSession().createSQLQuery(sqlString).uniqueResult();
+				Object dataVariable_value = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createSQLQuery(sqlString).uniqueResult();
 				if (dataVariable_value != null && dataVariable_value instanceof Clob) {
                 	Clob clob = (Clob)dataVariable_value;
                 	dataVariable_value = clob.getSubString(1, (int) clob.length());
@@ -755,7 +758,7 @@ public class DatasourceElParser {
 						if(params!=null){
 							parseString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+parseString;
 						}
-						value = FreemarkerUtils.processTemplate(parseString, root,null);
+						value = FreemarkerUtils.processTemplate(parseString, root);
 					}
 					
 					JSONObject filterObj = new JSONObject();
@@ -773,7 +776,7 @@ public class DatasourceElParser {
 						if(params!=null){
 							parseString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+parseString;
 						}
-						sql = FreemarkerUtils.processTemplate(parseString, root,null);
+						sql = FreemarkerUtils.processTemplate(parseString, root);
 					}
 					JSONObject filterObj = new JSONObject();
 					filterObj.put("operator", "sql");
@@ -902,7 +905,7 @@ public class DatasourceElParser {
 					if(params!=null){
 						parseString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+parseString;
 					}
-					value = FreemarkerUtils.processTemplate(parseString, root,null);
+					value = FreemarkerUtils.processTemplate(parseString, root);
 				}
 				parameterObj.put("value", value);
 				

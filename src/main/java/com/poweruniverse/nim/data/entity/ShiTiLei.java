@@ -7,7 +7,7 @@ import org.hibernate.Criteria;
 import org.hibernate.criterion.Restrictions;
 
 import com.poweruniverse.nim.data.entity.base.BaseShiTiLei;
-import com.poweruniverse.nim.data.service.utils.SystemSessionFactory;
+import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 
 /*
 * 实体类：实体类
@@ -125,7 +125,7 @@ public class ShiTiLei  extends BaseShiTiLei  {
 	public static ShiTiLei getShiTiLeiByDH(String stldh){
 		ShiTiLei stl = null;
 		if(stldh!=null){
-			Criteria criteria = SystemSessionFactory.getSession().createCriteria(ShiTiLei.class)
+			Criteria criteria = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createCriteria(ShiTiLei.class)
 	 	  			.add(Restrictions.eq("shiTiLeiDH",stldh));
 			List<?> stls = criteria.setMaxResults(1).list();
 			if(stls.size()>0){

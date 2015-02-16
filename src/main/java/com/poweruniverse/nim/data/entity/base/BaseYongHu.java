@@ -101,9 +101,9 @@ public abstract class BaseYongHu  implements Serializable,Comparable<Object> ,En
 	public void setShouCiDL(java.lang.Boolean shouCiDL){this.shouCiDL = shouCiDL;}
 	
 	// 对象：所属部门 （suoShuBM）
-	private BuMen suoShuBM;
-	public BuMen getSuoShuBM(){return this.suoShuBM ;}
-	public void setSuoShuBM(BuMen suoShuBM){this.suoShuBM = suoShuBM;}
+	private BuMen buMen;
+	public BuMen getBuMen(){return this.buMen ;}
+	public void setBuMen(BuMen suoShuBM){this.buMen = suoShuBM;}
 
 			
 	// 属性：身份证号码 （shenFenZHM）
@@ -245,7 +245,6 @@ public abstract class BaseYongHu  implements Serializable,Comparable<Object> ,En
 		yongHu.setShiFouQM(shiFouQM);
 		yongHu.setZuiHouDLRQ(zuiHouDLRQ);
 		yongHu.setShouCiDL(shouCiDL);
-		yongHu.setSuoShuBM(suoShuBM);
 		yongHu.setShenFenZHM(shenFenZHM);
 		yongHu.setZuiHouDLIP(zuiHouDLIP);
 		yongHu.setShiFouYJTX(shiFouYJTX);

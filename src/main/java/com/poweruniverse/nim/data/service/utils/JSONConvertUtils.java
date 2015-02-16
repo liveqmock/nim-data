@@ -99,6 +99,8 @@ public class JSONConvertUtils {
 							data.add(object2JSONObject(glstl,objIts.next(),subFields));
 						}
 						value = data;
+					}else if(ziDuanlx.getZiDuanLXDM().intValue() == ZiDuanLX.ZiDuanLX_DATE){
+						value = dtf.format(value);
 					}
 				}
 				//检查field是否nested (aa.bb.cc)

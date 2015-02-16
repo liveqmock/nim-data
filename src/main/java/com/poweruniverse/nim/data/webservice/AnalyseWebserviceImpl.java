@@ -1,7 +1,7 @@
 package com.poweruniverse.nim.data.webservice;
 
+import java.io.ByteArrayInputStream;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -12,14 +12,15 @@ import javax.xml.ws.WebServiceContext;
 
 import net.sf.json.JSONObject;
 
+import org.apache.log4j.Logger;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
 import org.hibernate.Session;
 
+import com.poweruniverse.nim.base.bean.UserInfo;
 import com.poweruniverse.nim.base.description.Application;
-import com.poweruniverse.nim.base.message.JSONMessageResult;
-import com.poweruniverse.nim.base.utils.FreemarkerUtils;
+import com.poweruniverse.nim.base.message.StringResult;
 import com.poweruniverse.nim.base.webservice.BasePlateformWebservice;
 import com.poweruniverse.nim.data.entity.YongHu;
 import com.poweruniverse.nim.data.pageParser.ActionElParser;
@@ -31,7 +32,7 @@ import com.poweruniverse.nim.data.pageParser.ImportElParser;
 import com.poweruniverse.nim.data.pageParser.PageElParser;
 import com.poweruniverse.nim.data.pageParser.TabpageElParser;
 import com.poweruniverse.nim.data.pageParser.TreeElParser;
-import com.poweruniverse.nim.data.service.utils.SystemSessionFactory;
+import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 
 /**
  * 
@@ -39,27 +40,37 @@ import com.poweruniverse.nim.data.service.utils.SystemSessionFactory;
  *
  */
 @WebService
-public class PageWebserviceImpl extends BasePlateformWebservice {
+public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 	@Resource
 	private WebServiceContext wsContext;
-	
+	protected static Logger logger = null;
+
+	public AnalyseWebserviceImpl(UserInfo userInfo) {
+		super();
+		this.userInfo = userInfo;
+		if(logger==null){
+			logger = Logger.getLogger("nim-data.analyse");
+		}
+	}
+
 	/**
 	 * 根据当前用户以及url参数
 	 * 解析传递来的xml文件(string)和html文件(string) 
 	 * @return
 	 */
-	public JSONMessageResult analyse(
-			@WebParam(name="cfgContent") String cfgContent,
-			@WebParam(name="htmlContent") String htmlContent,
+	public StringResult analyse(
+			@WebParam(name="pageUrl") String pageUrl,
+			@WebParam(name="pageContent") String pageContent,
+			@WebParam(name="isIndependent") boolean isIndependent,
 			@WebParam(name="params") String params){
-		JSONMessageResult msg = new JSONMessageResult();
+		StringResult msg = null;
 		Session sess = null;
+		logger.debug("请求解析页面："+pageUrl+" 参数："+params);
 		try {
 			Integer yongHuDM = this.getYongHuDM(wsContext,false);
-			msg.put("isLogged", !(yongHuDM==null));
 			//检查pageUrl 是否合法(无.. js后缀)
-
-			sess = SystemSessionFactory.getSession();
+			
+			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
 			
 			Map<String, Object> root = new HashMap<String, Object>();
 			//加入用户信息
@@ -67,35 +78,37 @@ public class PageWebserviceImpl extends BasePlateformWebservice {
 				root.put("yongHu", sess.load(YongHu.class, yongHuDM));
 			}
 			
-			JSONObject jsonParams = JSONObject.fromObject(params);
+			JSONObject jsonParams = null;
+			if(params!=null){
+				jsonParams = JSONObject.fromObject(params);
+			}
 					
 			Application app = Application.getInstance();
 			String dataScriptContent = "\n//默认页面标题\n"+
 					"document.title= '"+app.getTitle()+"';";
 			//读取页面xml文件定义
-			if(cfgContent!=null){
+			if(pageContent!=null){
 				SAXReader reader = new SAXReader();
-				Document doc = reader.read(cfgContent);
+				reader.setEncoding("utf-8");
+				Document doc = reader.read(new ByteArrayInputStream(pageContent.getBytes("UTF-8")));
 				Element cfgEl = doc.getRootElement();
 				
-				//处理page元素
-				JSONObject pageResult = PageElParser.parsePageEl(cfgEl,jsonParams);
-				//确定此页面是否需要登陆后才能访问
-				if(pageResult.getBoolean("needsLogin") && yongHuDM==null){
-					msg.setSuccess(false);
-					msg.put("needsLogin", true);//此页面是否需要登录
-					return msg;
-				}else{
-					Iterator<?> keysIt = pageResult.keys();
-					while(keysIt.hasNext()){
-						String key = (String)keysIt.next(); 
-						if(key.equals("pageScriptContent")){
-							dataScriptContent += pageResult.getString("pageScriptContent");
-						}else{
-							msg.put(key, pageResult.get(key));
-						}
-					}
+				
+				boolean needsLogin = false;
+				if("true".equals(cfgEl.attributeValue("needsLogin"))){
+					needsLogin = true;
 				}
+				//确定此页面是否需要登陆后才能访问
+				if(needsLogin && yongHuDM==null){
+					dataScriptContent += "\n"+
+							"window.location= '"+app.getLoginPage()+"';";
+					return new StringResult(dataScriptContent);
+				}
+				
+				//处理page元素
+				JSONObject pageResult = PageElParser.parsePageEl(cfgEl,pageUrl,jsonParams,isIndependent);
+				dataScriptContent += pageResult.getString("pageScriptContent");
+				
 
 				String dataLoadContent = "//为自动加载的数据源 load数据\n";
 				//处理variable数据源
@@ -215,35 +228,30 @@ public class PageWebserviceImpl extends BasePlateformWebservice {
 				//关闭mask的代码
 				dataScriptContent+="\n//关闭mask\n";
 				dataScriptContent+="$('#_pageContent').unmask();\n";
-			
+				
+				logger.debug("解析页面："+pageUrl+" ...完成");
 			}else{
 				//不存在xml文件 此页面不需要登录
-				msg.put("needsLogin", false);
+				dataScriptContent+= "//默认配置信息（无配置文件）\n" +
+						"var _page_widget = LUI.Page.createNew({\n" +
+						"title:'" + app.getTitle() +"',\n" +
+						"needsLogin:false,\n" +
+						"listenerDefs:{},\n"+
+						"params:" +params+"\n"+
+					"});\n\n";
+				//关闭mask的代码
+				dataScriptContent+="\n//关闭mask\n";
+				dataScriptContent+="$('#_pageContent').unmask();\n";
+				logger.debug("解析页面："+pageUrl+" ...页面不存在");
 			}
-			//原始文本信息
-			if(htmlContent.indexOf("$")>=0 || htmlContent.indexOf("<#") >=0){
-				String parseString = htmlContent;
-				if(params!=null){
-					parseString = "<#assign _paramsString>"+params+"</#assign><#assign params = _paramsString?eval />"+parseString;
-				}
-				htmlContent = FreemarkerUtils.processTemplate(parseString,root,null);
-			}
-			//可能存在的 根据配置文件 生成的脚本
-			msg.put("content", htmlContent);
-			if(dataScriptContent!=null){
-				msg.put("script", dataScriptContent);
-			}
+			msg = new StringResult(dataScriptContent);
 			
 		}catch (Exception e) {
+			logger.error("解析页面："+pageUrl+" ...失败",e);
 			e.printStackTrace();
-			msg = new JSONMessageResult(e.getMessage());
-			msg.put("needsLogin", false);
+			msg = new StringResult("alert('解析pageUrl失败："+e.getMessage()+"！');");
 		}
 		return msg;
 	}
-	
-	
-
-	
 
 }

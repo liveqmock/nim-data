@@ -197,7 +197,7 @@ public class FormElParser {
 				if(params!=null){
 					parseString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+parseString;
 				}
-				gongNengObjId = FreemarkerUtils.processTemplate(parseString, root,null);
+				gongNengObjId = FreemarkerUtils.processTemplate(parseString, root);
 			}
 			
 			//searchToGrid events

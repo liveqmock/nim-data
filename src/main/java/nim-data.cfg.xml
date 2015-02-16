@@ -1,9 +1,9 @@
-<!-- oim-data组件 提供的webservice服务 -->
+<!-- nim-data组件 提供的webservice服务 -->
 <component name="nim-data">
 	<!-- 提供数据服务 -->
 	<webservice name="data" class="com.poweruniverse.nim.data.webservice.DataWebserviceImpl" />
 	<!-- 提供用户验证服务 -->
 	<webservice name="verify" class="com.poweruniverse.nim.data.webservice.VerifyWebserviceImpl"/>
 	<!-- 提供页面分析服务 -->
-	<webservice name="page" class="com.poweruniverse.nim.data.webservice.PageWebserviceImpl"  />
+	<webservice name="analyse" class="com.poweruniverse.nim.data.webservice.AnalyseWebserviceImpl"  />
 </component>
