@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- 功能工作流 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.GongNengGZL" table="SYS_GongNengGZL" >
+    	<!--主键-->
+        <id name="gongNengGZLDM" type="integer">
+	        <column name="gongNengGZLDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--启动功能操作-->
+        <many-to-one name="startGNCZ" class="com.poweruniverse.nim.data.entity.GongNengCZ" fetch="select">
+            <column name="startGNCZDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--条件显示-->
+        <property name="tiaoJianXS" type="java.lang.String" lazy="false">
+        	<column name="tiaoJianXS" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--明细集合-->
+        <set name="mxs" inverse="true"  lazy="true" cascade="all-delete-orphan" order-by="gongNengGZLTJDM" >
+        	<key>
+        		<column name="gongNengGZLDM" precision="12" scale="0" not-null="true" />
+        	</key>
+        	<one-to-many class="com.poweruniverse.nim.data.entity.GongNengGZLTJ" />
+        </set>
+		<!--功能工作流编号-->
+        <property name="gongNengGZLBH" type="java.lang.String" lazy="false">
+        	<column name="gongNengGZLBH" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--功能-->
+        <many-to-one name="gongNeng" class="com.poweruniverse.nim.data.entity.GongNeng" fetch="select">
+            <column name="gongNengDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--功能工作流名称-->
+        <property name="gongNengGZLMC" type="java.lang.String" lazy="false">
+        	<column name="gongNengGZLMC" precision="200" scale="0" not-null="false" />
+        </property>
+     </class>
+</hibernate-mapping>

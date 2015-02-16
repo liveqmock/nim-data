@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- 功能流程明细 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.GongNengLCMX" table="SYS_GongNengLCMX" >
+    	<!--主键-->
+        <id name="gongNengLCMXDM" type="integer">
+	        <column name="gongNengLCMXDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--功能流程-->
+        <many-to-one name="gongNengLC" class="com.poweruniverse.nim.data.entity.GongNengLC" fetch="select">
+            <column name="gongNengLCDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--流转条件显示-->
+        <property name="liuZhuanTJXS" type="java.lang.String" lazy="false">
+        	<column name="liuZhuanTJXS" precision="1900" scale="0" not-null="false" />
+        </property>
+		<!--流程公式-->
+        <set name="gss" inverse="true"  lazy="true" cascade="all-delete-orphan" order-by="gongNengLCGSDM" >
+        	<key>
+        		<column name="gongNengLCMXDM" precision="12" scale="0" not-null="true" />
+        	</key>
+        	<one-to-many class="com.poweruniverse.nim.data.entity.GongNengLCGS" />
+        </set>
+     </class>
+</hibernate-mapping>

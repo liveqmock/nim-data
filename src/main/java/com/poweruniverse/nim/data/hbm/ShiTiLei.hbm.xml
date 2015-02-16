@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- version:2015-01-20 18:30:36 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.ShiTiLei" table="SYS_ShiTiLei" >
+    	<!--主键-->
+        <id name="shiTiLeiDM" type="integer">
+	        <column name="shiTiLeiDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--实体类名称-->
+        <property name="shiTiLeiMC" type="java.lang.String" lazy="false">
+        	<column name="shiTiLeiMC" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--主键列-->
+        <property name="zhuJianLie" type="java.lang.String" lazy="false">
+        	<column name="zhuJianLie" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--显示列-->
+        <property name="xianShiLie" type="java.lang.String" lazy="false">
+        	<column name="xianShiLie" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--JAVA类名-->
+        <property name="shiTiLeiClassName" type="java.lang.String" lazy="false">
+        	<column name="shiTiLeiClassName" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--数据库表名-->
+        <property name="biaoMing" type="java.lang.String" lazy="false">
+        	<column name="biaoMing" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--字段集合-->
+        <set name="zds" inverse="true"  lazy="true" cascade="all-delete-orphan" order-by="ziDuanDM" >
+        	<key>
+        		<column name="shiTiLeiDM" precision="12" scale="0" not-null="true" />
+        	</key>
+        	<one-to-many class="com.poweruniverse.nim.data.entity.ZiDuan" />
+        </set>
+		<!--是否数据库表-->
+        <property name="shiFouSJKB" type="java.lang.Boolean" lazy="false">
+        	<column name="shiFouSJKB" precision="1" scale="0" not-null="false" />
+        </property>
+		<!--是否功能-->
+        <property name="shiFouGN" type="java.lang.Boolean" lazy="false">
+        	<column name="shiFouGN" precision="1" scale="0" not-null="false" />
+        </property>
+		<!--功能代号-->
+        <property name="gongNengDH" type="java.lang.String" lazy="false">
+        	<column name="gongNengDH" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--是否业务表-->
+        <property name="shiFouYWB" type="java.lang.Boolean" lazy="false">
+        	<column name="shiFouYWB" precision="1" scale="0" not-null="false" />
+        </property>
+		<!--排序列-->
+        <property name="paiXuLie" type="java.lang.String" lazy="false">
+        	<column name="paiXuLie" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--实体类代号-->
+        <property name="shiTiLeiDH" type="java.lang.String" lazy="false">
+        	<column name="shiTiLeiDH" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--系统-->
+        <many-to-one name="xiTong" class="com.poweruniverse.nim.data.entity.XiTong" fetch="select">
+            <column name="xiTongDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--实体类类型-->
+        <many-to-one name="shiTiLeiLX" class="com.poweruniverse.nim.data.entity.ShiTiLeiLX" fetch="select">
+            <column name="shiTiLeiLXDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--版本-->
+        <property name="shiTiLeiBB" type="java.lang.String" lazy="false">
+        	<column name="shiTiLeiBB" precision="200" scale="0" not-null="false" />
+        </property>
+     </class>
+</hibernate-mapping>

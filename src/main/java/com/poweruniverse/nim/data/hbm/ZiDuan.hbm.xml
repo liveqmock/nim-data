@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- version:2015-01-20 18:30:34 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.ZiDuan" table="SYS_ZiDuan" >
+    	<!--主键-->
+        <id name="ziDuanDM" type="integer">
+	        <column name="ziDuanDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--字段代号-->
+        <property name="ziDuanDH" type="java.lang.String" lazy="false">
+        	<column name="ziDuanDH" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--字段标题-->
+        <property name="ziDuanBT" type="java.lang.String" lazy="false">
+        	<column name="ziDuanBT" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--关联父类字段名称-->
+        <property name="guanLianFLZD" type="java.lang.String" lazy="false">
+        	<column name="guanLianFLZD" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--实体类-->
+        <many-to-one name="shiTiLei" class="com.poweruniverse.nim.data.entity.ShiTiLei" fetch="select">
+            <column name="shiTiLeiDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--字段类型-->
+        <many-to-one name="ziDuanLX" class="com.poweruniverse.nim.data.entity.ZiDuanLX" fetch="select">
+            <column name="ziDuanLXDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--数据库列名-->
+        <property name="lieMing" type="java.lang.String" lazy="false">
+        	<column name="lieMing" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--字段长度-->
+        <property name="ziDuanCD" type="java.lang.Integer" lazy="false">
+        	<column name="ziDuanCD" precision="12" scale="0" not-null="false" />
+        </property>
+		<!--字段精度-->
+        <property name="ziDuanJD" type="java.lang.Integer" lazy="false">
+        	<column name="ziDuanJD" precision="12" scale="0" not-null="false" />
+        </property>
+		<!--字段说明-->
+        <property name="ziDuanSM" type="java.lang.String" lazy="false">
+        	<column name="ziDuanSM" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--允许空值-->
+        <property name="yunXuKZ" type="java.lang.Boolean" lazy="false">
+        	<column name="yunXuKZ" precision="1" scale="0" not-null="false" />
+        </property>
+		<!--延迟加载-->
+        <property name="yanChiJZ" type="java.lang.Boolean" lazy="false">
+        	<column name="yanChiJZ" precision="1" scale="0" not-null="false" />
+        </property>
+		<!--关联实体类-->
+        <many-to-one name="guanLianSTL" class="com.poweruniverse.nim.data.entity.ShiTiLei" fetch="select">
+            <column name="guanLianSTLDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--是否唯一-->
+        <property name="shiFouWY" type="java.lang.Boolean" lazy="false">
+        	<column name="shiFouWY" precision="1" scale="0" not-null="false" />
+        </property>
+		<!--是否使用-->
+        <property name="shiFouSY" type="java.lang.Boolean" lazy="false">
+        	<column name="shiFouSY" precision="1" scale="0" not-null="false" />
+        </property>
+		<!--关联父类字段对象-->
+        <many-to-one name="guanLianFLZDObj" class="com.poweruniverse.nim.data.entity.ZiDuan" fetch="select">
+            <column name="guanLianFLZDObjDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+     </class>
+</hibernate-mapping>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- 功能工作流条件公式 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.GongNengGZLTJGS" table="SYS_GongNengGZLTJGS" >
+    	<!--主键-->
+        <id name="gongNengGZLTJGSDM" type="integer">
+	        <column name="gongNengGZLTJGSDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--字段描述-->
+        <property name="ziDuanMS" type="java.lang.String" lazy="false">
+        	<column name="ziDuanMS" precision="300" scale="0" not-null="false" />
+        </property>
+		<!--授权结果公式-->
+        <property name="caoZuoQXGS" type="java.lang.String" lazy="false">
+        	<column name="caoZuoQXGS" precision="300" scale="0" not-null="false" />
+        </property>
+		<!--授权结果显示-->
+        <property name="caoZuoQXXS" type="java.lang.String" lazy="false">
+        	<column name="caoZuoQXXS" precision="300" scale="0" not-null="false" />
+        </property>
+		<!--操作值-->
+        <property name="ziDuanQZ" type="java.lang.String" lazy="false">
+        	<column name="ziDuanQZ" precision="300" scale="0" not-null="false" />
+        </property>
+		<!--字段操作符-->
+        <property name="ziDuanCZF" type="java.lang.String" lazy="false">
+        	<column name="ziDuanCZF" precision="300" scale="0" not-null="false" />
+        </property>
+		<!--最后字段属性-->
+        <property name="ziDuanSX" type="java.lang.String" lazy="false">
+        	<column name="ziDuanSX" precision="300" scale="0" not-null="false" />
+        </property>
+		<!--功能工作流条件-->
+        <many-to-one name="gongNengGZLTJ" class="com.poweruniverse.nim.data.entity.GongNengGZLTJ" fetch="select">
+            <column name="gongNengGZLTJDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+     </class>
+</hibernate-mapping>
