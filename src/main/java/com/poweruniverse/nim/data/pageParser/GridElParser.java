@@ -81,7 +81,7 @@ public class GridElParser {
 			");\n";
 		
 			//注册
-			gridScriptContent += "_page_widget.register('grid',_griddisplay_"+gridCfgObj.getString("name")+");\n";
+			gridScriptContent += "LUI.Page.instance.register('grid',_griddisplay_"+gridCfgObj.getString("name")+");\n";
 		}else if("treeDisplayGrid".equals(gridEl.attributeValue("component"))){
 			
 			//
@@ -114,11 +114,11 @@ public class GridElParser {
 			");\n";
 		
 			//注册
-			gridScriptContent += "_page_widget.register('grid',_treegrid_"+gridCfgObj.getString("name")+");\n";
+			gridScriptContent += "LUI.Page.instance.register('grid',_treegrid_"+gridCfgObj.getString("name")+");\n";
 		}else if("treeEditGrid".equals(gridEl.attributeValue("component"))){
 		}else if("operateGrid".equals(gridEl.attributeValue("component"))){
 			//注册
-//			gridScriptContent += "_page_widget.register('grid',_operategrid_"+name+");\n";
+//			gridScriptContent += "LUI.Page.instance.register('grid',_operategrid_"+name+");\n";
 		}else if("editGrid".equals(gridEl.attributeValue("component"))){
 			//检查colums设置
 			JSONArray colArray = new JSONArray();
@@ -143,7 +143,7 @@ public class GridElParser {
 					gridCfgObj+"\n"+
 			");\n";
 			//注册
-			gridScriptContent += "_page_widget.register('grid',_grid_edit_"+gridCfgObj.getString("name")+");\n";
+			gridScriptContent += "LUI.Page.instance.register('grid',_grid_edit_"+gridCfgObj.getString("name")+");\n";
 		}else if("subGrid".equals(gridEl.attributeValue("component"))){
 			//检查colums设置
 			JSONArray colArray = new JSONArray();
@@ -171,7 +171,7 @@ public class GridElParser {
 			");\n";
 		
 			//注册
-			gridScriptContent += "_page_widget.register('grid',"+gridCfgObj.getString("name")+");\n";
+			gridScriptContent += "LUI.Page.instance.register('grid',"+gridCfgObj.getString("name")+");\n";
 		}
 
 		JSONObject ret = new JSONObject();

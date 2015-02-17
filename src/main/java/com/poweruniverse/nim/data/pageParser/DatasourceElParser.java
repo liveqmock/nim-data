@@ -110,7 +110,7 @@ public class DatasourceElParser {
 			}
 			
 			//注册
-			dataScriptContent += "_page_widget.register('dataset',"+varName+");\n";
+			dataScriptContent += "LUI.Page.instance.register('dataset',"+varName+");\n";
 		}else if("sqlDataset".equals(datasetEl.attributeValue("component"))){
 			String xiTongDH= datasetEl.attributeValue("xiTongDH"); 
 			
@@ -177,7 +177,7 @@ public class DatasourceElParser {
 				root.put(name, rows);
 			}
 			//注册
-			dataScriptContent += "_page_widget.register('dataset',"+varName+");\n";
+			dataScriptContent += "LUI.Page.instance.register('dataset',"+varName+");\n";
 		}else if("todoDataset".equals(datasetEl.attributeValue("component"))){
 			//待办的数据集
 			String xiTongDH= datasetEl.attributeValue("xiTongDH"); 
@@ -229,7 +229,7 @@ public class DatasourceElParser {
 				throw new Exception(result.getString("errorMsg"));
 			}
 			//注册
-			dataScriptContent += "_page_widget.register('dataset',"+varName+");\n";
+			dataScriptContent += "LUI.Page.instance.register('dataset',"+varName+");\n";
 		}else if("stlDataset".equals(datasetEl.attributeValue("component"))){
 
 			String xiTongDH= datasetEl.attributeValue("xiTongDH"); 
@@ -314,7 +314,7 @@ public class DatasourceElParser {
 				root.put(name, objs);
 			}
 			//注册
-			dataScriptContent += "_page_widget.register('dataset',"+varName+");\n";
+			dataScriptContent += "LUI.Page.instance.register('dataset',"+varName+");\n";
 		}else if("gnDataset".equals(datasetEl.attributeValue("component"))){
 			String xiTongDH= datasetEl.attributeValue("xiTongDH"); 
 			String gongNengDH= datasetEl.attributeValue("gongNengDH"); 
@@ -398,7 +398,7 @@ public class DatasourceElParser {
 				}
 			}
 			//注册
-			dataScriptContent += "_page_widget.register('dataset',"+varName+");\n";
+			dataScriptContent += "LUI.Page.instance.register('dataset',"+varName+");\n";
 		}
 	
 		JSONObject ret = new JSONObject();
@@ -477,7 +477,7 @@ public class DatasourceElParser {
 				root.put(name, obj);
 			}
 			//注册
-			dataScriptContent += "_page_widget.register('record',"+varName+");\n";
+			dataScriptContent += "LUI.Page.instance.register('record',"+varName+");\n";
 		}else if("gnRecord".equals(recordEl.attributeValue("component"))){
 			
 			String gongNengDH= recordEl.attributeValue("gongNengDH"); 
@@ -553,7 +553,7 @@ public class DatasourceElParser {
 			}
 			
 			//注册
-			dataScriptContent += "_page_widget.register('record',"+varName+");\n";
+			dataScriptContent += "LUI.Page.instance.register('record',"+varName+");\n";
 		}else if("stlRecord".equals(recordEl.attributeValue("component"))){
 			String shiTiLeiDH= recordEl.attributeValue("shiTiLeiDH"); 
 			
@@ -635,7 +635,7 @@ public class DatasourceElParser {
 			}
 			//
 			//注册
-			dataScriptContent += "_page_widget.register('record',"+varName+");\n";
+			dataScriptContent += "LUI.Page.instance.register('record',"+varName+");\n";
 		}
 		JSONObject ret = new JSONObject();
 		ret.put("dataScriptContent", dataScriptContent);
@@ -722,13 +722,13 @@ public class DatasourceElParser {
 				dataLoadContent += ""+varName+".loadData("+name+");\n\n";
 			}
 			//注册
-			dataScriptContent += "_page_widget.register('variable',"+varName+");\n";
+			dataScriptContent += "LUI.Page.instance.register('variable',"+varName+");\n";
 		}else if("stlVariable".equals(variableEl.attributeValue("component"))){
 			//注册
-			dataScriptContent += "_page_widget.register('variable',"+varName+");\n";
+			dataScriptContent += "LUI.Page.instance.register('variable',"+varName+");\n";
 		}else if("gnVariable".equals(variableEl.attributeValue("component"))){
 			//注册
-			dataScriptContent += "_page_widget.register('variable',"+varName+");\n";
+			dataScriptContent += "LUI.Page.instance.register('variable',"+varName+");\n";
 		}
 
 		

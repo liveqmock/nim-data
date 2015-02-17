@@ -43,11 +43,11 @@ public class TabpageElParser {
 						(onRender!=null && onRender.length() >0?""+onRender+".apply(this,['"+name+"','"+renderto+"']);\n":"\n");
 			}
 			//注册
-//			dataScriptContent += "_page_widget.register('tab',_singleeditform_"+name+");\n";
+//			dataScriptContent += "LUI.Page.instance.register('tab',_singleeditform_"+name+");\n";
 		}else if("tabGenerator".equals(tabEl.attributeValue("component"))){
 			
 			//注册
-//			dataScriptContent += "_page_widget.register('tab',_singleeditform_"+name+");\n";
+//			dataScriptContent += "LUI.Page.instance.register('tab',_singleeditform_"+name+");\n";
 		}
 		return dataScriptContent;
 	}

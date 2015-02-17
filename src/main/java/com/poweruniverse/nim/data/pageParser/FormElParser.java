@@ -78,7 +78,7 @@ public class FormElParser {
 					"listenerDefs:" +listenersObj.toString()+"\n"+
 			"});\n";
 			//注册
-			formScriptContent += "_page_widget.register('form',_searchToPage_"+name+");\n";
+			formScriptContent += "LUI.Page.instance.register('form',_searchToPage_"+name+");\n";
 		}else if("dataDisplayForm".equals(formEl.attributeValue("component"))){
 			
 			String renderto = formEl.attributeValue("renderto");
@@ -171,7 +171,7 @@ public class FormElParser {
 					"listenerDefs:" +listenersObj.toString()+"\n"+
 			"});\n";
 			//注册
-			formScriptContent += "_page_widget.register('form',_dataDisplayForm_"+name+");\n";
+			formScriptContent += "LUI.Page.instance.register('form',_dataDisplayForm_"+name+");\n";
 			///////////////////////////////////////////////////////////
 		}else if("workflowForm".equals(formEl.attributeValue("component"))){
 			
@@ -274,7 +274,7 @@ public class FormElParser {
 					"listenerDefs:" +listenersObj.toString()+"\n"+
 			"});\n";
 			//注册
-			formScriptContent += "_page_widget.register('form',_workflowForm_"+name+");\n";
+			formScriptContent += "LUI.Page.instance.register('form',_workflowForm_"+name+");\n";
 			///////////////////////////////////////////////////////////
 		}else if("searchToGrid".equals(formEl.attributeValue("component"))){
 			//查询 结果显示到新页面
@@ -336,7 +336,7 @@ public class FormElParser {
 				formScriptContent+="_searchToGrid_"+name+".submit();\n";
 			}
 			//注册
-			formScriptContent += "_page_widget.register('form',_searchToGrid_"+name+");\n";
+			formScriptContent += "LUI.Page.instance.register('form',_searchToGrid_"+name+");\n";
 		}else if("singleEditForm".equals(formEl.attributeValue("component"))){
 			
 			String renderto = formEl.attributeValue("renderto");
@@ -419,7 +419,7 @@ public class FormElParser {
 					"listenerDefs:" +listenersObj.toString()+"\n"+
 			"});\n";
 			//注册
-			formScriptContent += "_page_widget.register('form',_singleeditform_"+name+");\n";
+			formScriptContent += "LUI.Page.instance.register('form',_singleeditform_"+name+");\n";
 		}
 		JSONObject ret = new JSONObject();
 		ret.put("formScriptContent", formScriptContent);
@@ -529,7 +529,7 @@ public class FormElParser {
 			
 		}
 		//注册
-		dataScriptContent += "_page_widget.register('dataset',"+varName+");\n";
+		dataScriptContent += "LUI.Page.instance.register('dataset',"+varName+");\n";
 		
 		JSONObject ret = new JSONObject();
 		ret.put("dataScriptContent", dataScriptContent);

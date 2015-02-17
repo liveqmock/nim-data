@@ -9,7 +9,7 @@ public class PageElParser {
 	/**
 	 * 集合类型数据源的解析
 	 */
-	public static JSONObject parsePageEl(Element pageEl,String pageUrl,JSONObject params,boolean isIndependent) throws Exception{
+	public static JSONObject parsePageEl(Element pageEl,String pageUrl,JSONObject params,boolean isIndependent,Integer yongHuDM) throws Exception{
 		JSONObject ret = new JSONObject();
 		
 		if(params==null){
@@ -30,7 +30,7 @@ public class PageElParser {
 		String pageCmpType = pageEl.attributeValue("component");
 		if("page".equals(pageCmpType) || isIndependent){
 			ret.put("pageScriptContent", "//当前页面\n" +
-					"var _page_widget = LUI.Page.createNew({\n" +
+					"LUI.Page.createNew({\n" +
 					"title:'" + pageTitle +"',\n" +
 					"needsLogin:" + "true".equals(needsLogin) +",\n" +
 					"listenerDefs:" +listenersObj.toString()+",\n"+
@@ -48,7 +48,7 @@ public class PageElParser {
 //			ret.put("height", height);
 			
 			ret.put("pageScriptContent", "//当前页面\n" +
-					"var _page_widget = LUI.Subpage.createNew({\n" +
+					"var _subpage_"+name.replaceAll("-", "_")+"_widget = LUI.Subpage.createNew({\n" +
 					"name:'" + name +"',\n" +
 					"title:'" + pageTitle +"',\n" +
 					"pageUrl:'" + pageUrl +"',\n" +
@@ -59,6 +59,7 @@ public class PageElParser {
 					"params:" +params.toString()+"\n"+
 				"});\n\n");
 		}
+		ret.put("needsLogin", "true".equals(needsLogin));
 		return ret;
 	}
 

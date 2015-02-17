@@ -51,14 +51,14 @@ public class TreeElParser {
 					treeCfgObj+"\n"+
 			");\n";
 			//注册
-			treeScriptContent += "_page_widget.register('tree',_tree_"+treeCfgObj.getString("name")+");\n";
+			treeScriptContent += "LUI.Page.instance.register('tree',_tree_"+treeCfgObj.getString("name")+");\n";
 		}else if("subTree".equals(treeEl.attributeValue("component"))){
 			treeScriptContent+="\n//创建树"+treeCfgObj.getString("label")+":"+treeCfgObj.getString("name")+"对象\n";
 			treeScriptContent+="var _subTree_"+treeCfgObj.getString("name")+" = LUI.Tree.SubTree.createNew(\n" +
 					treeCfgObj+"\n"+
 			");\n";
 			//注册
-			treeScriptContent += "_page_widget.register('tree',_subTree_"+treeCfgObj.getString("name")+");\n";
+			treeScriptContent += "LUI.Page.instance.register('tree',_subTree_"+treeCfgObj.getString("name")+");\n";
 		}
 	
 		JSONObject ret = new JSONObject();

@@ -94,21 +94,15 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 				Element cfgEl = doc.getRootElement();
 				
 				
-				boolean needsLogin = false;
-				if("true".equals(cfgEl.attributeValue("needsLogin"))){
-					needsLogin = true;
-				}
-				//确定此页面是否需要登陆后才能访问
+				//处理page元素
+				JSONObject pageResult = PageElParser.parsePageEl(cfgEl,pageUrl,jsonParams,isIndependent,yongHuDM);
+				dataScriptContent += pageResult.getString("pageScriptContent");
+				boolean needsLogin = pageResult.getBoolean("needsLogin");
 				if(needsLogin && yongHuDM==null){
-					dataScriptContent += "\n"+
-							"window.location= '"+app.getLoginPage()+"';";
+					dataScriptContent += "\n//跳转至登录页面\n"+
+							"LUI.Page.instance.redirect('"+app.getLoginPage()+"');";
 					return new StringResult(dataScriptContent);
 				}
-				
-				//处理page元素
-				JSONObject pageResult = PageElParser.parsePageEl(cfgEl,pageUrl,jsonParams,isIndependent);
-				dataScriptContent += pageResult.getString("pageScriptContent");
-				
 
 				String dataLoadContent = "//为自动加载的数据源 load数据\n";
 				//处理variable数据源
@@ -225,24 +219,17 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 //					dataScriptContent+="\n//页面全部加载完成\n";
 //					dataScriptContent+="LUI.Page.instance.();\n";
 //				}
-				//关闭mask的代码
-				dataScriptContent+="\n//关闭mask\n";
-				dataScriptContent+="$('#_pageContent').unmask();\n";
 				
 				logger.debug("解析页面："+pageUrl+" ...完成");
 			}else{
 				//不存在xml文件 此页面不需要登录
 				dataScriptContent+= "//默认配置信息（无配置文件）\n" +
-						"var _page_widget = LUI.Page.createNew({\n" +
+						"LUI.Page.createNew({\n" +
 						"title:'" + app.getTitle() +"',\n" +
 						"needsLogin:false,\n" +
 						"listenerDefs:{},\n"+
 						"params:" +params+"\n"+
 					"});\n\n";
-				//关闭mask的代码
-				dataScriptContent+="\n//关闭mask\n";
-				dataScriptContent+="$('#_pageContent').unmask();\n";
-				logger.debug("解析页面："+pageUrl+" ...页面不存在");
 			}
 			msg = new StringResult(dataScriptContent);
 			
