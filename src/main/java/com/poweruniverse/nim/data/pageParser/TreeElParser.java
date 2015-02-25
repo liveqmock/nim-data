@@ -13,7 +13,7 @@ public class TreeElParser {
 	/**
 	 * 集合类型数据源的解析
 	 */
-	public static JSONObject parseTreeEl(Element treeEl,JSONObject params,Map<String, Object> root,Integer yongHuDM) throws Exception{
+	public static JSONObject parseTreeEl(Element treeEl,JSONObject params,Map<String, Object> root,Integer yongHuDM,boolean isIndependent, String pageName) throws Exception{
 		String treeScriptContent = "";
 		String dataLoadContent = "";
 		
@@ -37,7 +37,7 @@ public class TreeElParser {
 		Element datasourceEl = treeEl.element("dataset");
 		if(datasourceEl!=null){
 			
-			JSONObject fieldDatasetResult = DatasourceElParser.parseDatasetEl(datasourceEl, params, root, yongHuDM);
+			JSONObject fieldDatasetResult = DatasourceElParser.parseDatasetEl(datasourceEl, params, root, yongHuDM,isIndependent,pageName);
 			treeScriptContent += fieldDatasetResult.getString("dataScriptContent");
 			dataLoadContent += fieldDatasetResult.getString("dataLoadContent");
 			
@@ -45,22 +45,28 @@ public class TreeElParser {
 		}
 		
 		//创建树
+		String treeVarName = null;
 		if("tree".equals(treeEl.attributeValue("component"))){
 			treeScriptContent+="\n//创建树"+treeCfgObj.getString("label")+":"+treeCfgObj.getString("name")+"对象\n";
-			treeScriptContent+="var _tree_"+treeCfgObj.getString("name")+" = LUI.Tree.DatasourceTree.createNew(\n" +
+			treeVarName = "_tree_"+treeCfgObj.getString("name");
+			treeScriptContent+="var "+treeVarName+" = LUI.Tree.DatasourceTree.createNew(\n" +
 					treeCfgObj+"\n"+
 			");\n";
-			//注册
-			treeScriptContent += "LUI.Page.instance.register('tree',_tree_"+treeCfgObj.getString("name")+");\n";
 		}else if("subTree".equals(treeEl.attributeValue("component"))){
 			treeScriptContent+="\n//创建树"+treeCfgObj.getString("label")+":"+treeCfgObj.getString("name")+"对象\n";
-			treeScriptContent+="var _subTree_"+treeCfgObj.getString("name")+" = LUI.Tree.SubTree.createNew(\n" +
+			treeVarName = "_subTree_"+treeCfgObj.getString("name");
+			treeScriptContent+="var "+treeVarName+" = LUI.Tree.SubTree.createNew(\n" +
 					treeCfgObj+"\n"+
 			");\n";
-			//注册
-			treeScriptContent += "LUI.Page.instance.register('tree',_subTree_"+treeCfgObj.getString("name")+");\n";
 		}
 	
+		//注册
+		if(isIndependent){
+			treeScriptContent += "LUI.Page.instance.register('tree',"+treeVarName+");\n";
+		}else{
+			treeScriptContent += "LUI.Subpage.getInstance('"+pageName+"').register('tree',"+treeVarName+");\n";
+		}
+		
 		JSONObject ret = new JSONObject();
 		ret.put("treeScriptContent", treeScriptContent);
 		ret.put("dataLoadContent", dataLoadContent);

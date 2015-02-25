@@ -11,7 +11,7 @@ public class ActionElParser {
 	/**
 	 * 集合类型数据源的解析
 	 */
-	public static String parseActionEl(Element actionEl,JSONObject params,Map<String, Object> root,Integer yongHuDM) throws Exception{
+	public static String parseActionEl(Element actionEl,JSONObject params,Map<String, Object> root,Integer yongHuDM,boolean isIndependent, String pageName) throws Exception{
 		String dataScriptContent = "";
 
 		String name = actionEl.attributeValue("name");
@@ -28,7 +28,7 @@ public class ActionElParser {
 						"	};\n" +
 						"	$(\""+renderto+"\").removeAttr(\"onclick\")//删除可能存在的onclick\n" +
 						"	.click(function(){\n" +
-						("_blank".equals(target)?("		new ForceWindow().open(\""+href+"\");\n"):"")+
+						("_blank".equals(target)?("		window.open(\""+href+"\");\n"):"")+
 						("_parent".equals(target)?("		window.parent.location.href=\""+href+"\";\n"):"")+
 						("_top".equals(target)?("		window.top.location=\""+href+"\";\n"):"")+
 						("_self".equals(target)?("		window.location.href=\""+href+"\";\n"):"")+
@@ -99,7 +99,13 @@ public class ActionElParser {
 				
 		}
 	
-		
+		//注册
+//		if(isIndependent){
+//			treeScriptContent += "LUI.Page.instance.register('tree',"+treeVarName+");\n";
+//		}else{
+//			treeScriptContent += "LUI.Subpage.getInstance('"+pageName+"').register('tree',"+treeVarName+");\n";
+//		}
+
 		return dataScriptContent;
 	}
 	

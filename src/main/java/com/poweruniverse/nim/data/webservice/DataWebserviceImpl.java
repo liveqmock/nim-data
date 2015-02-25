@@ -793,6 +793,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			@WebParam(name="className") String className,
 			@WebParam(name="start") Integer start,
 			@WebParam(name="limit") Integer limit,
+			@WebParam(name="filters") String filters,
 			@WebParam(name="params") String params){
 		JSONDataResult ret = null;
 		Session sess = null;
@@ -806,9 +807,14 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 					paramsObject.put(p.get("name"), p.get("value"));
 				}
 			}
+			JSONArray filterArray = null;
+			if(filters!=null){
+				filterArray = JSONArray.fromObject(filters);
+			}
+			
 			//取得数据对象(用老的程序方法)
 			BaseJavaDatasource javaDS = (BaseJavaDatasource)Class.forName(className).newInstance();
-			JSONObject jsonData = javaDS.getData(paramsObject,start,limit);
+			JSONObject jsonData = javaDS.getData(filterArray,paramsObject,start,limit);
 			ret = new JSONDataResult(jsonData.getJSONArray("rows"), jsonData.getInt("totalCount"), start, limit,null);
 		} catch (Exception e) {
 			ret = new JSONDataResult(e.getMessage());

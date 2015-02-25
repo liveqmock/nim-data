@@ -14,7 +14,7 @@ public class ImageElParser {
 	/**
 	 * 导入子页面的解析
 	 */
-	public static String parseImageEl(Element imageEl,JSONObject params,Map<String, Object> root,Integer yongHuDM) throws Exception{
+	public static String parseImageEl(Element imageEl,JSONObject params,Map<String, Object> root,Integer yongHuDM,boolean isIndependent, String pageName) throws Exception{
 		String imageScriptContent = "";
 		
 		JSONObject imageObj = JSONConvertUtils.applyXML2Json(imageEl,false);
@@ -38,11 +38,20 @@ public class ImageElParser {
 		
 		
 		String imageCmpType = imageEl.attributeValue("component");
+		String workflowImgVarName = null;
 		if("workflowImg".equals(imageCmpType)){
+			workflowImgVarName = "_workflowImg_"+imageObj.getString("name");
 			imageScriptContent = "//流程图 "+imageEl.attributeValue("label")+" \n" +
-				"LUI.WorkflowImg.createNew(\n" +
+				"var "+workflowImgVarName+" LUI.WorkflowImg.createNew(\n" +
 					imageObj.toString()+"\n"+
 				");\n\n";
+		}
+		
+		//注册
+		if(isIndependent){
+			imageScriptContent += "LUI.Page.instance.register('img',"+workflowImgVarName+");\n";
+		}else{
+			imageScriptContent += "LUI.Subpage.getInstance('"+pageName+"').register('img',"+workflowImgVarName+");\n";
 		}
 		return imageScriptContent;
 	}

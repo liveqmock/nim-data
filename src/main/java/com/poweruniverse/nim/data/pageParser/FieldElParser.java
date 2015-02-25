@@ -15,7 +15,7 @@ public class FieldElParser {
 	/**
 	 * 集合类型数据源的解析
 	 */
-	public static JSONObject parseFieldEl(Element fieldEl,JSONObject params,Map<String, Object> root,Integer yongHuDM) throws Exception{
+	public static JSONObject parseFieldEl(Element fieldEl,JSONObject params,Map<String, Object> root,Integer yongHuDM,boolean isIndependent, String pageName) throws Exception{
 		String fieldsPreScript = "";
 
 		JSONObject fieldObj = JSONConvertUtils.applyXML2Json(fieldEl,false);
@@ -23,7 +23,7 @@ public class FieldElParser {
 		//处理字段的数据源定义
 		Element fieldDatasetEl = fieldEl.element("dataset");
 		if(fieldDatasetEl!=null){
-			JSONObject fieldDatasetResult = DatasourceElParser.parseDatasetEl(fieldDatasetEl, params, root, yongHuDM);
+			JSONObject fieldDatasetResult = DatasourceElParser.parseDatasetEl(fieldDatasetEl, params, root, yongHuDM,isIndependent,pageName);
 			fieldsPreScript += fieldDatasetResult.getString("dataScriptContent");
 			fieldsPreScript += fieldDatasetResult.getString("dataLoadContent");
 			
@@ -32,7 +32,7 @@ public class FieldElParser {
 		//处理字段的子表格定义
 		Element fieldGridEl = fieldEl.element("grid");
 		if(fieldGridEl!=null){
-			JSONObject fieldGridResult = GridElParser.parseGridEl(fieldGridEl, params, root, yongHuDM);
+			JSONObject fieldGridResult = GridElParser.parseGridEl(fieldGridEl, params, root, yongHuDM,isIndependent,pageName);
 			 
 			fieldsPreScript += fieldGridResult.getString("gridScriptContent");
 			
@@ -41,7 +41,7 @@ public class FieldElParser {
 		//处理字段的子树定义
 		Element fieldTreeEl = fieldEl.element("tree");
 		if(fieldTreeEl!=null){
-			JSONObject fieldTreeResult = TreeElParser.parseTreeEl(fieldTreeEl, params, root, yongHuDM);
+			JSONObject fieldTreeResult = TreeElParser.parseTreeEl(fieldTreeEl, params, root, yongHuDM,isIndependent,pageName);
 			
 			fieldsPreScript += fieldTreeResult.getString("treeScriptContent");
 			fieldObj.put("treeName", fieldTreeResult.getString("treeName"));

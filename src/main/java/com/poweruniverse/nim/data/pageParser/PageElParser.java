@@ -9,7 +9,7 @@ public class PageElParser {
 	/**
 	 * 集合类型数据源的解析
 	 */
-	public static JSONObject parsePageEl(Element pageEl,String pageUrl,JSONObject params,boolean isIndependent,Integer yongHuDM) throws Exception{
+	public static JSONObject parsePageEl(Element pageEl,String pageName,String pageUrl,JSONObject params,boolean isIndependent,Integer yongHuDM) throws Exception{
 		JSONObject ret = new JSONObject();
 		
 		if(params==null){
@@ -27,19 +27,18 @@ public class PageElParser {
 		listenersObj.put("onLoad",pageEl.attributeValue("onLoad"));
 		listenersObj.put("onClose",pageEl.attributeValue("onClose"));
 		
-		String pageCmpType = pageEl.attributeValue("component");
-		if("page".equals(pageCmpType) || isIndependent){
+//		String pageCmpType = pageEl.attributeValue("component");
+		if(isIndependent){
+			//当页面（无论是page还是subpage）作为独立页面被打开时 执行这里的解析
 			ret.put("pageScriptContent", "//当前页面\n" +
-					"LUI.Page.createNew({\n" +
-					"title:'" + pageTitle +"',\n" +
-					"needsLogin:" + "true".equals(needsLogin) +",\n" +
-					"listenerDefs:" +listenersObj.toString()+",\n"+
-					"params:" +params.toString()+"\n"+
+					"	LUI.Page.createNew({\n" +
+					"	title:'" + pageTitle +"',\n" +
+					"	needsLogin:" + "true".equals(needsLogin) +",\n" +
+					"	listenerDefs:" +listenersObj.toString()+",\n"+
+					"	params:" +params.toString()+"\n"+
 				"});\n\n");
 			
-		}else if("subpage".equals(pageCmpType)){
-			
-			String name = pageEl.attributeValue("name");
+		}else{
 			String width = pageEl.attributeValue("width");
 			String height = pageEl.attributeValue("height");
 			
@@ -48,15 +47,15 @@ public class PageElParser {
 //			ret.put("height", height);
 			
 			ret.put("pageScriptContent", "//当前页面\n" +
-					"var _subpage_"+name.replaceAll("-", "_")+"_widget = LUI.Subpage.createNew({\n" +
-					"name:'" + name +"',\n" +
-					"title:'" + pageTitle +"',\n" +
-					"pageUrl:'" + pageUrl +"',\n" +
-					"needsLogin:" + "true".equals(needsLogin) +",\n" +
-					"width:'" + width +"',\n" +
-					"height:'" + height +"',\n" +
-					"listenerDefs:" +listenersObj.toString()+",\n"+
-					"params:" +params.toString()+"\n"+
+					"LUI.Subpage.createNew({\n" +
+					"	name:'" + pageName +"',\n" +
+					"	title:'" + pageTitle +"',\n" +
+					"	pageUrl:'" + pageUrl +"',\n" +
+					"	needsLogin:" + "true".equals(needsLogin) +",\n" +
+					"	width:'" + width +"',\n" +
+					"	height:'" + height +"',\n" +
+					"	listenerDefs:" +listenersObj.toString()+",\n"+
+					"	params:" +params.toString()+"\n"+
 				"});\n\n");
 		}
 		ret.put("needsLogin", "true".equals(needsLogin));

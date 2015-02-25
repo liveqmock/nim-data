@@ -11,7 +11,7 @@ public class TabpageElParser {
 	/**
 	 * 集合类型数据源的解析
 	 */
-	public static String parseTabpageEl(Element tabEl,JSONObject params,Map<String, Object> root,Integer yongHuDM) throws Exception{
+	public static String parseTabpageEl(Element tabEl,JSONObject params,Map<String, Object> root,Integer yongHuDM,boolean isIndependent, String pageName) throws Exception{
 		String dataScriptContent = "";
 		if("tabSelector".equals(tabEl.attributeValue("component"))){
 			//检查 renderto参数
@@ -42,13 +42,17 @@ public class TabpageElParser {
 						"});\n" +
 						(onRender!=null && onRender.length() >0?""+onRender+".apply(this,['"+name+"','"+renderto+"']);\n":"\n");
 			}
-			//注册
-//			dataScriptContent += "LUI.Page.instance.register('tab',_singleeditform_"+name+");\n";
 		}else if("tabGenerator".equals(tabEl.attributeValue("component"))){
 			
-			//注册
-//			dataScriptContent += "LUI.Page.instance.register('tab',_singleeditform_"+name+");\n";
 		}
+
+		//注册
+//		if(isIndependent){
+//			treeScriptContent += "LUI.Page.instance.register('tree',"+treeVarName+");\n";
+//		}else{
+//			treeScriptContent += "LUI.Subpage.getInstance('"+pageName+"').register('tree',"+treeVarName+");\n";
+//		}
+
 		return dataScriptContent;
 	}
 	

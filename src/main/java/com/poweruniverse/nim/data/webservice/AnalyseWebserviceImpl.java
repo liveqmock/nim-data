@@ -59,6 +59,7 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 	 * @return
 	 */
 	public StringResult analyse(
+			@WebParam(name="pageName") String pageName,
 			@WebParam(name="pageUrl") String pageUrl,
 			@WebParam(name="pageContent") String pageContent,
 			@WebParam(name="isIndependent") boolean isIndependent,
@@ -95,7 +96,7 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 				
 				
 				//处理page元素
-				JSONObject pageResult = PageElParser.parsePageEl(cfgEl,pageUrl,jsonParams,isIndependent,yongHuDM);
+				JSONObject pageResult = PageElParser.parsePageEl(cfgEl,pageName,pageUrl,jsonParams,isIndependent,yongHuDM);
 				dataScriptContent += pageResult.getString("pageScriptContent");
 				boolean needsLogin = pageResult.getBoolean("needsLogin");
 				if(needsLogin && yongHuDM==null){
@@ -109,7 +110,7 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 				List<?> variableEls = cfgEl.elements("variable");
 				for(int i=0;i<variableEls.size();i++){
 					Element variableEl = (Element)variableEls.get(i);
-					JSONObject datasetResult = DatasourceElParser.parseDataVariableEl(variableEl, jsonParams, root, yongHuDM);
+					JSONObject datasetResult = DatasourceElParser.parseDataVariableEl(variableEl, jsonParams, root, yongHuDM,isIndependent,pageName);
 					dataScriptContent += datasetResult.getString("dataScriptContent");
 					dataLoadContent += datasetResult.getString("dataLoadContent");
 					
@@ -118,7 +119,7 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 				List<?> recordEls = cfgEl.elements("record");
 				for(int i=0;i<recordEls.size();i++){
 					Element recordEl = (Element)recordEls.get(i);
-					JSONObject datasetResult = DatasourceElParser.parseDataRecordEl(recordEl, jsonParams, root, yongHuDM);
+					JSONObject datasetResult = DatasourceElParser.parseDataRecordEl(recordEl, jsonParams, root, yongHuDM,isIndependent,pageName);
 					dataScriptContent += datasetResult.getString("dataScriptContent");
 					dataLoadContent += datasetResult.getString("dataLoadContent");
 					
@@ -130,7 +131,7 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 				List<?> datasetEls = cfgEl.elements("dataset");
 				for(int i=0;i<datasetEls.size();i++){
 					Element datasetEl = (Element)datasetEls.get(i);
-					JSONObject datasetResult = DatasourceElParser.parseDatasetEl(datasetEl, jsonParams, root, yongHuDM);
+					JSONObject datasetResult = DatasourceElParser.parseDatasetEl(datasetEl, jsonParams, root, yongHuDM,isIndependent,pageName);
 					dataScriptContent += datasetResult.getString("dataScriptContent");
 					dataLoadContent += datasetResult.getString("dataLoadContent");
 					
@@ -143,7 +144,7 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 				List<?> gridEls = cfgEl.elements("grid");
 				for(int i=0;i<gridEls.size();i++){
 					Element gridEl = (Element)gridEls.get(i);
-					JSONObject datasetResult = GridElParser.parseGridEl(gridEl, jsonParams, root, yongHuDM);
+					JSONObject datasetResult = GridElParser.parseGridEl(gridEl, jsonParams, root, yongHuDM,isIndependent,pageName);
 					dataScriptContent += datasetResult.getString("gridScriptContent");
 					dataLoadContent += datasetResult.getString("dataLoadContent");
 					
@@ -156,7 +157,7 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 				List<?> formEls = cfgEl.elements("form");
 				for(int i=0;i<formEls.size();i++){
 					Element formEl = (Element)formEls.get(i);
-					JSONObject datasetResult = FormElParser.parseFormEl(formEl, jsonParams, root, yongHuDM);
+					JSONObject datasetResult = FormElParser.parseFormEl(formEl, jsonParams, root, yongHuDM,isIndependent,pageName);
 					dataScriptContent += datasetResult.getString("formScriptContent");
 					dataLoadContent += datasetResult.getString("dataLoadContent");
 					
@@ -169,7 +170,7 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 				List<?> treeEls = cfgEl.elements("tree");
 				for(int i=0;i<treeEls.size();i++){
 					Element treeEl = (Element)treeEls.get(i);
-					JSONObject datasetResult = TreeElParser.parseTreeEl(treeEl, jsonParams, root, yongHuDM);
+					JSONObject datasetResult = TreeElParser.parseTreeEl(treeEl, jsonParams, root, yongHuDM,isIndependent,pageName);
 					dataScriptContent += datasetResult.getString("treeScriptContent");
 					dataLoadContent += datasetResult.getString("dataLoadContent");
 					
@@ -183,7 +184,7 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 				List<?> tabEls = cfgEl.elements("tab");
 				for(int i=0;i<tabEls.size();i++){
 					Element tabEl = (Element)tabEls.get(i);
-					dataScriptContent += TabpageElParser.parseTabpageEl(tabEl, jsonParams, root, yongHuDM);
+					dataScriptContent += TabpageElParser.parseTabpageEl(tabEl, jsonParams, root, yongHuDM,isIndependent,pageName);
 					
 //					dataScriptContent += "\n alert('dataScriptContent:"+dataScriptContent.length()+"');\n";
 //					dataScriptContent += "\n alert('dataLoadContent:"+dataLoadContent.length()+"');\n";
@@ -195,30 +196,32 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 				List<?> actionEls = cfgEl.elements("action");
 				for(int i=0;i<actionEls.size();i++){
 					Element actionEl = (Element)actionEls.get(i);
-					dataScriptContent += ActionElParser.parseActionEl(actionEl, jsonParams, root, yongHuDM);
+					dataScriptContent += ActionElParser.parseActionEl(actionEl, jsonParams, root, yongHuDM,isIndependent,pageName);
 				}
 				
 				//处理import
 				List<?> importEls = cfgEl.elements("import");
 				for(int i=0;i<importEls.size();i++){
 					Element importEl = (Element)importEls.get(i);
-					dataScriptContent += ImportElParser.parseImportEl(importEl, jsonParams, root, yongHuDM);
+					dataScriptContent += ImportElParser.parseImportEl(importEl, jsonParams, root, yongHuDM,isIndependent,pageName);
 				}
 
 				//处理image
 				List<?> imageEls = cfgEl.elements("image");
 				for(int i=0;i<imageEls.size();i++){
 					Element imageEl = (Element)imageEls.get(i);
-					dataScriptContent += ImageElParser.parseImageEl(imageEl, jsonParams, root, yongHuDM);
+					dataScriptContent += ImageElParser.parseImageEl(imageEl, jsonParams, root, yongHuDM,isIndependent,pageName);
 				}
 				//所有数据源 自动加载数据的代码 添加到程序定义的结尾
 				dataScriptContent += dataLoadContent;
 				
-				//页面加载完成
-//				if(cfgEl.attributeValue("onLoad")!=null){
-//					dataScriptContent+="\n//页面全部加载完成\n";
-//					dataScriptContent+="LUI.Page.instance.();\n";
-//				}
+				//页面加载完成(name为空的是独立页面)
+				dataScriptContent+="\n//页面加载完成\n";
+				if(isIndependent){
+					dataScriptContent+="LUI.Page.instance.load();\n";
+				}else{
+					dataScriptContent+="LUI.Subpage.getInstance('"+pageName+"').load();\n";
+				}
 				
 				logger.debug("解析页面："+pageUrl+" ...完成");
 			}else{

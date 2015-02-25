@@ -24,7 +24,7 @@ public class DatasourceElParser {
 	/**
 	 * 集合类型数据源的解析
 	 */
-	public static JSONObject parseDatasetEl(Element datasetEl,JSONObject params,Map<String, Object> root,Integer yongHuDM) throws Exception{
+	public static JSONObject parseDatasetEl(Element datasetEl,JSONObject params,Map<String, Object> root,Integer yongHuDM,boolean isIndependent, String pageName) throws Exception{
 		String dataScriptContent = "";
 		String dataLoadContent = "";
 		//数据源名称
@@ -38,6 +38,7 @@ public class DatasourceElParser {
 		if("javaDataset".equals(datasetEl.attributeValue("component"))){
 			//java类型的数据源
 			String className = datasetEl.attributeValue("className"); 
+			String primaryFieldName = datasetEl.attributeValue("primaryFieldName"); 
 			
 			int start = 0;
 			String startString = datasetEl.attributeValue("start");
@@ -71,11 +72,12 @@ public class DatasourceElParser {
 			}
 			
 			//将数据转换为json格式 添加到页面中
-			dataScriptContent += "\n//实体类 数据集（"+label+":"+name+"）\n";
+			dataScriptContent += "\n//Java数据集（"+label+":"+name+"）\n";
 			dataScriptContent += "var "+varName+" = LUI.Datasource.javaDataset.createNew({\n" +
 					"name:'" +name+"',\n"+
 					"label:'" +label+"',\n"+
 					"className:'" +className+"',\n"+
+					"primaryFieldName:'" +primaryFieldName+"',\n"+
 					"start:" +start+",\n"+
 					"limit:" +limit+",\n"+
 					"autoLoad:" +autoLoad+",\n"+
@@ -89,7 +91,7 @@ public class DatasourceElParser {
 				JSONObject jsonData = null;
 				try {
 					BaseJavaDatasource javaDS = (BaseJavaDatasource)Class.forName(className).newInstance();
-					jsonData = javaDS.getData(parametersObject,start,limit);
+					jsonData = javaDS.getData(null,parametersObject,start,limit);
 				} catch (Exception e) {
 					jsonData = new JSONObject();
 					jsonData.put("totalCount", 0);
@@ -109,8 +111,6 @@ public class DatasourceElParser {
 				root.put(name, jsonData);
 			}
 			
-			//注册
-			dataScriptContent += "LUI.Page.instance.register('dataset',"+varName+");\n";
 		}else if("sqlDataset".equals(datasetEl.attributeValue("component"))){
 			String xiTongDH= datasetEl.attributeValue("xiTongDH"); 
 			
@@ -176,8 +176,6 @@ public class DatasourceElParser {
 				
 				root.put(name, rows);
 			}
-			//注册
-			dataScriptContent += "LUI.Page.instance.register('dataset',"+varName+");\n";
 		}else if("todoDataset".equals(datasetEl.attributeValue("component"))){
 			//待办的数据集
 			String xiTongDH= datasetEl.attributeValue("xiTongDH"); 
@@ -228,8 +226,6 @@ public class DatasourceElParser {
 			}else{
 				throw new Exception(result.getString("errorMsg"));
 			}
-			//注册
-			dataScriptContent += "LUI.Page.instance.register('dataset',"+varName+");\n";
 		}else if("stlDataset".equals(datasetEl.attributeValue("component"))){
 
 			String xiTongDH= datasetEl.attributeValue("xiTongDH"); 
@@ -313,8 +309,6 @@ public class DatasourceElParser {
 				root.put(name+"_limit", limit);
 				root.put(name, objs);
 			}
-			//注册
-			dataScriptContent += "LUI.Page.instance.register('dataset',"+varName+");\n";
 		}else if("gnDataset".equals(datasetEl.attributeValue("component"))){
 			String xiTongDH= datasetEl.attributeValue("xiTongDH"); 
 			String gongNengDH= datasetEl.attributeValue("gongNengDH"); 
@@ -397,10 +391,15 @@ public class DatasourceElParser {
 					root.put(name, objs);
 				}
 			}
-			//注册
-			dataScriptContent += "LUI.Page.instance.register('dataset',"+varName+");\n";
 		}
 	
+		//注册
+		if(isIndependent){
+			dataScriptContent += "LUI.Page.instance.register('dataset',"+varName+");\n";
+		}else{
+			dataScriptContent += "LUI.Subpage.getInstance('"+pageName+"').register('dataset',"+varName+");\n";
+		}
+		
 		JSONObject ret = new JSONObject();
 		ret.put("dataScriptContent", dataScriptContent);
 		ret.put("dataLoadContent", dataLoadContent);
@@ -411,7 +410,7 @@ public class DatasourceElParser {
 	/**
 	 * 记录类型数据源的解析
 	 */
-	public static JSONObject parseDataRecordEl(Element recordEl,JSONObject params,Map<String, Object> root,Integer yongHuDM) throws Exception{
+	public static JSONObject parseDataRecordEl(Element recordEl,JSONObject params,Map<String, Object> root,Integer yongHuDM,boolean isIndependent, String pageName) throws Exception{
 		String dataScriptContent = "";
 		String dataLoadContent = "";
 		
@@ -476,8 +475,6 @@ public class DatasourceElParser {
 				
 				root.put(name, obj);
 			}
-			//注册
-			dataScriptContent += "LUI.Page.instance.register('record',"+varName+");\n";
 		}else if("gnRecord".equals(recordEl.attributeValue("component"))){
 			
 			String gongNengDH= recordEl.attributeValue("gongNengDH"); 
@@ -552,8 +549,6 @@ public class DatasourceElParser {
 				root.put(name, obj);
 			}
 			
-			//注册
-			dataScriptContent += "LUI.Page.instance.register('record',"+varName+");\n";
 		}else if("stlRecord".equals(recordEl.attributeValue("component"))){
 			String shiTiLeiDH= recordEl.attributeValue("shiTiLeiDH"); 
 			
@@ -633,10 +628,15 @@ public class DatasourceElParser {
 				dataLoadContent += ""+varName+".loadData("+varName+"_init_data);\n\n";
 				root.put(name, obj);
 			}
-			//
-			//注册
-			dataScriptContent += "LUI.Page.instance.register('record',"+varName+");\n";
 		}
+		
+		//注册
+		if(isIndependent){
+			dataScriptContent += "LUI.Page.instance.register('record',"+varName+");\n";
+		}else{
+			dataScriptContent += "LUI.Subpage.getInstance('"+pageName+"').register('record',"+varName+");\n";
+		}
+
 		JSONObject ret = new JSONObject();
 		ret.put("dataScriptContent", dataScriptContent);
 		ret.put("dataLoadContent", dataLoadContent);
@@ -648,7 +648,7 @@ public class DatasourceElParser {
 	/**
 	 * 变量类型数据源的解析
 	 */
-	public static JSONObject parseDataVariableEl(Element variableEl,JSONObject params,Map<String, Object> root,Integer yongHuDM) throws Exception{
+	public static JSONObject parseDataVariableEl(Element variableEl,JSONObject params,Map<String, Object> root,Integer yongHuDM,boolean isIndependent, String pageName) throws Exception{
 		String dataScriptContent = "";
 		String dataLoadContent = "";
 		
@@ -721,16 +721,15 @@ public class DatasourceElParser {
 				}
 				dataLoadContent += ""+varName+".loadData("+name+");\n\n";
 			}
-			//注册
-			dataScriptContent += "LUI.Page.instance.register('variable',"+varName+");\n";
 		}else if("stlVariable".equals(variableEl.attributeValue("component"))){
-			//注册
-			dataScriptContent += "LUI.Page.instance.register('variable',"+varName+");\n";
 		}else if("gnVariable".equals(variableEl.attributeValue("component"))){
-			//注册
-			dataScriptContent += "LUI.Page.instance.register('variable',"+varName+");\n";
 		}
-
+		//注册
+		if(isIndependent){
+			dataScriptContent += "LUI.Page.instance.register('variable',"+varName+");\n";
+		}else{
+			dataScriptContent += "LUI.Subpage.getInstance('"+pageName+"').register('variable',"+varName+");\n";
+		}
 		
 		JSONObject ret = new JSONObject();
 		ret.put("dataScriptContent", dataScriptContent);

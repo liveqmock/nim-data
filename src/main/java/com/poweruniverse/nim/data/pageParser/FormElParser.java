@@ -18,13 +18,14 @@ public class FormElParser {
 	/**
 	 * 集合类型数据源的解析
 	 */
-	public static JSONObject parseFormEl(Element formEl,JSONObject params,Map<String, Object> root,Integer yongHuDM) throws Exception{
+	public static JSONObject parseFormEl(Element formEl,JSONObject params,Map<String, Object> root,Integer yongHuDM,boolean isIndependent, String pageName) throws Exception{
 		String formScriptContent = "";
 		String dataLoadContent = "";
 
 		String label = formEl.attributeValue("label");
 		String name = formEl.attributeValue("name");
 		
+		String formVarName = null;
 		if("searchToPage".equals(formEl.attributeValue("component"))){
 			//查询 结果显示到新页面
 			String autoRender = formEl.attributeValue("autoRender"); 
@@ -66,7 +67,9 @@ public class FormElParser {
 			}
 			
 			formScriptContent+="\n//生成查询表单("+label+":"+name+")\n";
-			formScriptContent+="var _searchToPage_"+name+" = LUI.SearchPageForm.createNew({\n" +
+			
+			formVarName = "_searchToPage_"+name;
+			formScriptContent+="var "+formVarName+" = LUI.SearchPageForm.createNew({\n" +
 					"name:'" +name+"',\n"+
 					"label:'" +label+"',\n"+
 					"renderto:'" +renderto+"',\n"+
@@ -77,8 +80,7 @@ public class FormElParser {
 					"buttons:" +buttonArray.toString()+",\n"+
 					"listenerDefs:" +listenersObj.toString()+"\n"+
 			"});\n";
-			//注册
-			formScriptContent += "LUI.Page.instance.register('form',_searchToPage_"+name+");\n";
+			
 		}else if("dataDisplayForm".equals(formEl.attributeValue("component"))){
 			
 			String renderto = formEl.attributeValue("renderto");
@@ -111,7 +113,7 @@ public class FormElParser {
 				
 				for(Element fieldEl : fieldEls){
 					
-					JSONObject fieldCfgObj = FieldElParser.parseFieldEl(fieldEl, params, root, yongHuDM);
+					JSONObject fieldCfgObj = FieldElParser.parseFieldEl(fieldEl, params, root, yongHuDM,isIndependent,pageName);
 					//兼容老的设计器代码
 					JSONObject field = fieldCfgObj.getJSONObject("field");
 					if("complexField".equals(field.getString("component")) || "simpleField".equals(field.getString("component"))){
@@ -144,7 +146,7 @@ public class FormElParser {
 			
 			Element datasourceEl = formEl.element("record");
 			if(datasourceEl!=null){
-				JSONObject _dataRecordResult = DatasourceElParser.parseDataRecordEl(datasourceEl, params, root, yongHuDM);
+				JSONObject _dataRecordResult = DatasourceElParser.parseDataRecordEl(datasourceEl, params, root, yongHuDM,isIndependent,pageName);
 				formScriptContent += _dataRecordResult.getString("dataScriptContent");
 				dataLoadContent += _dataRecordResult.getString("dataLoadContent");
 				
@@ -154,7 +156,8 @@ public class FormElParser {
 			if(fieldsPreScript.length()>0){
 				formScriptContent += fieldsPreScript;
 			}
-			formScriptContent+="var _dataDisplayForm_"+name+" = LUI.DisplayForm.createNew({\n" +
+			formVarName = "_dataDisplayForm_"+name;
+			formScriptContent+="var "+formVarName+" = LUI.DisplayForm.createNew({\n" +
 					"name:'" +name+"',\n"+
 					"label:'" +label+"',\n"+
 					(xiTongDH!=null?("xiTongDH:'" +xiTongDH+"',\n"):"")+
@@ -170,8 +173,6 @@ public class FormElParser {
 					"buttons:" +buttonArray.toString()+",\n"+
 					"listenerDefs:" +listenersObj.toString()+"\n"+
 			"});\n";
-			//注册
-			formScriptContent += "LUI.Page.instance.register('form',_dataDisplayForm_"+name+");\n";
 			///////////////////////////////////////////////////////////
 		}else if("workflowForm".equals(formEl.attributeValue("component"))){
 			
@@ -213,7 +214,7 @@ public class FormElParser {
 				
 				for(Element fieldEl : fieldEls){
 					
-					JSONObject fieldCfgObj = FieldElParser.parseFieldEl(fieldEl, params, root, yongHuDM);
+					JSONObject fieldCfgObj = FieldElParser.parseFieldEl(fieldEl, params, root, yongHuDM,isIndependent,pageName);
 					
 					String fieldPreScript = fieldCfgObj.getString("fieldPreScript");
 					if(fieldPreScript!=null && fieldPreScript.length()>0){
@@ -256,7 +257,8 @@ public class FormElParser {
 			if(fieldsPreScript.length()>0){
 				formScriptContent += fieldsPreScript;
 			}
-			formScriptContent+="var _workflowForm_"+name+" = LUI.WorkflowForm.createNew({\n" +
+			formVarName = "_workflowForm_"+name;
+			formScriptContent+="var "+formVarName+" = LUI.WorkflowForm.createNew({\n" +
 					"name:'" +name+"',\n"+
 					"label:'" +label+"',\n"+
 					(xiTongDH!=null?("xiTongDH:'" +xiTongDH+"',\n"):"")+
@@ -273,8 +275,6 @@ public class FormElParser {
 					"fields:" +fieldArray.toString()+",\n"+
 					"listenerDefs:" +listenersObj.toString()+"\n"+
 			"});\n";
-			//注册
-			formScriptContent += "LUI.Page.instance.register('form',_workflowForm_"+name+");\n";
 			///////////////////////////////////////////////////////////
 		}else if("searchToGrid".equals(formEl.attributeValue("component"))){
 			//查询 结果显示到新页面
@@ -320,7 +320,8 @@ public class FormElParser {
 			}
 			
 			formScriptContent+="\n//生成查询表单("+label+":"+name+")\n";
-			formScriptContent+="var _searchToGrid_"+name+" = LUI.SearchDatasourceForm.createNew({\n" +
+			formVarName = "_searchToGrid_"+name;
+			formScriptContent+="var "+formVarName+" = LUI.SearchDatasourceForm.createNew({\n" +
 					"name:'" +name+"',\n"+
 					"label:'" +label+"',\n"+
 					"datasourceName:'" +datasourceName+"',\n"+
@@ -335,8 +336,6 @@ public class FormElParser {
 			if("true".equals(autoSearch)){
 				formScriptContent+="_searchToGrid_"+name+".submit();\n";
 			}
-			//注册
-			formScriptContent += "LUI.Page.instance.register('form',_searchToGrid_"+name+");\n";
 		}else if("singleEditForm".equals(formEl.attributeValue("component"))){
 			
 			String renderto = formEl.attributeValue("renderto");
@@ -364,7 +363,7 @@ public class FormElParser {
 				
 				for(Element fieldEl : fieldEls){
 					
-					JSONObject fieldCfgObj = FieldElParser.parseFieldEl(fieldEl, params, root, yongHuDM);
+					JSONObject fieldCfgObj = FieldElParser.parseFieldEl(fieldEl, params, root, yongHuDM,isIndependent,pageName);
 					
 					String fieldPreScript = fieldCfgObj.getString("fieldPreScript");
 					if(fieldPreScript!=null && fieldPreScript.length()>0){
@@ -392,7 +391,7 @@ public class FormElParser {
 			
 			Element datasourceEl = formEl.element("record");
 			if(datasourceEl!=null){
-				JSONObject _dataRecordResult = DatasourceElParser.parseDataRecordEl(datasourceEl, params, root, yongHuDM);
+				JSONObject _dataRecordResult = DatasourceElParser.parseDataRecordEl(datasourceEl, params, root, yongHuDM,isIndependent,pageName);
 				formScriptContent += _dataRecordResult.getString("dataScriptContent");
 				dataLoadContent += _dataRecordResult.getString("dataLoadContent");
 				
@@ -402,7 +401,8 @@ public class FormElParser {
 			if(fieldsPreScript.length()>0){
 				formScriptContent += fieldsPreScript;
 			}
-			formScriptContent+="var _singleeditform_"+name+" = LUI.Form.createNew({\n" +
+			formVarName = "_singleeditform_"+name;
+			formScriptContent+="var "+formVarName+" = LUI.Form.createNew({\n" +
 					"name:'" +name+"',\n"+
 					"label:'" +label+"',\n"+
 					(xiTongDH!=null?("xiTongDH:'" +xiTongDH+"',\n"):"")+
@@ -418,9 +418,15 @@ public class FormElParser {
 					"buttons:" +buttonArray.toString()+",\n"+
 					"listenerDefs:" +listenersObj.toString()+"\n"+
 			"});\n";
-			//注册
-			formScriptContent += "LUI.Page.instance.register('form',_singleeditform_"+name+");\n";
 		}
+		
+		//注册
+		if(isIndependent){
+			formScriptContent += "LUI.Page.instance.register('form',"+formVarName+");\n";
+		}else{
+			formScriptContent += "LUI.Subpage.getInstance('"+pageName+"').register('form',"+formVarName+");\n";
+		}
+		
 		JSONObject ret = new JSONObject();
 		ret.put("formScriptContent", formScriptContent);
 		ret.put("dataLoadContent", dataLoadContent);

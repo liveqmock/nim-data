@@ -15,7 +15,7 @@ public class GridElParser {
 	/**
 	 * 集合类型数据源的解析
 	 */
-	public static JSONObject parseGridEl(Element gridEl,JSONObject params,Map<String, Object> root,Integer yongHuDM) throws Exception{
+	public static JSONObject parseGridEl(Element gridEl,JSONObject params,Map<String, Object> root,Integer yongHuDM,boolean isIndependent, String pageName) throws Exception{
 		String gridScriptContent = "";
 		String dataLoadContent = "";
 		 
@@ -47,12 +47,14 @@ public class GridElParser {
 		Element datasourceEl = gridEl.element("dataset");
 		if(datasourceEl!=null){
 			
-			JSONObject fieldDatasetResult = DatasourceElParser.parseDatasetEl(datasourceEl, params, root, yongHuDM);
+			JSONObject fieldDatasetResult = DatasourceElParser.parseDatasetEl(datasourceEl, params, root, yongHuDM,isIndependent, pageName);
 			gridScriptContent += fieldDatasetResult.getString("dataScriptContent");
 			dataLoadContent += fieldDatasetResult.getString("dataLoadContent");
 			
 			gridCfgObj.put("datasourceName", fieldDatasetResult.getString("datasourceName"));
 		}
+		
+		String gridVarName = null;
 		
 		if("displayGrid".equals(gridEl.attributeValue("component"))){
 			//检查colums设置
@@ -76,12 +78,10 @@ public class GridElParser {
 			
 			gridScriptContent+="\n//生成表格"+gridCfgObj.getString("label")+":"+gridCfgObj.getString("name")+"的显示\n";
 												
-			gridScriptContent+="var _griddisplay_"+gridCfgObj.getString("name")+" = LUI.Grid.createNew(\n" +
+			gridVarName = "_griddisplay_"+gridCfgObj.getString("name");
+			gridScriptContent+="var "+gridVarName+" = LUI.Grid.createNew(\n" +
 					gridCfgObj+"\n"+
 			");\n";
-		
-			//注册
-			gridScriptContent += "LUI.Page.instance.register('grid',_griddisplay_"+gridCfgObj.getString("name")+");\n";
 		}else if("treeDisplayGrid".equals(gridEl.attributeValue("component"))){
 			
 			//
@@ -109,16 +109,13 @@ public class GridElParser {
 			
 			gridScriptContent+="\n//生成树状表格"+gridCfgObj.getString("label")+":"+gridCfgObj.getString("name")+"的显示\n";
 												
-			gridScriptContent+="var _treegrid_"+gridCfgObj.getString("name")+" = LUI.Grid.TreeGrid.createNew(\n" +
+			gridVarName = "_treegrid_"+gridCfgObj.getString("name");
+			gridScriptContent+="var "+gridVarName+" = LUI.Grid.TreeGrid.createNew(\n" +
 					gridCfgObj+"\n"+
 			");\n";
 		
-			//注册
-			gridScriptContent += "LUI.Page.instance.register('grid',_treegrid_"+gridCfgObj.getString("name")+");\n";
 		}else if("treeEditGrid".equals(gridEl.attributeValue("component"))){
 		}else if("operateGrid".equals(gridEl.attributeValue("component"))){
-			//注册
-//			gridScriptContent += "LUI.Page.instance.register('grid',_operategrid_"+name+");\n";
 		}else if("editGrid".equals(gridEl.attributeValue("component"))){
 			//检查colums设置
 			JSONArray colArray = new JSONArray();
@@ -127,7 +124,7 @@ public class GridElParser {
 				List<Element> columnEls = columnsEl.elements("column");
 				if(columnEls!=null){
 					for(Element columnEl : columnEls){
-						JSONObject columnCfgObj = FieldElParser.parseFieldEl(columnEl, params, root, yongHuDM);
+						JSONObject columnCfgObj = FieldElParser.parseFieldEl(columnEl, params, root, yongHuDM,isIndependent,pageName);
 						
 						String columnPreScript = columnCfgObj.getString("fieldPreScript");
 						if(columnPreScript!=null && columnPreScript.length()>0){
@@ -139,11 +136,11 @@ public class GridElParser {
 			}
 			gridCfgObj.put("columns", colArray);
 			gridScriptContent+="\n//生成表格"+gridCfgObj.getString("label")+":"+gridCfgObj.getString("name")+"的编辑\n";
-			gridScriptContent+="var _grid_edit_"+gridCfgObj.getString("name")+" = LUI.EditGrid.createNew(\n" +
+			
+			gridVarName = "_grid_edit_"+gridCfgObj.getString("name");
+			gridScriptContent+="var "+gridVarName+" = LUI.EditGrid.createNew(\n" +
 					gridCfgObj+"\n"+
 			");\n";
-			//注册
-			gridScriptContent += "LUI.Page.instance.register('grid',_grid_edit_"+gridCfgObj.getString("name")+");\n";
 		}else if("subGrid".equals(gridEl.attributeValue("component"))){
 			//检查colums设置
 			JSONArray colArray = new JSONArray();
@@ -152,7 +149,7 @@ public class GridElParser {
 				List<Element> columnEls = columnsEl.elements("column");
 				if(columnEls!=null){
 					for(Element columnEl : columnEls){
-						JSONObject columnCfgObj = FieldElParser.parseFieldEl(columnEl, params, root, yongHuDM);
+						JSONObject columnCfgObj = FieldElParser.parseFieldEl(columnEl, params, root, yongHuDM,isIndependent,pageName);
 						
 						String columnPreScript = columnCfgObj.getString("fieldPreScript");
 						if(columnPreScript!=null && columnPreScript.length()>0){
@@ -165,13 +162,19 @@ public class GridElParser {
 			gridCfgObj.put("columns", colArray);
 			
 			gridScriptContent+="\n//生成子表格"+gridCfgObj.getString("label")+":"+gridCfgObj.getString("name")+"的显示\n";
-												
-			gridScriptContent+="var "+gridCfgObj.getString("name")+" = LUI.SubGrid.createNew(\n" +
+									
+			gridVarName = "_sub_grid_"+gridCfgObj.getString("name");
+			gridScriptContent+="var "+gridVarName+" = LUI.SubGrid.createNew(\n" +
 					gridCfgObj+"\n"+
 			");\n";
 		
-			//注册
-			gridScriptContent += "LUI.Page.instance.register('grid',"+gridCfgObj.getString("name")+");\n";
+		}
+		
+		//注册
+		if(isIndependent){
+			gridScriptContent += "LUI.Page.instance.register('grid',"+gridVarName+");\n";
+		}else{
+			gridScriptContent += "LUI.Subpage.getInstance('"+pageName+"').register('grid',"+gridVarName+");\n";
 		}
 
 		JSONObject ret = new JSONObject();
