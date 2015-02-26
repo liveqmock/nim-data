@@ -6,54 +6,46 @@ import net.sf.json.JSONObject;
 
 import org.dom4j.Element;
 
+import com.poweruniverse.nim.data.service.utils.JSONConvertUtils;
+
 public class TabpageElParser {
 
 	/**
 	 * 集合类型数据源的解析
 	 */
 	public static String parseTabpageEl(Element tabEl,JSONObject params,Map<String, Object> root,Integer yongHuDM,boolean isIndependent, String pageName) throws Exception{
-		String dataScriptContent = "";
+		String tabScriptContent = "";
+		
+		JSONObject tabObj = JSONConvertUtils.applyXML2Json(tabEl,false);
+		JSONObject listenersObj = new JSONObject();
+		if(tabObj.has("onRender")){
+			listenersObj.put("onRender", tabObj.getString("onRender"));
+			tabObj.remove("onRender");
+		}
+		if(tabObj.has("onSelect")){
+			listenersObj.put("onSelect", tabObj.getString("onSelect"));
+			tabObj.remove("onSelect");
+		}
+		tabObj.put("listenerDefs", listenersObj);
+		
+		String tabVarName = "_tab_"+tabObj.getString("name");
 		if("tabSelector".equals(tabEl.attributeValue("component"))){
-			//检查 renderto参数
-			String name = tabEl.attributeValue("name");
-			String renderto = tabEl.attributeValue("renderto");
-			String onRender = tabEl.attributeValue("onRender");
-			String onSelect = tabEl.attributeValue("onSelect");
-			String activeClass = tabEl.attributeValue("activeClass");
-//			String hoverClass = tabEl.attributeValue("hoverClass");
-			if(renderto!=null && renderto.length()>0 ){
-				dataScriptContent+="\n//标签页"+name+"的显示\n";
-				dataScriptContent+="$('"+renderto+" li').each(function(index,optionEl){\n" +
-						"	$(optionEl).removeAttr('onclick').click(function(){\n" +
-						"		var lastIndex = -1;\n" +
-						"		$(optionEl).siblings().each(function(aIndex,aEl){\n" +
-						"			if($(aEl).hasClass('"+activeClass+"')){\n" +
-						"				lastIndex = aIndex;\n" +
-						"				$(aEl).removeClass('"+activeClass+"');\n\n" +
-						"				var divSelector = $(aEl).attr('href');\n" +
-						"				$(divSelector).css('display','none') ;\n"+
-						"			}\n"+
-						"		});"+
-						"		$(optionEl).addClass('"+activeClass+"');\n\n" +
-						"		var divSelector = $(optionEl).attr('href');\n"+
-						"		$(divSelector).css('display','block');\n\n " +
-						(onSelect!=null && onSelect.length() >0?"		"+onSelect+".apply(optionEl,[index,lastIndex]);\n":"\n") +
-						"	});\n" +
-						"});\n" +
-						(onRender!=null && onRender.length() >0?""+onRender+".apply(this,['"+name+"','"+renderto+"']);\n":"\n");
-			}
+			tabScriptContent = "//标签页 "+tabObj.getString("label")+" \n" +
+				"var "+tabVarName+" = LUI.Tab.createNew(\n" +
+				tabObj.toString()+"\n"+
+				");\n\n";
 		}else if("tabGenerator".equals(tabEl.attributeValue("component"))){
 			
 		}
 
 		//注册
-//		if(isIndependent){
-//			treeScriptContent += "LUI.Page.instance.register('tree',"+treeVarName+");\n";
-//		}else{
-//			treeScriptContent += "LUI.Subpage.getInstance('"+pageName+"').register('tree',"+treeVarName+");\n";
-//		}
+		if(isIndependent){
+			tabScriptContent += "LUI.Page.instance.register('tab',"+tabVarName+");\n";
+		}else{
+			tabScriptContent += "LUI.Subpage.getInstance('"+pageName+"').register('tab',"+tabVarName+");\n";
+		}
 
-		return dataScriptContent;
+		return tabScriptContent;
 	}
 	
 

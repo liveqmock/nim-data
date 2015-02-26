@@ -18,22 +18,14 @@ public class ImportElParser {
 		String importScriptContent = "";
 		
 		JSONObject importObj = JSONConvertUtils.applyXML2Json(importEl,false);
-		
-//		String name = importEl.attributeValue("name");
-//		String label = importEl.attributeValue("label");
-//		String renderto = importEl.attributeValue("renderto");
-//		String pageURL = importEl.attributeValue("pageURL");
-//		String autoLoad = importEl.attributeValue("autoLoad");
-//		if(autoLoad==null){
-//			autoLoad = "true";
-//		}
+		if(importObj.has("onLoad")){
+			importObj.remove("onLoad");
+		}
 		
 		//page events
 		JSONObject listenersObj = new JSONObject();
-
 		String onLoad = importEl.attributeValue("onLoad");
 		listenersObj.put("onLoad",onLoad);
-		
 		importObj.put("listenerDefs", listenersObj);
 		
 		JSONArray parameters =  DatasourceElParser.getParametersFromEl(importEl,root,params);
