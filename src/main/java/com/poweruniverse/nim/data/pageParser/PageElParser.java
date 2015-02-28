@@ -30,8 +30,8 @@ public class PageElParser {
 //		String pageCmpType = pageEl.attributeValue("component");
 		if(isIndependent){
 			//当页面（无论是page还是subpage）作为独立页面被打开时 执行这里的解析
-			ret.put("pageScriptContent", "//当前页面\n" +
-					"	LUI.Page.createNew({\n" +
+			ret.put("pageScriptContent", "\n\n//当前页面对象\n" +
+					"LUI.Page.createNew({\n" +
 					"	title:'" + pageTitle +"',\n" +
 					"	needsLogin:" + "true".equals(needsLogin) +",\n" +
 					"	listenerDefs:" +listenersObj.toString()+",\n"+
@@ -46,7 +46,7 @@ public class PageElParser {
 //			ret.put("width", width);
 //			ret.put("height", height);
 			
-			ret.put("pageScriptContent", "//当前页面\n" +
+			ret.put("pageScriptContent", "\n\n//当前页面\n" +
 					"LUI.Subpage.createNew({\n" +
 					"	name:'" + pageName +"',\n" +
 					"	title:'" + pageTitle +"',\n" +

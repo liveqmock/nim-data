@@ -813,9 +813,9 @@ public class DatasourceElParser {
 	public static JSONArray getFieldsDefByEL(Element el,ShiTiLei stl,boolean allowPropertyNotExists) throws Exception{
 		JSONArray fieldArray  = new JSONArray();
 		boolean hasZhuJianLie = false;
-		if(stl!=null){
-			hasZhuJianLie = true;
-		}
+//		if(stl!=null){
+//			hasZhuJianLie = true;
+//		}
 		List<?> subEls = el.elements("property");
 		for(int index=0;index<subEls.size();index++){
 			Element subEl = (Element)subEls.get(index);

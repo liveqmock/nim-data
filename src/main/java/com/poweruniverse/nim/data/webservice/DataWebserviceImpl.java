@@ -32,7 +32,6 @@ import com.poweruniverse.nim.base.webservice.BasePlateformWebservice;
 import com.poweruniverse.nim.data.entity.GongNeng;
 import com.poweruniverse.nim.data.entity.GongNengCZ;
 import com.poweruniverse.nim.data.entity.ShiTiLei;
-import com.poweruniverse.nim.data.entity.YongHu;
 import com.poweruniverse.nim.data.entity.ZiDuan;
 import com.poweruniverse.nim.data.entity.ZiDuanLX;
 import com.poweruniverse.nim.data.entity.base.EntityI;
@@ -133,6 +132,19 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 				}
 			}else{
 				fieldJsonArray = JSONArray.fromObject(fields);
+				boolean hasZhuJianLieExists = false;
+				for(int i=0;i<fieldJsonArray.size();i++){
+					JSONObject zdObj = fieldJsonArray.getJSONObject(i);
+					if(dataStl.getZhuJianLie().equals(zdObj.getString("name"))){
+						hasZhuJianLieExists = true;
+						break;
+					}
+				}
+				if(!hasZhuJianLieExists){
+					JSONObject zjlObj = new JSONObject();
+					zjlObj.put("name", dataStl.getZhuJianLie());
+					fieldJsonArray.add(zjlObj);
+				}
 			}
 			
 			//将数据转换为json格式 添加到页面中
@@ -183,6 +195,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		Session sess = null;
 		try {
 			//检查对应的功能操作是否存在
+			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
 			
 			GongNengCZ gncz = (GongNengCZ)sess.createCriteria(GongNengCZ.class)
 					.createAlias("gongNeng", "gncz_gn")
@@ -192,7 +205,6 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 				return new JSONDataResult("功能操作:"+gongNengDH+"."+caoZuoDH+"不存在！");
 			}
 			
-			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
 
 			boolean needAuth = gncz.getKeYiSQ();//需要授权？
 			//需要授权的功能操作 必须提供用户名、密码用于验证用户身份
@@ -250,6 +262,19 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 				}
 			}else{
 				fieldJsonArray = JSONArray.fromObject(fields);
+				boolean hasZhuJianLieExists = false;
+				for(int i=0;i<fieldJsonArray.size();i++){
+					JSONObject zdObj = fieldJsonArray.getJSONObject(i);
+					if(gncz.getGongNeng().getShiTiLei().getZhuJianLie().equals(zdObj.getString("name"))){
+						hasZhuJianLieExists = true;
+						break;
+					}
+				}
+				if(!hasZhuJianLieExists){
+					JSONObject zjlObj = new JSONObject();
+					zjlObj.put("name", gncz.getGongNeng().getShiTiLei().getZhuJianLie());
+					fieldJsonArray.add(zjlObj);
+				}
 			}
 			//
 			Method mtd = null;
@@ -263,7 +288,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			} catch (Exception e) {
 			}
 			
-			if(!beforeListResult.isSuccess()){
+			if(beforeListResult!=null && !beforeListResult.isSuccess()){
 				result = new JSONDataResult(beforeListResult.getErrorMsg()) ;
 			}else{
 				//
@@ -341,11 +366,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 				throw new Exception("功能操作:"+gongNengDH+"."+caoZuoDH+"不存在！");
 			}
 			
-			YongHu yh  = null;
 			Integer yhdm = this.getYongHuDM(wsContext,gncz.getKeYiSQ());
-			if(yhdm!=null){
-				yh = (YongHu)sess.load(YongHu.class,yhdm);
-			}
 			
 			if(gncz.getDuiXiangXG() && id==null){
 				throw new Exception("功能操作:"+gongNengDH+"."+caoZuoDH+"为对象相关的操作，必须提供id参数！");
@@ -408,6 +429,19 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 				}
 			}else{
 				fieldJsonArray = JSONArray.fromObject(fields);
+				boolean hasZhuJianLieExists = false;
+				for(int i=0;i<fieldJsonArray.size();i++){
+					JSONObject zdObj = fieldJsonArray.getJSONObject(i);
+					if(gncz.getGongNeng().getShiTiLei().getZhuJianLie().equals(zdObj.getString("name"))){
+						hasZhuJianLieExists = true;
+						break;
+					}
+				}
+				if(!hasZhuJianLieExists){
+					JSONObject zjlObj = new JSONObject();
+					zjlObj.put("name", gncz.getGongNeng().getShiTiLei().getZhuJianLie());
+					fieldJsonArray.add(zjlObj);
+				}
 			}
 			
 			//将数据转换为json格式 添加到页面中
@@ -590,6 +624,19 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 				}
 			}else{
 				fieldJsonArray = JSONArray.fromObject(fields);
+				boolean hasZhuJianLieExists = false;
+				for(int i=0;i<fieldJsonArray.size();i++){
+					JSONObject zdObj = fieldJsonArray.getJSONObject(i);
+					if(stl.getZhuJianLie().equals(zdObj.getString("name"))){
+						hasZhuJianLieExists = true;
+						break;
+					}
+				}
+				if(!hasZhuJianLieExists){
+					JSONObject zjlObj = new JSONObject();
+					zjlObj.put("name", stl.getZhuJianLie());
+					fieldJsonArray.add(zjlObj);
+				}
 			}
 			
 			//将数据转换为json格式 添加到页面中
@@ -701,8 +748,8 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		JSONMessageResult result = null;
 		Session sess = null;
 		try {
-			
-			Object sqlResult = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createSQLQuery(sql).uniqueResult();
+			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			Object sqlResult = sess.createSQLQuery(sql).uniqueResult();
 			
 		    if (sqlResult != null && sqlResult instanceof Clob) {
 		    	Clob clob = (Clob)sqlResult;
@@ -851,6 +898,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		JSONDataResult ret = null;
 		Session sess = null;
 		try {
+			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
 			String shiTiLeiDH = "SYS_LiuChengJS";
 			
 			ShiTiLei dataStl = ShiTiLei.getShiTiLeiByDH(shiTiLeiDH);

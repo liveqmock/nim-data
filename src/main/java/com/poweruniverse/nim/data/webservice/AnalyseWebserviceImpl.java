@@ -105,7 +105,7 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 					return new StringResult(dataScriptContent);
 				}
 
-				String dataLoadContent = "//为自动加载的数据源 load数据\n";
+				String dataLoadContent = "";
 				//处理variable数据源
 				List<?> variableEls = cfgEl.elements("variable");
 				for(int i=0;i<variableEls.size();i++){
@@ -213,7 +213,10 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 					dataScriptContent += ImageElParser.parseImageEl(imageEl, jsonParams, root, yongHuDM,isIndependent,pageName);
 				}
 				//所有数据源 自动加载数据的代码 添加到程序定义的结尾
-				dataScriptContent += dataLoadContent;
+				if(dataLoadContent.length()>0){
+					dataScriptContent += "//为自动加载的数据源 load数据\n"+dataLoadContent;
+				}
+				
 				
 				//页面加载完成(name为空的是独立页面)
 				dataScriptContent+="\n//页面加载完成\n";
@@ -228,11 +231,11 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 				//不存在xml文件 此页面不需要登录
 				dataScriptContent+= "//默认配置信息（无配置文件）\n" +
 						"LUI.Page.createNew({\n" +
-						"title:'" + app.getTitle() +"',\n" +
-						"needsLogin:false,\n" +
-						"listenerDefs:{},\n"+
-						"params:" +params+"\n"+
-					"});\n\n";
+						"	title:'" + app.getTitle() +"',\n" +
+						"	needsLogin:false,\n" +
+						"	listenerDefs:{},\n"+
+						"	params:" +params+"\n"+
+						"});\n\n";
 			}
 			msg = new StringResult(dataScriptContent);
 			
