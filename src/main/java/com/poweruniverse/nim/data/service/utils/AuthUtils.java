@@ -18,15 +18,30 @@ import com.poweruniverse.nim.data.entity.YongHu;
 import com.poweruniverse.nim.data.entity.YongHuZT;
 
 public class AuthUtils {
+	
 	public static boolean hasGNCZAuth(String gndh,String czdh,Integer yhdm) throws Exception{
+		GongNengCZ gncz = (GongNengCZ)HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createCriteria(GongNengCZ.class)
+				.createAlias("gongNeng", "gncz_gn")
+				.add(Restrictions.eq("gncz_gn.gongNengDH",gndh))
+				.add(Restrictions.eq("caoZuoDH", czdh)).uniqueResult();
+		if(gncz==null){
+			System.out.println("功能操作:"+gndh+"."+czdh+"不存在！");
+			return false;
+		}
+		return hasGNCZAuth(gncz, yhdm);
+	}
+	
+
+	
+	public static boolean hasGNCZAuth(GongNengCZ gncz,Integer yhdm) throws Exception{
 		boolean hasGNCZAuth = false;
 		try {
-			if(yhdm!=null){
+			if(!gncz.getKeYiSQ()){
+				hasGNCZAuth = true;
+			}else if(yhdm!=null){
 				List<?> jsgnczs = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createCriteria(JueSeQXGNCZ.class)
 						.createAlias("gongNengCZ", "jsgncz_gncz")
-						.createAlias("jsgncz_gncz.gongNeng", "jsgncz_gncz_gn")
-						.add(Restrictions.eq("jsgncz_gncz_gn.gongNengDH",gndh))
-						.add(Restrictions.eq("jsgncz_gncz.caoZuoDH", czdh))
+						.add(Restrictions.eq("jsgncz_gncz.id", gncz.getGongNengCZDM()))
 						.add(Restrictions.sqlRestriction("jueSeDM in (select yhjs.juesedm from sys_yonghujs yhjs where yhjs.yonghudm ="+yhdm+" )"))
 						.list();
 				if(jsgnczs.size()>0){
@@ -66,7 +81,7 @@ public class AuthUtils {
 		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
 		YongHu yh = null;
 		if(yhdm!=null){
-			yh = (YongHu)sess.load(YongHu.class, id);
+			yh = (YongHu)sess.load(YongHu.class, yhdm);
 		}
 		//功能实体类
 		Class<?> gnStlClass = Class.forName(gncz.getGongNeng().getShiTiLei().getShiTiLeiClassName());

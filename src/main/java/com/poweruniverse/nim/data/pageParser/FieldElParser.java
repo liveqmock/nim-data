@@ -23,11 +23,17 @@ public class FieldElParser {
 		//处理字段的数据源定义
 		Element fieldDatasetEl = fieldEl.element("dataset");
 		if(fieldDatasetEl!=null){
-			JSONObject fieldDatasetResult = DatasourceElParser.parseDatasetEl(fieldDatasetEl, params, root, yongHuDM,isIndependent,pageName);
-			fieldsPreScript += fieldDatasetResult.getString("dataScriptContent");
-			fieldsPreScript += fieldDatasetResult.getString("dataLoadContent");
-			
-			fieldObj.put("datasourceName", fieldDatasetResult.getString("datasourceName"));
+			JSONObject fieldDatasetResult = null;
+			try {
+				fieldDatasetResult = DatasourceElParser.parseDatasetEl(fieldDatasetEl, params, root, yongHuDM,isIndependent,pageName);
+				fieldsPreScript += fieldDatasetResult.getString("dataScriptContent");
+				fieldsPreScript += fieldDatasetResult.getString("dataLoadContent");
+			} catch (Exception e) {
+				throw new Exception("解析字段"+fieldObj.getString("name")+"的数据源定义失败："+e.getMessage());
+			}
+			if(fieldDatasetResult!=null){
+				fieldObj.put("datasourceName", fieldDatasetResult.getString("datasourceName"));
+			}
 		}
 		//处理字段的子表格定义
 		Element fieldGridEl = fieldEl.element("grid");

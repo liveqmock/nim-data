@@ -45,6 +45,7 @@ import com.poweruniverse.nim.data.entity.GongNengCZ;
 import com.poweruniverse.nim.data.entity.LiuChengJS;
 import com.poweruniverse.nim.data.entity.ShiTiLei;
 import com.poweruniverse.nim.data.entity.YongHu;
+import com.poweruniverse.nim.data.entity.ZiDuan;
 import com.poweruniverse.nim.data.entity.base.BusinessI;
 import com.poweruniverse.nim.data.entity.base.EntityI;
 import com.poweruniverse.nim.data.pageParser.DatasourceElParser;
@@ -61,8 +62,7 @@ public class DataUtils {
 	 * 取功能数据对象
 	 * 只能取到有权限的数据对象
 	 */
-	public static Object getObjectByGN(String gongNengDH,String caoZuoDH,Integer id,Integer yongHuDM) throws Exception{
-		Object obj = null;
+	public static Object getObjectByGNCZ(String gongNengDH,String caoZuoDH,Integer id,Integer yongHuDM) throws Exception{
 		
 		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
 		//取得数据
@@ -74,16 +74,24 @@ public class DataUtils {
 			throw new Exception("功能操作:"+gongNengDH+"."+caoZuoDH+"不存在！");
 		}
 		
+		return getObjectByGNCZ(gncz, id, yongHuDM);
+	}
+	public static Object getObjectByGNCZ(GongNengCZ gncz,Integer id,Integer yongHuDM) throws Exception{
+		Object obj = null;
+		
+		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		//取得数据
+		
 		if(yongHuDM==null){
 			throw new Exception("未登录或已超时，请重新登录！");
 		}
 		
 		//用这个openGNDH、openCZDH确定和检查权限
-		if(AuthUtils.checkAuth(gongNengDH,caoZuoDH, id, yongHuDM)){
+		if(AuthUtils.checkAuth(gncz, id, yongHuDM)){
 			//正常方式 原始对象
 			if(gncz.getDuiXiangXG()){
 				if(id==null){
-					throw new Exception("使用对象相关的功能操作("+gongNengDH+"."+caoZuoDH+")必须提供id！");
+					throw new Exception("使用对象相关的功能操作("+gncz.getGongNeng().getGongNengMC()+"."+gncz.getCaoZuoMC()+")必须提供id！");
 				}else{
 					obj = sess.load(gncz.getGongNeng().getShiTiLei().getShiTiLeiClassName(), id);
 				}
@@ -98,18 +106,17 @@ public class DataUtils {
 					Method getFormObjectMethod = gongNengClass.getMethod("getFormObject",new Class[]{String.class,Integer.class,Integer.class,Object.class,GongNengCZ.class});
 					obj = getFormObjectMethod.invoke(gongNengClass.newInstance(), new Object[]{gncz.getCaoZuoDH(),id,yongHuDM,obj,gncz});
 				} catch (NoSuchMethodException e) {
-//					e.printStackTrace();
+				} catch (ClassNotFoundException e1) {
 				} catch (Exception e1) {
 					e1.printStackTrace();
 				}
 			}
 		}else{
-			throw new Exception("记录("+gongNengDH+"."+caoZuoDH+"."+id+")不存在或用户没有权限！");
+			throw new Exception("记录("+gncz.getGongNeng().getGongNengMC()+"."+gncz.getCaoZuoMC()+"."+id+")不存在或用户没有权限！");
 		}
 	
 		return obj;
-	}
-	
+	}	
 	/**
 	 * 取功能数据对象
 	 * 只能取到有权限的数据对象
@@ -133,6 +140,28 @@ public class DataUtils {
 		
 		return obj;
 	}
+	
+	/**
+	 * 取功能数据对象
+	 * 只能取到有权限的数据对象
+	 */
+	public static Object newObjectBySTL(ShiTiLei shiTiLei) throws Exception{
+		//正常方式 原始对象
+		Object obj = Class.forName(shiTiLei.getShiTiLeiClassName()).newInstance();
+		return obj;
+	}
+
+	public static Object newObjectBySTLDH(String shiTiLeiDH) throws Exception{
+		//取得数据
+		ShiTiLei stl = (ShiTiLei)HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createCriteria(ShiTiLei.class)
+				.add(Restrictions.eq("shiTiLeiDH", shiTiLeiDH))
+				.uniqueResult();
+		if(stl==null){
+			throw new Exception("实体类:"+shiTiLeiDH+"不存在！");
+		}
+		return newObjectBySTL(stl);
+	}
+
 	
 	/**
 	 * 取sql数据对象
@@ -1149,8 +1178,8 @@ public class DataUtils {
 	}
 	
 	
-	//before方法
-	private static Method getBeforeMethod(Class<?> gnActionClass,String methodName) throws Exception{
+	
+	public static Method getAfterMethod(Class<?> gnActionClass,String methodName) throws Exception{
 		Method method=null;
 		if(gnActionClass!=null){
 			//检查类中是否存在此名称的方法
@@ -1158,7 +1187,7 @@ public class DataUtils {
 			Method[] ms = gnActionClass.getMethods();
 			for(Method m:ms){
 				if(m.getName().endsWith("Save")){
-					throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+m.getName()+"方法，改写为before{CaoZuoDH}!例:public MethodResult beforeAppend(String,String,List,YongHu,HttpServletRequest,HttpServletResponse)");
+					throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+m.getName()+"方法，改写为after{CaoZuoDH}!例:public MethodResult afterAppend(String,String,List,JSONObject,Integer)");
 				}
 			}
 			for(Method m:ms){
@@ -1170,18 +1199,49 @@ public class DataUtils {
 			
 			//取得符合条件的方法
 			try {
-				method = gnActionClass.getMethod(methodName,new Class[]{String.class,String.class,List.class,Map.class,Integer.class});
+				method = gnActionClass.getMethod(methodName,new Class[]{String.class,String.class,List.class,JSONObject.class,Integer.class});
 			} catch (Exception e) {
 			}
 			if(method==null && nameExists){
-				throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+methodName+"方法签名及返回值改写为:public MethodResult "+methodName+"(String,String,List,Map<String,Map<String,List<ModelData>>>,YongHu,HttpServletRequest,HttpServletResponse)");
+				throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+methodName+"方法签名及返回值改写为:public MethodResult "+methodName+"(String,String,List,JSONObject,Integer)");
+			}
+		}
+		return method;
+	}
+	
+	//before方法
+	public static Method getBeforeMethod(Class<?> gnActionClass,String methodName) throws Exception{
+		Method method=null;
+		if(gnActionClass!=null){
+			//检查类中是否存在此名称的方法
+			boolean nameExists = false;
+			Method[] ms = gnActionClass.getMethods();
+			for(Method m:ms){
+				if(m.getName().endsWith("Save")){
+					throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+m.getName()+"方法，改写为before{CaoZuoDH}!例:public MethodResult beforeAppend(String,String,List,JSONObject,Integer)");
+				}
+			}
+			for(Method m:ms){
+				if(m.getName().equals(methodName)){
+					nameExists = true;
+					break;
+				}
+			}
+			
+			//取得符合条件的方法
+			try {
+				method = gnActionClass.getMethod(methodName,new Class[]{String.class,String.class,List.class,JSONObject.class,Integer.class});
+			} catch (Exception e) {
+			}
+			if(method==null && nameExists){
+				throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+methodName+"方法签名及返回值改写为:public MethodResult "+methodName+"(String,String,List,JSONObject,Integer)");
 			}
 		}
 		return method;
 	}
 
 	//prepare方法
-	private static Method getPrepareMethod(Class<?> gnActionClass,String methodName) throws Exception{
+	public static Method getPrepareMethod(Class<?> gnActionClass,String methodName) throws Exception{
 		Method method=null;
 		if(gnActionClass!=null){
 			//检查类中是否存在此名称的方法
@@ -1189,7 +1249,7 @@ public class DataUtils {
 			Method[] ms = gnActionClass.getMethods();
 			for(Method m:ms){
 				if(m.getName().endsWith("Save")){
-					throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+m.getName()+"方法，改写为prepare{CaoZuoDH}!例:public MethodResult prepareAppend(String,String,List,YongHu,HttpServletRequest,HttpServletResponse)");
+					throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+m.getName()+"方法，改写为prepare{CaoZuoDH}!例:public MethodResult prepareAppend(String,String,List,JSONObject,Integer)");
 				}
 			}
 			for(Method m:ms){
@@ -1201,18 +1261,18 @@ public class DataUtils {
 			
 			//取得符合条件的方法
 			try {
-				method = gnActionClass.getMethod(methodName,new Class[]{String.class,String.class,List.class,Map.class,Integer.class});
+				method = gnActionClass.getMethod(methodName,new Class[]{String.class,String.class,List.class,JSONObject.class,Integer.class});
 			} catch (Exception e) {
 			}
 			if(method==null && nameExists){
-				throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+methodName+"方法签名及返回值改写为:public MethodResult "+methodName+"(String,String,List,Map<String,Map<String,List<ModelData>>>,YongHu,HttpServletRequest,HttpServletResponse)");
+				throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+methodName+"方法签名及返回值改写为:public MethodResult "+methodName+"(String,String,List,JSONObject,Integer)");
 			}
 		}
 		return method;
 	}
 
 	//on方法
-	private static Method getOnMethod(Class<?> gnActionClass,String methodName) throws Exception{
+	public static Method getOnMethod(Class<?> gnActionClass,String methodName) throws Exception{
 		Method method=null;
 		if(gnActionClass!=null){
 			//检查类中是否存在此名称的方法
@@ -1220,7 +1280,7 @@ public class DataUtils {
 			Method[] ms = gnActionClass.getMethods();
 			for(Method m:ms){
 				if(m.getName().endsWith("Save")){
-					throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+m.getName()+"方法，改写为on{CaoZuoDH}!例:public MethodResult onAppend(String,String,List,YongHu,HttpServletRequest,HttpServletResponse)");
+					throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+m.getName()+"方法，改写为on{CaoZuoDH}!例:public MethodResult onAppend(String,String,List,JSONObject,Integer)");
 				}
 			}
 			for(Method m:ms){
@@ -1232,43 +1292,56 @@ public class DataUtils {
 			
 			//取得符合条件的方法
 			try {
-				method = gnActionClass.getMethod(methodName,new Class[]{String.class,String.class,List.class,Map.class,Integer.class});
+				method = gnActionClass.getMethod(methodName,new Class[]{String.class,String.class,List.class,JSONObject.class,Integer.class});
 			} catch (Exception e) {
 			}
 			if(method==null && nameExists){
-				throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+methodName+"方法签名及返回值改写为:public MethodResult "+methodName+"(String,String,List,Map<String,Map<String,List<ModelData>>>,YongHu,HttpServletRequest,HttpServletResponse)");
+				throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+methodName+"方法签名及返回值改写为:public MethodResult "+methodName+"(String,String,List,JSONObject,Integer)");
 			}
 		}
 		return method;
 	}
 	
-	private static Method getAfterMethod(Class<?> gnActionClass,String methodName) throws Exception{
-		Method method=null;
-		if(gnActionClass!=null){
-			//检查类中是否存在此名称的方法
-			boolean nameExists = false;
-			Method[] ms = gnActionClass.getMethods();
-			for(Method m:ms){
-				if(m.getName().endsWith("Save")){
-					throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+m.getName()+"方法，改写为after{CaoZuoDH}!例:public MethodResult afterAppend(String,String,List,YongHu,HttpServletRequest,HttpServletResponse)");
-				}
-			}
-			for(Method m:ms){
-				if(m.getName().equals(methodName)){
-					nameExists = true;
-					break;
-				}
-			}
-			
-			//取得符合条件的方法
-			try {
-				method = gnActionClass.getMethod(methodName,new Class[]{String.class,String.class,List.class,Map.class,Integer.class});
-			} catch (Exception e) {
-			}
-			if(method==null && nameExists){
-				throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+methodName+"方法签名及返回值改写为:public MethodResult "+methodName+"(String,String,List,Map<String,Map<String,List<ModelData>>>,YongHu,HttpServletRequest,HttpServletResponse)");
+	public static JSONArray getPkMetaFromSTL(ShiTiLei stl){
+		JSONArray stlMeta = new JSONArray();
+		JSONObject zdMeta = new JSONObject();
+		zdMeta.put("name", stl.getZhuJianLie());
+		for(ZiDuan zd :stl.getZds()){
+			if("object".equals(zd.getZiDuanLX().getZiDuanLXDH()) || "set".equals(zd.getZiDuanLX().getZiDuanLXDH()) ){
+				JSONObject zdMeta1 = new JSONObject();
+				zdMeta1.put("name", stl.getZhuJianLie());
+				
+				JSONArray fields = new JSONArray();
+				JSONObject zhuJianLieMeta = new JSONObject();
+				zhuJianLieMeta.put("name", zd.getGuanLianSTL().getZhuJianLie());
+				fields.add(zhuJianLieMeta);
+				
+				zdMeta1.put("fields", fields);
+				
+				stlMeta.add(zdMeta1);
 			}
 		}
-		return method;
+		return stlMeta;
 	}
+	
+//	public static JSONObject setPkFromEntity(ShiTiLei stl,JSONObject jsonObj){
+//		if(jsonObj.containsKey("_entity")){
+//			EntityI obj = (EntityI)jsonObj.get("_entity");
+//			if(obj!=null){
+//				jsonObj.put(stl.getZhuJianLie(), obj.pkValue());
+//				for(ZiDuan zd :stl.getZds()){
+//					if("set".equals(zd.getZiDuanLX().getZiDuanLXDH()) && jsonObj.containsKey(zd.getZiDuanDH())){
+//						JSONArray subDataArray = jsonObj.getJSONArray(zd.getZiDuanDH());
+//						for(int i=0;i<subDataArray.size();i++){
+//							JSONObject subDataObj = subDataArray.getJSONObject(i);
+//							setPkFromEntity(zd.getGuanLianSTL(),subDataObj);
+//						}
+//					}
+//				}
+//			}
+//			jsonObj.remove("_entity");
+//		}
+//		return jsonObj;
+//	}
+	
 }

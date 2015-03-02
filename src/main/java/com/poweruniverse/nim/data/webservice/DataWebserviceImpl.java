@@ -9,6 +9,10 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -20,6 +24,7 @@ import javax.xml.ws.WebServiceContext;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
@@ -27,19 +32,24 @@ import com.poweruniverse.nim.base.bean.BaseJavaDatasource;
 import com.poweruniverse.nim.base.bean.UserInfo;
 import com.poweruniverse.nim.base.message.JSONDataResult;
 import com.poweruniverse.nim.base.message.JSONMessageResult;
+import com.poweruniverse.nim.base.message.ObjectResult;
 import com.poweruniverse.nim.base.message.Result;
 import com.poweruniverse.nim.base.webservice.BasePlateformWebservice;
+import com.poweruniverse.nim.data.bean.MethodResult;
 import com.poweruniverse.nim.data.entity.GongNeng;
 import com.poweruniverse.nim.data.entity.GongNengCZ;
 import com.poweruniverse.nim.data.entity.ShiTiLei;
+import com.poweruniverse.nim.data.entity.YongHu;
 import com.poweruniverse.nim.data.entity.ZiDuan;
 import com.poweruniverse.nim.data.entity.ZiDuanLX;
+import com.poweruniverse.nim.data.entity.base.BusinessI;
 import com.poweruniverse.nim.data.entity.base.EntityI;
 import com.poweruniverse.nim.data.service.utils.AuthUtils;
 import com.poweruniverse.nim.data.service.utils.DataUtils;
 import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 import com.poweruniverse.nim.data.service.utils.JSONConvertUtils;
 import com.poweruniverse.nim.data.service.utils.NativeSQLOrder;
+import com.poweruniverse.nim.data.service.utils.TaskUtils;
 
 @WebService
 public class DataWebserviceImpl extends BasePlateformWebservice {
@@ -946,4 +956,302 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		return ret;
 	}
 	
+	
+	/**
+	 * 客户端提交修改后的数据 多条记录的新增、修改、删除
+	 * @param sql
+	 * @param start
+	 * @param limit
+	 * @param fieldString
+	 * @return
+	 */
+	public JSONDataResult save(
+			@WebParam(name="xiTongDH") String xiTongDH,
+			@WebParam(name="gongNengDH") String gongNengDH,
+			@WebParam(name="caoZuoDH") String caoZuoDH,
+			@WebParam(name="submitData") String submitData,
+			@WebParam(name="iscomplete") Boolean iscomplete){
+		JSONDataResult ret = null;
+		Session sess = null;
+		
+		try {
+			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			GongNengCZ gncz = (GongNengCZ)sess.createCriteria(GongNengCZ.class)
+					.add(Restrictions.eq("gncz_gn.gongNengDH",gongNengDH))
+					.createAlias("gongNeng", "gncz_gn")
+					.add(Restrictions.eq("caoZuoDH", caoZuoDH)).uniqueResult();
+			if(gncz==null){
+				return new JSONDataResult("功能操作（"+gongNengDH+"."+caoZuoDH+"）不存在！");
+			}
+			//保存数据
+			Integer yhdm = this.getYongHuDM(wsContext,false);
+			ShiTiLei stl = gncz.getGongNeng().getShiTiLei();
+			JSONObject submitDataObj = JSONObject.fromObject(submitData);
+			//当前处理的对象
+			List<EntityI> objs = new ArrayList<EntityI>();
+			List<EntityI> oldObjs = new ArrayList<EntityI>();
+			
+			JSONArray dataArray = new JSONArray();
+			if(submitDataObj.containsKey("inserted")){
+				JSONArray insertedDataArray = submitDataObj.getJSONArray("inserted");
+				for(int i=0;i<insertedDataArray.size();i++){
+					JSONObject dataObj = insertedDataArray.getJSONObject(i);
+					//新增数据要清除主键值
+					if(dataObj.containsKey(stl.getZhuJianLie())){
+						dataObj.remove(stl.getZhuJianLie());
+					}
+					
+					//检查权限
+					if(!AuthUtils.hasGNCZAuth(gncz, yhdm)){
+						return new JSONDataResult("保存失败:当前用户无此功能操作("+gncz.getGongNeng().getGongNengMC()+"."+gncz.getCaoZuoMC()+")的授权!");
+					}
+					//当前用户是否有权限 新增对象
+					EntityI obj = (EntityI)DataUtils.newObjectBySTL(stl);
+					objs.add(obj);
+					oldObjs.add(obj.clone());
+					
+					dataObj.put("_entity", obj);
+					dataArray.add(dataObj);
+				}
+			}
+			
+			if(submitDataObj.containsKey("modified")){
+				JSONArray modifiedDataArray = submitDataObj.getJSONArray("modified");
+				for(int i=0;i<modifiedDataArray.size();i++){
+					JSONObject dataObj = modifiedDataArray.getJSONObject(i);
+					Integer objId = null;
+					if(dataObj.containsKey(stl.getZhuJianLie())){
+						objId = dataObj.getInt(stl.getZhuJianLie());
+						dataObj.remove(stl.getZhuJianLie());
+					}
+					
+					if(objId==null){
+						return new JSONDataResult("保存失败:主键值不允许为空!");
+					}
+					//检查权限
+					if(!AuthUtils.checkAuth(gncz, objId, yhdm)){
+						return new JSONDataResult("保存失败:记录"+objId+"不存在或用户对此记录没有“"+gncz.getCaoZuoMC()+"”权限！");
+					}
+					//调用原始操作对应的方法取得初始对象
+					EntityI obj = (EntityI)DataUtils.getObjectByGNCZ(gncz, objId, yhdm);
+					objs.add(obj);
+					oldObjs.add(obj.clone());
+					
+					dataArray.add(dataObj);
+				}
+			}
+
+			ObjectResult saveResult = saveData(gncz, objs, dataArray, submitDataObj, sess, yhdm);
+			if(!saveResult.isSuccess()){
+				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory, false);
+				return new JSONDataResult(saveResult.getErrorMsg());
+			}
+			
+			HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory, true);
+			sess = null;
+			
+			//提交工作流
+			if(gncz.getGongNeng().getShiFouLCGN().booleanValue()==true){
+				JSONDataResult taskResult = completeTask(gncz, objs, oldObjs, iscomplete, yhdm);
+				if(!taskResult.isSuccess() || taskResult.getTotalCount() == 0){
+					return new JSONDataResult("数据保存成功，工作流执行失败："+taskResult.getErrorMsg());
+				}else if(taskResult.getTotalCount() < objs.size()){
+					return new JSONDataResult("数据保存成功，部分工作流执行失败：成功"+taskResult.getTotalCount()+"条/共"+objs.size()+"条");
+				}
+			}
+			//返回值
+			JSONArray rows = new JSONArray();
+			
+			Map<JSONObject,EntityI> linkMap = (Map<JSONObject,EntityI>)saveResult.get("linkMap");
+			Iterator<JSONObject> linkKeys = linkMap.keySet().iterator();
+			while(linkKeys.hasNext()){
+				JSONObject keyObj = linkKeys.next();
+				EntityI val = linkMap.get(keyObj);
+				
+				JSONObject row = new JSONObject();
+				row.put(val.pkName(), val.pkValue());
+				row.put("_record_id", keyObj.get("_record_id"));
+				rows.add(row);
+			}
+			ret = new JSONDataResult(rows,rows.size(),0,0,null);
+			
+		}catch (InvocationTargetException e){
+			ret = new JSONDataResult(e.getTargetException().getMessage());
+			e.printStackTrace();
+			if (sess != null) {
+				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+			}
+		}catch (Exception e){
+			ret = new JSONDataResult(e.getMessage());
+			e.printStackTrace();
+			if (sess != null) {
+				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+			}
+		}finally{
+			if (sess != null) {
+				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+			}
+		}
+		return ret;
+	}
+	
+	
+	//保存实体类数据 并记录保存对象的主键值（仅新增和修改的对象主键值）
+	private ObjectResult saveData(GongNengCZ gncz,List<EntityI> objs,JSONArray saveDataArray,JSONObject submitDataObj,Session sess,Integer yhdm) throws Exception{
+			ShiTiLei stl = gncz.getGongNeng().getShiTiLei();
+			
+			//是否存在功能Action类
+			//执行openGNDH 和execCZDH 指定的功能类和方法
+			Class<?> gnActionClass = null;
+			Object gnActionInstance = null;
+			try{
+				gnActionClass = Class.forName(gncz.getGongNeng().getGongNengClass());
+				gnActionInstance = gnActionClass.newInstance();
+			} catch (Exception e) {
+			}
+			String firstUpCZDH = gncz.getCaoZuoDH().replaceFirst(gncz.getCaoZuoDH().substring(0, 1),gncz.getCaoZuoDH().substring(0, 1).toUpperCase());
+			//功能action类中 是否实现了prepareSave方法
+			Method prepareSaveMethod = DataUtils.getPrepareMethod(gnActionClass,"prepare"+firstUpCZDH);
+			if(prepareSaveMethod!=null){
+				MethodResult prepareRet = (MethodResult)prepareSaveMethod.invoke(gnActionInstance, new Object[]{
+					gncz.getGongNeng().getGongNengDH(),gncz.getCaoZuoDH(),objs,submitDataObj,yhdm
+				});
+				if(!prepareRet.isSuccess()){
+					return new ObjectResult(prepareRet.getErrorMsg());
+				}
+			}
+			//尝试将客户端传递来的变化 应用到对象
+			Map<JSONObject,EntityI> linkMap = new HashMap<JSONObject,EntityI>();
+			for(int i=0;i<objs.size();i++){
+				EntityI obj = objs.get(i);
+				JSONConvertUtils.JSONObject2object(stl, obj, saveDataArray.getJSONObject(i),linkMap);
+			}
+			
+			//功能action类中 是否实现了beforeSave方法
+			Method beforeSaveMethod = DataUtils.getBeforeMethod(gnActionClass,"before"+firstUpCZDH);
+			if(beforeSaveMethod!=null){
+				MethodResult beforeRet = (MethodResult)beforeSaveMethod.invoke(gnActionInstance, new Object[]{
+						gncz.getGongNeng().getGongNengDH(),gncz.getCaoZuoDH(),objs,submitDataObj,yhdm
+				});
+				if(!beforeRet.isSuccess()){
+					return new ObjectResult(beforeRet.getErrorMsg());
+				}
+			}
+			
+			YongHu yh = null;
+			if(yhdm != null ){
+				yh = (YongHu)sess.load(YongHu.class, yhdm);
+			}
+			//记录必要的业务信息
+			for(EntityI entityI:objs){
+				if(entityI instanceof BusinessI){
+					//为业务对象的业务字段赋值
+					BusinessI p = (BusinessI)entityI;
+					if(p.pkValue() == null){
+						//新增对象  保存的时候 为没有初值的业务字段赋值
+						if(p.getSuoYouZhe()==null && yh!=null) p.setSuoYouZhe(yh);
+						if(p.getSuoShuBM()==null && yh!=null) p.setSuoShuBM(yh.getBuMen());
+						if(p.getLuRuRen()==null && yh!=null){ p.setLuRuRen(yh.getYongHuMC()); }else {p.setLuRuRen("匿名");}
+						if(p.getLuRuRQ()==null) p.setLuRuRQ(Calendar.getInstance().getTime());
+					}else{
+						//编辑对象
+						if(p.getLuRuRen()==null && yh!=null){ p.setXiuGaiRen(yh.getYongHuMC()); }else {p.setXiuGaiRen("匿名");}
+						p.setXiuGaiRQ(Calendar.getInstance().getTime());
+					}
+				}
+			}
+			
+			//功能action类中 是否实现了onXXX方法
+			Method onSaveMethod = DataUtils.getOnMethod(gnActionClass,"on"+firstUpCZDH);
+			if(onSaveMethod!=null){
+				MethodResult onRet = (MethodResult)onSaveMethod.invoke(gnActionInstance, new Object[]{
+					gncz.getGongNeng().getGongNengDH(),gncz.getCaoZuoDH(),objs,submitDataObj,yhdm
+				});
+				if(!onRet.isSuccess()){
+					return new ObjectResult(onRet.getErrorMsg());
+				}
+			}else{
+				//保存新增和修改的数据
+				for(EntityI entityI:objs){
+					sess.saveOrUpdate(entityI);
+				}
+				//删除提交来的数据
+				if(submitDataObj.containsKey("deleted")){
+					JSONArray deletedDataArray = submitDataObj.getJSONArray("deleted");
+					for(int i=0;i<deletedDataArray.size();i++){
+						Integer deletedPkValue = deletedDataArray.getJSONObject(i).getInt(gncz.getGongNeng().getShiTiLei().getZhuJianLie());
+						//调用原始操作对应的方法取得初始对象
+						EntityI deletedObj = (EntityI)DataUtils.getObjectByGNCZ(gncz,deletedPkValue,yhdm);
+						sess.delete(deletedObj);
+					}
+				}
+			}
+			//功能action类中 是否实现了afterSave方法
+			Method afterSaveMethod = DataUtils.getAfterMethod(gnActionClass,"after"+firstUpCZDH);
+			if(afterSaveMethod!=null){
+				MethodResult afterRet = (MethodResult)afterSaveMethod.invoke(gnActionInstance, new Object[]{
+						gncz.getGongNeng().getGongNengDH(),gncz.getCaoZuoDH(),objs,submitDataObj,yhdm
+				});
+				if(!afterRet.isSuccess()){
+					return new ObjectResult(afterRet.getErrorMsg());
+				}
+			}
+			//全部处理成功 
+			return new ObjectResult("linkMap",linkMap);
+	}
+	
+	
+	private JSONDataResult completeTask(GongNengCZ gncz,List<EntityI> objs,List<EntityI> oldObjs,boolean isComplete, Integer yhdm){
+		JSONDataResult taskRet = null;
+		try {
+			JSONArray taskRows = new JSONArray();
+
+			Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			YongHu yh = (YongHu)sess.load(YongHu.class,yhdm);
+			
+			for(int jj=0;jj<objs.size();jj++){
+				BusinessI newBusiObj = (BusinessI)objs.get(jj);
+				sess.refresh(newBusiObj);
+				JSONObject taskRow = new JSONObject();
+				taskRow.put(gncz.getGongNeng().getShiTiLei().getZhuJianLie(), newBusiObj.pkValue());
+				//
+				try {
+					if(newBusiObj.getProcessInstanceId()==null){
+						TaskUtils.startProcessInstance(newBusiObj,(BusinessI)oldObjs.get(jj), null, gncz, yh, isComplete);
+					}else if(isComplete){
+						TaskUtils.completeTask(newBusiObj,(BusinessI)oldObjs.get(jj), gncz, yh,true);
+					}else{
+						TaskUtils.claimTask(newBusiObj,(BusinessI)oldObjs.get(jj), gncz, yh);
+					}
+					//每个流程提交一次
+					HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory, true);
+					sess = null;
+					taskRow.put("success", true);
+				} catch (Exception e) {
+					if(sess!=null){
+						HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory, false);
+						sess = null;
+					}
+					taskRow.put("success", false);
+					taskRow.put("errorInfo", e.getMessage());
+					e.printStackTrace();
+				}finally{
+					if(sess!=null){
+						HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory, true);
+						sess = null;
+					}
+				}
+				taskRows.add(taskRow);
+				sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			}
+			taskRet = new JSONDataResult(taskRows,taskRows.size(),0,0,null);
+		} catch (HibernateException e) {
+			taskRet = new JSONDataResult(e.getMessage());
+			e.printStackTrace();
+		}
+		return taskRet;
+	}
+	
+
+
 }

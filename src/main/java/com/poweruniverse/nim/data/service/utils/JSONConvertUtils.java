@@ -1,11 +1,14 @@
 package com.poweruniverse.nim.data.service.utils;
 
+import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import net.sf.json.JSONArray;
@@ -19,11 +22,16 @@ import org.dom4j.tree.DefaultAttribute;
 import com.poweruniverse.nim.data.entity.ShiTiLei;
 import com.poweruniverse.nim.data.entity.ZiDuan;
 import com.poweruniverse.nim.data.entity.ZiDuanLX;
+import com.poweruniverse.nim.data.entity.base.EntityI;
 
 public class JSONConvertUtils {
-	private static SimpleDateFormat dtf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+	public static SimpleDateFormat dsf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
+
+	public static SimpleDateFormat dtf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
 	private static SimpleDateFormat smf = new SimpleDateFormat("yyyy-MM");
+	private static SimpleDateFormat stf = new SimpleDateFormat("HH:mm");
+	private static SimpleDateFormat sbf = new SimpleDateFormat("MM-dd");
 
 	
 	public static JSONArray objectList2JSONArray(ShiTiLei stl,Collection<?> objs,JSONArray fields) throws Exception{
@@ -165,5 +173,165 @@ public class JSONConvertUtils {
 		return cfgJson;
 	}
 
+	//将客户端修改的值 应用到原始数据对象中 同时 记录
+	public static EntityI JSONObject2object(ShiTiLei stl,EntityI obj,JSONObject dataObj,Map<JSONObject,EntityI> linkMap) throws Exception{
+		if(dataObj==null) return obj;
+		//在
+		linkMap.put(dataObj, obj);
+		//根据
+		Iterator<?> properties = dataObj.keys();
+		while(properties.hasNext()){
+			String propertyName = (String)properties.next();
+			if(!propertyName.startsWith("_")){
+				ZiDuan zd = null;
+				try {
+					zd = stl.getZiDuan(propertyName);
+				} catch (Exception e1) {
+				}
+				//不处理提交的数据中 当前实体类定义以外的数据 
+				if(zd!=null){
+					ZiDuanLX zdlx = zd.getZiDuanLX();
+					if(zdlx==null){
+						throw new Exception("实体类\""+stl.getShiTiLeiMC()+"\"中字段\""+zd.getZiDuanDH()+"\"的字段类型为空！");
+					}
+					//
+					Object propertyValue = dataObj.get(propertyName);
+					if(ZiDuanLX.isObjectType(zdlx.getZiDuanLXDH())){
+						if(propertyValue!=null && !(propertyValue instanceof JSONNull)){
+							ShiTiLei substl = zd.getGuanLianSTL();
+							Object value = Class.forName(substl.getShiTiLeiClassName()).newInstance();
+							
+							Integer substlPkValue = null;
+							
+							Object substlPkValueObj = null;
+							if(propertyValue instanceof JSONObject){
+								substlPkValueObj = ((JSONObject)propertyValue).get(substl.getZhuJianLie());
+							}else{
+								substlPkValueObj = propertyValue;
+							}
 
+							if(substlPkValueObj!=null){
+								if(substlPkValueObj instanceof String){
+									substlPkValue = Double.valueOf((String)substlPkValueObj).intValue();
+								}else if(substlPkValueObj instanceof Double){
+									substlPkValue = ((Double)substlPkValueObj).intValue();
+								}else if(substlPkValueObj instanceof Integer){
+									substlPkValue = (Integer)substlPkValueObj;
+								}else{
+									throw new Exception("未知的主键值:"+substlPkValue+(substlPkValue==null?"!":("类型("+substlPkValue.getClass()+")!")));
+								}
+							}
+							
+							PropertyUtils.setProperty(value,substl.getZhuJianLie(),substlPkValue);
+							PropertyUtils.setProperty(obj,propertyName,value);
+						}else{
+							PropertyUtils.setProperty(obj,propertyName,null);
+						}
+						
+					}else if(ZiDuanLX.isSetType(zdlx.getZiDuanLXDH())){
+						//父对象的类中 关于子类集合操作的几个方法
+						Class<?> cls = Class.forName(stl.getShiTiLeiClassName());
+						Method appendMethod = cls.getMethod("addTo"+propertyName,new Class[]{Object.class,Object.class});
+						Method removeMethod = cls.getMethod("removeFrom"+propertyName,new Class[]{Object.class,Object.class});
+						Method getMethod = cls.getMethod("get"+propertyName+"ById",new Class[]{Object.class});
+						
+						ShiTiLei substl = zd.getGuanLianSTL();
+						Object subObj = null;
+						if(propertyValue instanceof JSONObject){
+							@SuppressWarnings("unchecked")
+							JSONArray modified = (JSONArray)((JSONObject)propertyValue).get("modified");
+							if(modified!=null && modified.size()>0){
+								for(int i =0;i<modified.size();i++){
+									JSONObject subObjData = modified.getJSONObject(i);
+									Object subPrimaryValue = subObjData.get(substl.getZhuJianLie());
+									subObj = getMethod.invoke(obj, new Object[]{subPrimaryValue});
+									subObj = JSONObject2object(substl,(EntityI)subObj,subObjData,linkMap);
+								}
+							}
+							@SuppressWarnings("unchecked")
+							JSONArray inserted = (JSONArray)((JSONObject)propertyValue).get("inserted");
+							if(inserted!=null && inserted.size()>0){
+								for(int i =0;i<inserted.size();i++){
+									JSONObject subObjData = inserted.getJSONObject(i);
+									//新增子对象
+									try{
+										Class<?> subCls = Class.forName(stl.getShiTiLeiClassName());
+										Method mtd = subCls.getMethod("new"+propertyName+"ByParent",new Class[]{});
+										subObj = mtd.invoke(obj, new Object[]{});
+									}catch(Exception e){
+										subObj = Class.forName(substl.getShiTiLeiClassName()).newInstance();
+										PropertyUtils.setProperty(subObj,zd.getGuanLianFLZD(),obj);
+									}
+									//填充子对象的内容
+									subObj = JSONObject2object(substl,(EntityI)subObj,subObjData,linkMap);
+									appendMethod.invoke(obj, new Object[]{obj,subObj});
+								}
+							}
+							@SuppressWarnings("unchecked")
+							JSONArray deleted = (JSONArray)((JSONObject)propertyValue).get("deleted");
+							if(deleted!=null && deleted.size()>0){
+								for(int i =0;i<deleted.size();i++){
+									Object subPrimaryValue = deleted.getJSONObject(i).get(substl.getZhuJianLie());
+									subObj = getMethod.invoke(obj, new Object[]{subPrimaryValue});
+									removeMethod.invoke(obj, new Object[]{obj,subObj});
+								}
+							}
+							
+						}else if (propertyValue instanceof JSONArray){
+							@SuppressWarnings("unchecked")
+							JSONArray inserted = (JSONArray)propertyValue;
+							if(inserted!=null && inserted.size()>0){
+								for(int i =0;i<inserted.size();i++){
+									//新增子对象
+									try{
+										Class<?> subCls = Class.forName(stl.getShiTiLeiClassName());
+										Method mtd = subCls.getMethod("new"+propertyName+"ByParent",new Class[]{});
+										subObj = mtd.invoke(obj, new Object[]{});
+									}catch(Exception e){
+										subObj = Class.forName(substl.getShiTiLeiClassName()).newInstance();
+										PropertyUtils.setProperty(subObj,zd.getGuanLianFLZD(),obj);
+									}
+									//填充子对象的内容
+									subObj = JSONObject2object(substl,(EntityI)subObj,inserted.getJSONObject(i),linkMap);
+									appendMethod.invoke(obj, new Object[]{obj,subObj});
+								}
+							}
+						}
+						
+					}else if(zdlx.getZiDuanLXDH().equalsIgnoreCase("date") && (propertyValue instanceof String) ){
+						String dateString = ""+propertyValue;
+						Date dateValue = null;
+						if(dateString.length()==10){
+							dateValue = sdf.parse(dateString);
+						}else if(dateString.length()==19){
+							dateValue = dtf.parse(dateString);
+						}else if(dateString.length() == 21){//langll 处理采购网同步日期 计入毫秒日期
+							dateValue = dsf.parse(dateString);
+						}else{
+							System.out.println("错误的日期数据("+propertyName+")："+dateString+"格式必须为yyyy-MM-dd HH:mm:ss或yyyy-MM-dd");
+						}
+						PropertyUtils.setProperty(obj,propertyName,dateValue);
+					}else if(zdlx.getZiDuanLXDH().equalsIgnoreCase("double") && propertyValue!=null&& !propertyValue.equals("") && (propertyValue instanceof String) ){
+						Double dateValue = Double.valueOf((String)propertyValue);
+						PropertyUtils.setProperty(obj,propertyName,dateValue);
+					}else if(zdlx.getZiDuanLXDH().equalsIgnoreCase("double") && propertyValue!=null && !propertyValue.equals("")&& (propertyValue instanceof Integer) ){
+						Double dateValue = Double.valueOf(propertyValue.toString());
+						PropertyUtils.setProperty(obj,propertyName,dateValue);
+					}else if(zdlx.getZiDuanLXDH().equalsIgnoreCase("string") && propertyValue!=null && !(propertyValue instanceof String) ){
+						PropertyUtils.setProperty(obj,propertyName,propertyValue.toString());
+					}else if(zdlx.getZiDuanLXDH().equalsIgnoreCase("int") && propertyValue!=null && !propertyValue.equals("")&& (propertyValue instanceof String || propertyValue instanceof Double) ){
+						Double doubleValue = Double.valueOf(propertyValue.toString());
+						PropertyUtils.setProperty(obj,propertyName,doubleValue.intValue());
+					}else{
+						try{
+							PropertyUtils.setProperty(obj,propertyName,propertyValue);
+						}catch(Exception e){
+							e.printStackTrace();
+						}
+					}
+				}
+			}
+		}
+		return obj;
+	}
 }

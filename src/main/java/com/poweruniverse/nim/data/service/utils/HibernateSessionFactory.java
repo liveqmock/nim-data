@@ -6,6 +6,8 @@ import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.sf.json.JSONObject;
+
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -19,8 +21,9 @@ public class HibernateSessionFactory{
 	
 	private static final Map<String,ThreadLocal<Session>> threadLocalMap = new HashMap<String,ThreadLocal<Session>>();
     private static Map<String,SessionFactory> sessionFactoryMap = new HashMap<String,SessionFactory>();
+    private static Map<String,JSONObject> sessionConfigurationMap = new HashMap<String,JSONObject>();
     
-    public static SessionFactory createSessionFactory(String factoryName,File cfgFile) {
+    public static SessionFactory createSessionFactory(String factoryName,File cfgFile,JSONObject sessConfig) {
     	SessionFactory cSessionFactory = sessionFactoryMap.get(factoryName);
     	if(cSessionFactory==null){
     		try {
@@ -28,6 +31,8 @@ public class HibernateSessionFactory{
     		    cSessionFactory = new Configuration ().configure(cfgFile).buildSessionFactory() ;
     		    
     		    sessionFactoryMap.put(factoryName, cSessionFactory);
+    		    
+    		    sessionConfigurationMap.put(factoryName, sessConfig);
     			System.out.println("sessionFactory "+factoryName+" builded");
     	    } catch (Exception e) {
     		     System.out.println("%%%% Error Creating SessionFactory "+factoryName+" ("+cfgFile.getPath()+")%%%%");
@@ -37,6 +42,13 @@ public class HibernateSessionFactory{
 	    return cSessionFactory;
     }
     
+    public static Map<String,JSONObject> getConfigurationMap(){
+    	return sessionConfigurationMap;
+    }
+
+    public static JSONObject getConfiguration(String factoryName){
+    	return sessionConfigurationMap.get(factoryName);
+    }
 
     
 //    public static Connection getConnection(){

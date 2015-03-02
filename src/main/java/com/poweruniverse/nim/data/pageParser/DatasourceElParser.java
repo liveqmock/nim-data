@@ -34,6 +34,12 @@ public class DatasourceElParser {
 //		if(realDsName!=null){
 //			name = realDsName;
 //		}
+		JSONObject listenersObj = new JSONObject();
+		listenersObj.put("onLoad",datasetEl.attributeValue("onLoad"));
+		listenersObj.put("onSave",datasetEl.attributeValue("onSave"));
+		listenersObj.put("onSubmit",datasetEl.attributeValue("onSubmit"));
+		listenersObj.put("onChange",datasetEl.attributeValue("onChange"));
+		
 		String autoLoad= datasetEl.attributeValue("autoLoad"); 
 		if("javaDataset".equals(datasetEl.attributeValue("component"))){
 			//java类型的数据源
@@ -53,8 +59,7 @@ public class DatasourceElParser {
 			}
 			
 			//toDoDataset events
-			JSONObject listenersObj = new JSONObject();
-			listenersObj.put("onLoad",datasetEl.attributeValue("onLoad"));
+			
 			
 			JSONArray parameters =  getParametersFromEl(datasetEl,root,params);
 			JSONObject parametersObject = new JSONObject();
@@ -136,8 +141,8 @@ public class DatasourceElParser {
 			}
 			
 			//onLoad events
-			JSONObject listenersObj = new JSONObject();
-			listenersObj.put("onLoad",datasetEl.attributeValue("onLoad"));
+//			JSONObject listenersObj = new JSONObject();
+//			listenersObj.put("onLoad",datasetEl.attributeValue("onLoad"));
 			
 
 			JSONArray fieldJsonArray = null;
@@ -182,8 +187,8 @@ public class DatasourceElParser {
 			String shiTiLeiDH= datasetEl.attributeValue("shiTiLeiDH"); 
 			
 			//toDoDataset events
-			JSONObject listenersObj = new JSONObject();
-			listenersObj.put("onLoad",datasetEl.attributeValue("onLoad"));
+//			JSONObject listenersObj = new JSONObject();
+//			listenersObj.put("onLoad",datasetEl.attributeValue("onLoad"));
 			
 			JSONArray filters = getFiltersFromEl(datasetEl,root,params);
 			JSONArray sorts = getSortsFromEl(datasetEl,root,params);
@@ -247,8 +252,8 @@ public class DatasourceElParser {
 			JSONArray sorts = getSortsFromEl(datasetEl,root,params);
 			
 			//toDoDataset events
-			JSONObject listenersObj = new JSONObject();
-			listenersObj.put("onLoad",datasetEl.attributeValue("onLoad"));
+//			JSONObject listenersObj = new JSONObject();
+//			listenersObj.put("onLoad",datasetEl.attributeValue("onLoad"));
 			
 			//取得json格式的数据
 			ShiTiLei dataStl = ShiTiLei.getShiTiLeiByDH(shiTiLeiDH);
@@ -315,8 +320,8 @@ public class DatasourceElParser {
 			String caoZuoDH= datasetEl.attributeValue("caoZuoDH"); 
 			
 			//gnDataset events
-			JSONObject listenersObj = new JSONObject();
-			listenersObj.put("onLoad",datasetEl.attributeValue("onLoad"));
+//			JSONObject listenersObj = new JSONObject();
+//			listenersObj.put("onLoad",datasetEl.attributeValue("onLoad"));
 			
 			int start = 0;
 			String startString = datasetEl.attributeValue("start");
@@ -425,6 +430,8 @@ public class DatasourceElParser {
 		JSONObject listenersObj = new JSONObject();
 		listenersObj.put("onLoad",recordEl.attributeValue("onLoad"));
 		listenersObj.put("onSave",recordEl.attributeValue("onSave"));
+		listenersObj.put("onSubmit",recordEl.attributeValue("onSubmit"));
+		listenersObj.put("onChange",recordEl.attributeValue("onChange"));
 		
 		if("sqlRecord".equals(recordEl.attributeValue("component"))){
 			
@@ -527,7 +534,7 @@ public class DatasourceElParser {
 					"fields:" +fieldJsonArray.toString()+"\n"+
 			"});\n";
 			if("true".equals(autoLoad)){
-				Object obj = DataUtils.getObjectByGN(gongNengDH,caoZuoDH,id,yongHuDM);
+				Object obj = DataUtils.getObjectByGNCZ(gongNengDH,caoZuoDH,id,yongHuDM);
 				if(obj!=null){
 					JSONObject jsonData = JSONConvertUtils.object2JSONObject(dataGn.getShiTiLei(),obj,fieldJsonArray);
 					dataScriptContent += ""+varName+"_init_data = {\n" +
