@@ -39,21 +39,21 @@ import org.hibernate.criterion.Restrictions;
 
 import com.poweruniverse.nim.base.message.JSONMessageResult;
 import com.poweruniverse.nim.base.message.Result;
-import com.poweruniverse.nim.data.entity.GongNeng;
-import com.poweruniverse.nim.data.entity.GongNengCZ;
-import com.poweruniverse.nim.data.entity.GongNengCZBL;
-import com.poweruniverse.nim.data.entity.GongNengGZL;
-import com.poweruniverse.nim.data.entity.GongNengLC;
-import com.poweruniverse.nim.data.entity.JueSe;
-import com.poweruniverse.nim.data.entity.LiuChengJS;
-import com.poweruniverse.nim.data.entity.LiuChengJSBL;
-import com.poweruniverse.nim.data.entity.LiuChengJSSJ;
-import com.poweruniverse.nim.data.entity.LiuChengJSXJ;
-import com.poweruniverse.nim.data.entity.ShiTiLei;
-import com.poweruniverse.nim.data.entity.YongHu;
-import com.poweruniverse.nim.data.entity.ZiDuanLX;
-import com.poweruniverse.nim.data.entity.base.BusinessI;
-import com.poweruniverse.nim.data.entity.base.EntityI;
+import com.poweruniverse.nim.data.entity.system.GongNeng;
+import com.poweruniverse.nim.data.entity.system.GongNengCZ;
+import com.poweruniverse.nim.data.entity.system.GongNengCZBL;
+import com.poweruniverse.nim.data.entity.system.GongNengGZL;
+import com.poweruniverse.nim.data.entity.system.GongNengLC;
+import com.poweruniverse.nim.data.entity.system.JueSe;
+import com.poweruniverse.nim.data.entity.system.LiuChengJS;
+import com.poweruniverse.nim.data.entity.system.LiuChengJSBL;
+import com.poweruniverse.nim.data.entity.system.LiuChengJSSJ;
+import com.poweruniverse.nim.data.entity.system.LiuChengJSXJ;
+import com.poweruniverse.nim.data.entity.system.ShiTiLei;
+import com.poweruniverse.nim.data.entity.system.YongHu;
+import com.poweruniverse.nim.data.entity.system.ZiDuanLX;
+import com.poweruniverse.nim.data.entity.system.base.BusinessI;
+import com.poweruniverse.nim.data.entity.system.base.EntityI;
 import com.poweruniverse.oim.activiti.ClearProcessInstanceBussinessKeyCmd;
 import com.poweruniverse.oim.activiti.TaskCandidateExpression;
 
@@ -85,7 +85,7 @@ public class TaskUtils {
 			}
 			
 			
-			Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			Session sess = HibernateSessionFactory.getSession();
 			//取得流程扩展方法 备用
 			Method processInstanceEndedMethod=null;
 			Object gnActionInstance =null;
@@ -382,7 +382,7 @@ public class TaskUtils {
 		//检查是启动新流程 还是执行已有流程
 		//有记录流程实例id的对象 进行流程操作
 		//查找对应的流程检视
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		LiuChengJS currentLCJS = (LiuChengJS)sess.createCriteria(LiuChengJS.class)
 				.add(Restrictions.eq("gongNengDH",workFlowGNCZ.getGongNeng().getGongNengDH()))
 				.add(Restrictions.eq("gongNengObjId",processObj.pkValue()))
@@ -531,7 +531,7 @@ public class TaskUtils {
 				.processInstanceId(processInstance.getId())
 				.taskDefinitionKey(workFlowGNCZ.getCaoZuoDH()).singleResult();
 		if(task!=null){
-				Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+				Session sess = HibernateSessionFactory.getSession();
 				//在当前数据对象中 记录流程processInstance
 				processObj.setProcessInstanceId(processInstance.getId());//在当前数据中 记录流程id
 				sess.update(processObj);
@@ -764,7 +764,7 @@ public class TaskUtils {
 					try {
 						ShiTiLei glstl = czbl.getZiDuan().getGuanLianSTL();
 						Integer zdPkValue = (Integer)PropertyUtils.getProperty(value, glstl.getZhuJianLie());
-						valueWithType= HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).load(Class.forName(glstl.getShiTiLeiClassName()),zdPkValue);
+						valueWithType= HibernateSessionFactory.getSession().load(Class.forName(glstl.getShiTiLeiClassName()),zdPkValue);
 					} catch (Exception e) {
 					}
 			}else if(ZiDuanLX.ZiDuanLX_SET == zdlxdm){
@@ -798,7 +798,7 @@ public class TaskUtils {
 	public static Result doRejectToStartTask(String gongNengDH,String reason,Integer id,YongHu yh){
 
 		Result result = null;
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		//取得当前数据对象以及功能对象
 		BusinessI processObj = null;
 		GongNeng gn = GongNeng.getGongNengByDH(gongNengDH);
@@ -909,7 +909,7 @@ public class TaskUtils {
 	 */
 	public static List<YongHu> getCandidateUsers(Integer gongNengCZDM,Integer objId,boolean isInstanceStart,LiuChengJS liuChengJS){
 		List<YongHu> candidateUsers = new ArrayList<YongHu>();
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		GongNengCZ gncz = (GongNengCZ)sess.load(GongNengCZ.class,gongNengCZDM);
 		if(gncz.getDuiXiangXG()){
 			//检查传递来的流程检视(退回重新遍历流程时不为null)
@@ -991,7 +991,7 @@ public class TaskUtils {
 
 	
 	public static void synLiuChengJS2Workflow(GongNengCZ parentGNCZ,LiuChengJS parentLCJS,BusinessI  processObj,BusinessI  oldBusiObj,ActivityImpl activityIml,PvmTransition transition,YongHu yongHu){
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		//事前处理
 		createLiuChengJSBL(parentGNCZ, parentLCJS, processObj, oldBusiObj);
 		//处理
@@ -1081,7 +1081,7 @@ public class TaskUtils {
 				.taskDefinitionKey(liuChengJS.getCaoZuoDH()).singleResult();
 		if(task!=null){
 			if(liuChengJS.getShiFouCL()){
-				Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+				Session sess = HibernateSessionFactory.getSession();
 				//已处理的流程检视
 //				taskService.addCandidateUser(task.getId(), liuChengJS.getCaoZuoRen().trim());
 //				setAssignee(task.getId(), liuChengJS.getCaoZuoRen().trim());
@@ -1127,7 +1127,7 @@ public class TaskUtils {
 	
 	//activiti使用此方法确定流程分支走向
 	public static boolean checkSequenceFlowCondition(Integer gnlcid,Integer id,Integer yhid,String gongNengDH,String sequenceFlowId) throws Exception{
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		//取得流程条件
 		GongNengLC gongNengLC =(GongNengLC)sess.load(GongNengLC.class, gnlcid);
 		if(gongNengLC==null){

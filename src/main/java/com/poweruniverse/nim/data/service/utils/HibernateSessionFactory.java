@@ -3,11 +3,17 @@ package com.poweruniverse.nim.data.service.utils;
 import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Set;
 
+import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.dom4j.Document;
+import org.dom4j.Element;
+import org.dom4j.io.SAXReader;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
@@ -15,50 +21,100 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.connection.ConnectionProvider;
 import org.hibernate.engine.SessionFactoryImplementor;
 
+import com.poweruniverse.nim.base.description.Application;
+
 public class HibernateSessionFactory{
 	
-	public static String defaultSessionFactory = "system";
-	
-	private static final Map<String,ThreadLocal<Session>> threadLocalMap = new HashMap<String,ThreadLocal<Session>>();
-    private static Map<String,SessionFactory> sessionFactoryMap = new HashMap<String,SessionFactory>();
-    private static Map<String,JSONObject> sessionConfigurationMap = new HashMap<String,JSONObject>();
+	private static final ThreadLocal<Session> threadLocal = new ThreadLocal<Session>();
+    private static Configuration sessionConfiguration;
+    private static SessionFactory sessionFactory;
+    private static JSONObject configuration = null;
     
-    public static SessionFactory createSessionFactory(String factoryName,File cfgFile,JSONObject sessConfig) {
-    	SessionFactory cSessionFactory = sessionFactoryMap.get(factoryName);
-    	if(cSessionFactory==null){
-    		try {
-    		    System.out.println("building SessionFactory for "+factoryName+"...");
-    		    cSessionFactory = new Configuration ().configure(cfgFile).buildSessionFactory() ;
-    		    
-    		    sessionFactoryMap.put(factoryName, cSessionFactory);
-    		    
-    		    sessionConfigurationMap.put(factoryName, sessConfig);
-    			System.out.println("sessionFactory "+factoryName+" builded");
-    	    } catch (Exception e) {
-    		     System.out.println("%%%% Error Creating SessionFactory "+factoryName+" ("+cfgFile.getPath()+")%%%%");
-    		     e.printStackTrace();
-    	    }
+    private static Set<String> baseEntityMappings = new HashSet<String>();
+    
+    public static Configuration initial(File cfgFile,JSONObject sessConfig) {
+		try {
+		    System.out.println("building SessionFactory ..."+cfgFile.getPath());
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/XiTong.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/GongNeng.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/GongNengLB.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/GongNengCZ.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/CaoZuoLB.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/ShiTiLei.hbm.xml");
+		    
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/ShiTiLeiLX.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/ZiDuan.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/ZiDuanLX.hbm.xml");
+		    
+		    sessionConfiguration = new Configuration ().configure(cfgFile);
+		    for(String resourceName:baseEntityMappings){
+		    	sessionConfiguration.addResource(resourceName);
+		    }
+		    configuration = sessConfig;
+			System.out.println("sessionFactory   builded");
+	    } catch (Exception e) {
+		     System.err.println("%%%% Error Creating SessionFactory  ("+cfgFile.getPath()+")%%%%");
+		     e.printStackTrace();
+	    }
+	    return sessionConfiguration;
+    }
+    
+    public static boolean loadMappings() throws Exception{
+    	JSONArray xiTongConfigs = configuration.getJSONArray("xiTongs");
+    	for(int i=0;i<xiTongConfigs.size();i++){
+			JSONObject xiTongConfig = xiTongConfigs.getJSONObject(i);
+			String mappingFileName = Application.getInstance().getContextPath()+ "WEB-INF/mapping."+xiTongConfig.getString("name")+".xml";
+			
+			SAXReader reader = new SAXReader();
+			File mappingFile = new File(mappingFileName);
+			if(mappingFile.exists()){
+				Document doc = reader.read(mappingFile);
+				
+				Iterator<Element> mappingEls = doc.getRootElement().elements("mapping").iterator();
+				Element mappingEl = null;
+				while (mappingEls.hasNext()) {
+					mappingEl = mappingEls.next();
+					String resourceName = mappingEl.attributeValue("resource");
+					if(!baseEntityMappings.contains(resourceName)){
+						sessionConfiguration.addResource(resourceName);
+					}
+				}
+			}else{
+				System.err.println("---------------------------------------");
+				System.err.println("系统"+xiTongConfig.getString("name")+"的mapping文件不存在！");
+				System.err.println("---------------------------------------");
+			}
+		}
+    	if(sessionFactory!=null){
+    		sessionFactory.close();
+    		sessionFactory = null;
     	}
-	    return cSessionFactory;
+    	return true;
     }
     
-    public static Map<String,JSONObject> getConfigurationMap(){
-    	return sessionConfigurationMap;
-    }
-
-    public static JSONObject getConfiguration(String factoryName){
-    	return sessionConfigurationMap.get(factoryName);
+    public static JSONObject getConfiguration(){
+    	return configuration;
     }
 
+    public static Configuration getSessionConfiguration(){
+    	return sessionConfiguration;
+    }
+
+    public static void addMapping(String resourceName){
+    	sessionConfiguration.addResource(resourceName);
+    }
+
+    private static SessionFactory getSessionFactory(){
+    	if(sessionFactory==null){
+    		sessionFactory = sessionConfiguration.buildSessionFactory() ;
+    	}
+    	return sessionFactory;
+    }
     
-//    public static Connection getConnection(){
-//    	return getConnection(defaultSessionFactory);
-//    }
-    
-    public static Connection getConnection(String factoryName){
+    public static Connection getConnection(){
     	Connection conn = null;
     	try {
-			ConnectionProvider cp =((SessionFactoryImplementor)sessionFactoryMap.get(factoryName)).getConnectionProvider();  
+			ConnectionProvider cp =((SessionFactoryImplementor)getSessionFactory()).getConnectionProvider();  
 			conn = cp.getConnection();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -66,37 +122,22 @@ public class HibernateSessionFactory{
     	 return conn;
     }
     
-//    public static Session getSession() throws HibernateException{
-//    	return getSession(defaultSessionFactory);
-//    }
-    
-    public static Session getSession(String factoryName) throws HibernateException {
-    	ThreadLocal<Session> threadLocal = threadLocalMap.get(factoryName);
-    	if(threadLocal == null){
-    		threadLocal = new ThreadLocal<Session>();
-    		threadLocalMap.put(factoryName, threadLocal);
-    	}
-    	
+    public static Session getSession() throws HibernateException {
         Session session = (Session) threadLocal.get();
 		if (session == null || !session.isOpen()) {
-		   session = sessionFactoryMap.get(factoryName).openSession();
+		   session = getSessionFactory().openSession();
 		   threadLocal.set(session);
-		   System.out.println("Session "+factoryName+" opened ..."+session.hashCode());
+		   System.out.println("Session opened ..."+session.hashCode());
 		}
 		if (!session.getTransaction().isActive()) {
 			 session.beginTransaction();
-			 System.out.println("Session "+factoryName+" beginTransaction ..."+session.hashCode());
+			 System.out.println("Session beginTransaction ..."+session.hashCode());
         }
 //		System.out.println("Session geted ..."+session.hashCode());
         return session;
     }
     
-//    public static void closeSession(boolean commit) throws HibernateException {
-//    	closeSession(defaultSessionFactory,commit);
-//    }
-    public static void closeSession(String factoryName,boolean commit) throws HibernateException {
-    	ThreadLocal<Session> threadLocal = threadLocalMap.get(factoryName);
-    	
+    public static void closeSession(boolean commit) throws HibernateException {
         Session session = (Session) threadLocal.get();
         threadLocal.set(null);
         if (session != null) {
@@ -105,21 +146,21 @@ public class HibernateSessionFactory{
         		if(commit){
         			try {
 						session.getTransaction().commit();
-						System.out.println("Session "+factoryName+" commited ..."+ret);
+						System.out.println("Session commited ..."+ret);
 					} catch (Exception e) {
 						e.printStackTrace();
 						session.getTransaction().rollback();
-						System.out.println("Session "+factoryName+" commit failure...roolbacked"+ret);
+						System.out.println("Session commit failure...roolbacked"+ret);
 						throw new HibernateException(e.getMessage());
 					}
         		}else{
         			session.getTransaction().rollback();
-                	System.out.println("Session "+factoryName+" rollbacked ..."+ret);
+                	System.out.println("Session rollbacked ..."+ret);
         		}
             }
             if (session.isOpen()) {
             	session.close();
-            	System.out.println("Session "+factoryName+" closed ..."+ret);
+            	System.out.println("Session closed ..."+ret);
             }
         }
     }

@@ -24,6 +24,12 @@ import javax.xml.ws.WebServiceContext;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
+import org.activiti.engine.HistoryService;
+import org.activiti.engine.ProcessEngine;
+import org.activiti.engine.ProcessEngines;
+import org.activiti.engine.RuntimeService;
+import org.activiti.engine.impl.ServiceImpl;
+import org.activiti.engine.impl.persistence.entity.HistoricProcessInstanceEntity;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
@@ -36,20 +42,21 @@ import com.poweruniverse.nim.base.message.ObjectResult;
 import com.poweruniverse.nim.base.message.Result;
 import com.poweruniverse.nim.base.webservice.BasePlateformWebservice;
 import com.poweruniverse.nim.data.bean.MethodResult;
-import com.poweruniverse.nim.data.entity.GongNeng;
-import com.poweruniverse.nim.data.entity.GongNengCZ;
-import com.poweruniverse.nim.data.entity.ShiTiLei;
-import com.poweruniverse.nim.data.entity.YongHu;
-import com.poweruniverse.nim.data.entity.ZiDuan;
-import com.poweruniverse.nim.data.entity.ZiDuanLX;
-import com.poweruniverse.nim.data.entity.base.BusinessI;
-import com.poweruniverse.nim.data.entity.base.EntityI;
+import com.poweruniverse.nim.data.entity.system.GongNeng;
+import com.poweruniverse.nim.data.entity.system.GongNengCZ;
+import com.poweruniverse.nim.data.entity.system.ShiTiLei;
+import com.poweruniverse.nim.data.entity.system.YongHu;
+import com.poweruniverse.nim.data.entity.system.ZiDuan;
+import com.poweruniverse.nim.data.entity.system.ZiDuanLX;
+import com.poweruniverse.nim.data.entity.system.base.BusinessI;
+import com.poweruniverse.nim.data.entity.system.base.EntityI;
 import com.poweruniverse.nim.data.service.utils.AuthUtils;
 import com.poweruniverse.nim.data.service.utils.DataUtils;
 import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 import com.poweruniverse.nim.data.service.utils.JSONConvertUtils;
 import com.poweruniverse.nim.data.service.utils.NativeSQLOrder;
 import com.poweruniverse.nim.data.service.utils.TaskUtils;
+import com.poweruniverse.oim.activiti.ClearProcessInstanceBussinessKeyCmd;
 
 @WebService
 public class DataWebserviceImpl extends BasePlateformWebservice {
@@ -83,7 +90,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		JSONDataResult ret = null;
 		Session sess = null;
 		try {
-			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			sess = HibernateSessionFactory.getSession();
 			ShiTiLei dataStl = ShiTiLei.getShiTiLeiByDH(shiTiLeiDH);
 			if(dataStl==null){
 				return new JSONDataResult("实体类("+shiTiLeiDH+")不存在！");
@@ -165,17 +172,17 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			ret = new JSONDataResult(e.getTargetException().getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		} catch (Exception e) {
 			ret = new JSONDataResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return ret;
@@ -205,7 +212,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		Session sess = null;
 		try {
 			//检查对应的功能操作是否存在
-			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			sess = HibernateSessionFactory.getSession();
 			
 			GongNengCZ gncz = (GongNengCZ)sess.createCriteria(GongNengCZ.class)
 					.createAlias("gongNeng", "gncz_gn")
@@ -323,23 +330,23 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			}
 			
 			//提交 并关闭session
-			HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+			HibernateSessionFactory.closeSession(true);
 			sess = null;
 		}catch (InvocationTargetException e){
 			result = new JSONDataResult(e.getTargetException().getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		} catch (Exception e) {
 			result = new JSONDataResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return result;
@@ -368,7 +375,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		JSONDataResult result = null;
 		Session sess = null;
 		try {
-			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			sess = HibernateSessionFactory.getSession();
 			
 			//取得数据
 			GongNengCZ gncz = GongNeng.getGongNengByDH(gongNengDH).getCaoZuoByDH(caoZuoDH);
@@ -467,11 +474,11 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			result = new JSONDataResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return result;
@@ -531,7 +538,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 				stlObj = zd.getGuanLianSTL();
 			}
 			//查找此实体类下的所有字段
-			Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			Session sess = HibernateSessionFactory.getSession();
 			@SuppressWarnings("unchecked")
 			List<ZiDuan> zds = (List<ZiDuan>)sess.createCriteria(ZiDuan.class)
 					.add(Restrictions.eq("shiTiLei.id", stlObj.getShiTiLeiDM()))
@@ -569,7 +576,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		JSONDataResult result = null;
 		Session sess = null;
 		try {
-			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			sess = HibernateSessionFactory.getSession();
 			
 			//取得数据
 			ShiTiLei stl = ShiTiLei.getShiTiLeiByDH(shiTiLeiDH);
@@ -662,11 +669,11 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			result = new JSONDataResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return result;
@@ -679,7 +686,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
         PreparedStatement pstmt = null;
         ResultSet rs = null;
         try{
-        	conn = HibernateSessionFactory.getConnection(HibernateSessionFactory.defaultSessionFactory);
+        	conn = HibernateSessionFactory.getConnection();
         	
     		sql = 	"select t2.* from ("+
     				"	select t.*,rownum rn  from ( "+sql+") t where rownum <= 1"+
@@ -758,7 +765,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		JSONMessageResult result = null;
 		Session sess = null;
 		try {
-			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			sess = HibernateSessionFactory.getSession();
 			Object sqlResult = sess.createSQLQuery(sql).uniqueResult();
 			
 		    if (sqlResult != null && sqlResult instanceof Clob) {
@@ -779,11 +786,11 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			result = new JSONMessageResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return result;
@@ -809,7 +816,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		JSONDataResult ret = null;
 		Session sess = null;
 		try {
-			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			sess = HibernateSessionFactory.getSession();
 			
 			JSONArray fieldJsonArray = JSONArray.fromObject(fields);
 
@@ -822,17 +829,17 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			ret = new JSONDataResult(e.getTargetException().getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		} catch (Exception e) {
 			ret = new JSONDataResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return ret;
@@ -855,7 +862,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		JSONDataResult ret = null;
 		Session sess = null;
 		try {
-			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			sess = HibernateSessionFactory.getSession();
 			JSONObject paramsObject = new JSONObject();
 			if(params!=null){
 				JSONArray ps = JSONArray.fromObject(params);
@@ -877,11 +884,11 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			ret = new JSONDataResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return ret;
@@ -908,7 +915,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		JSONDataResult ret = null;
 		Session sess = null;
 		try {
-			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			sess = HibernateSessionFactory.getSession();
 			String shiTiLeiDH = "SYS_LiuChengJS";
 			
 			ShiTiLei dataStl = ShiTiLei.getShiTiLeiByDH(shiTiLeiDH);
@@ -940,23 +947,83 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			ret = new JSONDataResult(e.getTargetException().getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		} catch (Exception e) {
 			ret = new JSONDataResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return ret;
 	}
 	
 	
+	public JSONDataResult execute(
+			@WebParam(name="xiTongDH") String xiTongDH,
+			@WebParam(name="gongNengDH") String gongNengDH,
+			@WebParam(name="caoZuoDH") String caoZuoDH,
+			@WebParam(name="submitData") String submitData){
+		JSONDataResult ret = null;
+		Session sess = null;
+		try {
+			sess = HibernateSessionFactory.getSession();
+			GongNengCZ gncz = (GongNengCZ)sess.createCriteria(GongNengCZ.class)
+					.add(Restrictions.eq("gncz_gn.gongNengDH",gongNengDH))
+					.createAlias("gongNeng", "gncz_gn")
+					.add(Restrictions.eq("caoZuoDH", caoZuoDH)).uniqueResult();
+			if(gncz==null){
+				return new JSONDataResult("功能操作（"+gongNengDH+"."+caoZuoDH+"）不存在！");
+			}
+			
+			Integer yongHuDM = this.getYongHuDM(wsContext,true);
+			//
+			JSONArray idArray = JSONArray.fromObject(submitData);
+			List<Integer> idList = new ArrayList<Integer>();
+			//检查权限
+			for(int i=0;i<idArray.size();i++){
+				JSONObject idObj = idArray.getJSONObject(i);
+				Integer id = idObj.getInt(gncz.getGongNeng().getShiTiLei().getZhuJianLie());
+				idList.add(id);
+			}
+			//
+			Result execResult = null;
+			if("delete".equals(caoZuoDH)){
+				execResult= DataUtils.doDelele(gongNengDH, caoZuoDH, idList, yongHuDM);
+			}else{
+				execResult= DataUtils.doExec(gongNengDH, caoZuoDH, idList, yongHuDM);
+			}
+			
+			if(!execResult.isSuccess()){
+				ret = new JSONDataResult(execResult.getErrorMsg());
+			}else{
+				ret = new JSONDataResult(idArray,idArray.size(),0,0,null);
+			}
+			
+		}catch (InvocationTargetException e){
+			ret = new JSONDataResult(e.getTargetException().getMessage());
+			e.printStackTrace();
+			if (sess != null) {
+				HibernateSessionFactory.closeSession(false);
+			}
+		}catch (Exception e){
+			ret = new JSONDataResult(e.getMessage());
+			e.printStackTrace();
+			if (sess != null) {
+				HibernateSessionFactory.closeSession(false);
+			}
+		}finally{
+			if (sess != null) {
+				HibernateSessionFactory.closeSession(true);
+			}
+		}
+		return ret;
+	}
 	/**
 	 * 客户端提交修改后的数据 多条记录的新增、修改、删除
 	 * @param sql
@@ -975,7 +1042,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		Session sess = null;
 		
 		try {
-			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			sess = HibernateSessionFactory.getSession();
 			GongNengCZ gncz = (GongNengCZ)sess.createCriteria(GongNengCZ.class)
 					.add(Restrictions.eq("gncz_gn.gongNengDH",gongNengDH))
 					.createAlias("gongNeng", "gncz_gn")
@@ -1043,11 +1110,11 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 
 			ObjectResult saveResult = saveData(gncz, objs, dataArray, submitDataObj, sess, yhdm);
 			if(!saveResult.isSuccess()){
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory, false);
+				HibernateSessionFactory.closeSession(false);
 				return new JSONDataResult(saveResult.getErrorMsg());
 			}
 			
-			HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory, true);
+			HibernateSessionFactory.closeSession(true);
 			sess = null;
 			
 			//提交工作流
@@ -1079,17 +1146,17 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			ret = new JSONDataResult(e.getTargetException().getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}catch (Exception e){
 			ret = new JSONDataResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return ret;
@@ -1206,7 +1273,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		try {
 			JSONArray taskRows = new JSONArray();
 
-			Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			Session sess = HibernateSessionFactory.getSession();
 			YongHu yh = (YongHu)sess.load(YongHu.class,yhdm);
 			
 			for(int jj=0;jj<objs.size();jj++){
@@ -1224,12 +1291,12 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 						TaskUtils.claimTask(newBusiObj,(BusinessI)oldObjs.get(jj), gncz, yh);
 					}
 					//每个流程提交一次
-					HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory, true);
+					HibernateSessionFactory.closeSession(true);
 					sess = null;
 					taskRow.put("success", true);
 				} catch (Exception e) {
 					if(sess!=null){
-						HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory, false);
+						HibernateSessionFactory.closeSession(false);
 						sess = null;
 					}
 					taskRow.put("success", false);
@@ -1237,12 +1304,12 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 					e.printStackTrace();
 				}finally{
 					if(sess!=null){
-						HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory, true);
+						HibernateSessionFactory.closeSession(true);
 						sess = null;
 					}
 				}
 				taskRows.add(taskRow);
-				sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+				sess = HibernateSessionFactory.getSession();
 			}
 			taskRet = new JSONDataResult(taskRows,taskRows.size(),0,0,null);
 		} catch (HibernateException e) {

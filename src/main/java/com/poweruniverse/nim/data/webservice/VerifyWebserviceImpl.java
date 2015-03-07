@@ -17,8 +17,8 @@ import com.poweruniverse.nim.base.message.JSONMessageResult;
 import com.poweruniverse.nim.base.utils.Encrypt;
 import com.poweruniverse.nim.base.utils.MD5Utils;
 import com.poweruniverse.nim.base.webservice.BasePlateformWebservice;
-import com.poweruniverse.nim.data.entity.YongHu;
-import com.poweruniverse.nim.data.entity.YongHuZT;
+import com.poweruniverse.nim.data.entity.system.YongHu;
+import com.poweruniverse.nim.data.entity.system.YongHuZT;
 import com.poweruniverse.nim.data.service.utils.AuthUtils;
 import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 
@@ -66,7 +66,7 @@ public class VerifyWebserviceImpl extends BasePlateformWebservice {
 				logger.error("验证用户："+userName+" 密码:*** ip:"+clientIP+" ...失败：登录密码为空！");
 				return new JSONMessageResult("请输入登录密码！");
 			}
-			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			sess = HibernateSessionFactory.getSession();
 			// 去除前后空格
 			userName = userName.trim().toUpperCase();
 			userPassword = userPassword.trim();
@@ -126,11 +126,11 @@ public class VerifyWebserviceImpl extends BasePlateformWebservice {
 			result = new JSONMessageResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return result;
@@ -160,11 +160,11 @@ public class VerifyWebserviceImpl extends BasePlateformWebservice {
 			result = new JSONMessageResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return result;
@@ -191,11 +191,11 @@ public class VerifyWebserviceImpl extends BasePlateformWebservice {
 			result = new JSONMessageResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return result;

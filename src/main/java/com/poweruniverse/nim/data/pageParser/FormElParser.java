@@ -9,7 +9,7 @@ import net.sf.json.JSONObject;
 import org.dom4j.Element;
 
 import com.poweruniverse.nim.base.utils.FreemarkerUtils;
-import com.poweruniverse.nim.data.entity.ShiTiLei;
+import com.poweruniverse.nim.data.entity.system.ShiTiLei;
 import com.poweruniverse.nim.data.service.utils.DataUtils;
 import com.poweruniverse.nim.data.service.utils.JSONConvertUtils;
 

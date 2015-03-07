@@ -65,11 +65,11 @@ public class WorkWebserviceImpl extends BasePlateformWebservice {
 			result = new JSONMessageResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return result;
@@ -94,11 +94,11 @@ public class WorkWebserviceImpl extends BasePlateformWebservice {
 			result = new JSONMessageResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return result;
@@ -123,11 +123,11 @@ public class WorkWebserviceImpl extends BasePlateformWebservice {
 			result = new JSONMessageResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return result;
@@ -152,11 +152,11 @@ public class WorkWebserviceImpl extends BasePlateformWebservice {
 			result = new JSONMessageResult(e.getMessage());
 			e.printStackTrace();
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,false);
+				HibernateSessionFactory.closeSession(false);
 			}
 		}finally{
 			if (sess != null) {
-				HibernateSessionFactory.closeSession(HibernateSessionFactory.defaultSessionFactory,true);
+				HibernateSessionFactory.closeSession(true);
 			}
 		}
 		return result;

@@ -9,18 +9,18 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import com.poweruniverse.nim.data.entity.GongNengCZ;
-import com.poweruniverse.nim.data.entity.JueSe;
-import com.poweruniverse.nim.data.entity.JueSeQXGNCZ;
-import com.poweruniverse.nim.data.entity.LiuChengJS;
-import com.poweruniverse.nim.data.entity.ShiTiLei;
-import com.poweruniverse.nim.data.entity.YongHu;
-import com.poweruniverse.nim.data.entity.YongHuZT;
+import com.poweruniverse.nim.data.entity.system.GongNengCZ;
+import com.poweruniverse.nim.data.entity.system.JueSe;
+import com.poweruniverse.nim.data.entity.system.JueSeQXGNCZ;
+import com.poweruniverse.nim.data.entity.system.LiuChengJS;
+import com.poweruniverse.nim.data.entity.system.ShiTiLei;
+import com.poweruniverse.nim.data.entity.system.YongHu;
+import com.poweruniverse.nim.data.entity.system.YongHuZT;
 
 public class AuthUtils {
 	
 	public static boolean hasGNCZAuth(String gndh,String czdh,Integer yhdm) throws Exception{
-		GongNengCZ gncz = (GongNengCZ)HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createCriteria(GongNengCZ.class)
+		GongNengCZ gncz = (GongNengCZ)HibernateSessionFactory.getSession().createCriteria(GongNengCZ.class)
 				.createAlias("gongNeng", "gncz_gn")
 				.add(Restrictions.eq("gncz_gn.gongNengDH",gndh))
 				.add(Restrictions.eq("caoZuoDH", czdh)).uniqueResult();
@@ -36,10 +36,10 @@ public class AuthUtils {
 	public static boolean hasGNCZAuth(GongNengCZ gncz,Integer yhdm) throws Exception{
 		boolean hasGNCZAuth = false;
 		try {
-			if(!gncz.getKeYiSQ()){
+			if(!gncz.getKeYiSQ() || YongHu.isSuperUser(yhdm)){
 				hasGNCZAuth = true;
 			}else if(yhdm!=null){
-				List<?> jsgnczs = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createCriteria(JueSeQXGNCZ.class)
+				List<?> jsgnczs = HibernateSessionFactory.getSession().createCriteria(JueSeQXGNCZ.class)
 						.createAlias("gongNengCZ", "jsgncz_gncz")
 						.add(Restrictions.eq("jsgncz_gncz.id", gncz.getGongNengCZDM()))
 						.add(Restrictions.sqlRestriction("jueSeDM in (select yhjs.juesedm from sys_yonghujs yhjs where yhjs.yonghudm ="+yhdm+" )"))
@@ -65,7 +65,7 @@ public class AuthUtils {
 	 * @throws Exception
 	 */
 	public static boolean checkAuth(String gndh,String czdh,Integer id,Integer yhdm) throws Exception{
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		GongNengCZ gncz = (GongNengCZ)sess.createCriteria(GongNengCZ.class)
 				.createAlias("gongNeng", "gncz_gn")
 				.add(Restrictions.eq("gncz_gn.gongNengDH",gndh))
@@ -78,7 +78,10 @@ public class AuthUtils {
 		return checkAuth(gncz,id,yhdm);
 	}
 	public static boolean checkAuth(GongNengCZ gncz,Integer id,Integer yhdm) throws Exception{
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		if(!gncz.getKeYiSQ() || YongHu.isSuperUser(yhdm)){
+			return true;
+		}
+		Session sess = HibernateSessionFactory.getSession();
 		YongHu yh = null;
 		if(yhdm!=null){
 			yh = (YongHu)sess.load(YongHu.class, yhdm);
@@ -168,7 +171,7 @@ public class AuthUtils {
 	
 	public static List<YongHu> getAuthUsers(GongNengCZ gncz,Integer id,JueSe js) throws Exception{
 		List<YongHu> authUsers = new ArrayList<YongHu>();
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		Criterion neExpreesion = Restrictions.sqlRestriction("1<>1");
 		
 		//功能实体类
@@ -253,7 +256,7 @@ public class AuthUtils {
 	
 	//检查当前功能对应的数据对象 是否满足后面的条件要求
 	public static boolean meetCondition(ShiTiLei stl,Integer id,YongHu yh,List<Permit> permits) throws Exception{
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		//功能实体类
 		Class<?> gnStlClass = Class.forName(stl.getShiTiLeiClassName());
 		//基础查询语法

@@ -19,10 +19,10 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.dom4j.Element;
 import org.dom4j.tree.DefaultAttribute;
 
-import com.poweruniverse.nim.data.entity.ShiTiLei;
-import com.poweruniverse.nim.data.entity.ZiDuan;
-import com.poweruniverse.nim.data.entity.ZiDuanLX;
-import com.poweruniverse.nim.data.entity.base.EntityI;
+import com.poweruniverse.nim.data.entity.system.ShiTiLei;
+import com.poweruniverse.nim.data.entity.system.ZiDuan;
+import com.poweruniverse.nim.data.entity.system.ZiDuanLX;
+import com.poweruniverse.nim.data.entity.system.base.EntityI;
 
 public class JSONConvertUtils {
 	public static SimpleDateFormat dsf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");
@@ -260,7 +260,7 @@ public class JSONConvertUtils {
 										subObj = mtd.invoke(obj, new Object[]{});
 									}catch(Exception e){
 										subObj = Class.forName(substl.getShiTiLeiClassName()).newInstance();
-										PropertyUtils.setProperty(subObj,zd.getGuanLianFLZD(),obj);
+										PropertyUtils.setProperty(subObj,zd.getGuanLianFLZD().getZiDuanDH(),obj);
 									}
 									//填充子对象的内容
 									subObj = JSONObject2object(substl,(EntityI)subObj,subObjData,linkMap);
@@ -289,7 +289,7 @@ public class JSONConvertUtils {
 										subObj = mtd.invoke(obj, new Object[]{});
 									}catch(Exception e){
 										subObj = Class.forName(substl.getShiTiLeiClassName()).newInstance();
-										PropertyUtils.setProperty(subObj,zd.getGuanLianFLZD(),obj);
+										PropertyUtils.setProperty(subObj,zd.getGuanLianFLZD().getZiDuanDH(),obj);
 									}
 									//填充子对象的内容
 									subObj = JSONObject2object(substl,(EntityI)subObj,inserted.getJSONObject(i),linkMap);

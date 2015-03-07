@@ -40,14 +40,14 @@ import com.poweruniverse.nim.base.message.JSONDataResult;
 import com.poweruniverse.nim.base.message.JSONMessageResult;
 import com.poweruniverse.nim.base.message.Result;
 import com.poweruniverse.nim.base.utils.FreemarkerUtils;
-import com.poweruniverse.nim.data.entity.GongNeng;
-import com.poweruniverse.nim.data.entity.GongNengCZ;
-import com.poweruniverse.nim.data.entity.LiuChengJS;
-import com.poweruniverse.nim.data.entity.ShiTiLei;
-import com.poweruniverse.nim.data.entity.YongHu;
-import com.poweruniverse.nim.data.entity.ZiDuan;
-import com.poweruniverse.nim.data.entity.base.BusinessI;
-import com.poweruniverse.nim.data.entity.base.EntityI;
+import com.poweruniverse.nim.data.entity.system.GongNeng;
+import com.poweruniverse.nim.data.entity.system.GongNengCZ;
+import com.poweruniverse.nim.data.entity.system.LiuChengJS;
+import com.poweruniverse.nim.data.entity.system.ShiTiLei;
+import com.poweruniverse.nim.data.entity.system.YongHu;
+import com.poweruniverse.nim.data.entity.system.ZiDuan;
+import com.poweruniverse.nim.data.entity.system.base.BusinessI;
+import com.poweruniverse.nim.data.entity.system.base.EntityI;
 import com.poweruniverse.nim.data.pageParser.DatasourceElParser;
 import com.poweruniverse.oim.activiti.ClearProcessInstanceBussinessKeyCmd;
 
@@ -64,7 +64,7 @@ public class DataUtils {
 	 */
 	public static Object getObjectByGNCZ(String gongNengDH,String caoZuoDH,Integer id,Integer yongHuDM) throws Exception{
 		
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		//取得数据
 		GongNengCZ gncz = (GongNengCZ)sess.createCriteria(GongNengCZ.class)
 				.createAlias("gongNeng", "gncz_gn")
@@ -79,7 +79,7 @@ public class DataUtils {
 	public static Object getObjectByGNCZ(GongNengCZ gncz,Integer id,Integer yongHuDM) throws Exception{
 		Object obj = null;
 		
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		//取得数据
 		
 		if(yongHuDM==null){
@@ -89,15 +89,15 @@ public class DataUtils {
 		//用这个openGNDH、openCZDH确定和检查权限
 		if(AuthUtils.checkAuth(gncz, id, yongHuDM)){
 			//正常方式 原始对象
-			if(gncz.getDuiXiangXG()){
-				if(id==null){
+			if(id==null){
+				if(gncz.getDuiXiangXG()){
 					throw new Exception("使用对象相关的功能操作("+gncz.getGongNeng().getGongNengMC()+"."+gncz.getCaoZuoMC()+")必须提供id！");
 				}else{
-					obj = sess.load(gncz.getGongNeng().getShiTiLei().getShiTiLeiClassName(), id);
+					Class<?> stlClass = Class.forName(gncz.getGongNeng().getShiTiLei().getShiTiLeiClassName());
+					obj = stlClass.newInstance();
 				}
 			}else{
-				Class<?> stlClass = Class.forName(gncz.getGongNeng().getShiTiLei().getShiTiLeiClassName());
-				obj = stlClass.newInstance();
+				obj = sess.load(gncz.getGongNeng().getShiTiLei().getShiTiLeiClassName(), id);
 			}
 			
 			if(gncz.getGongNeng().getGongNengClass()!=null){
@@ -123,7 +123,7 @@ public class DataUtils {
 	 */
 	public static Object getObjectBySTL(String shiTiLeiDH,Integer id) throws Exception{
 		
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 
 		//取得数据
 		ShiTiLei stl = (ShiTiLei)sess.createCriteria(ShiTiLei.class)
@@ -153,7 +153,7 @@ public class DataUtils {
 
 	public static Object newObjectBySTLDH(String shiTiLeiDH) throws Exception{
 		//取得数据
-		ShiTiLei stl = (ShiTiLei)HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createCriteria(ShiTiLei.class)
+		ShiTiLei stl = (ShiTiLei)HibernateSessionFactory.getSession().createCriteria(ShiTiLei.class)
 				.add(Restrictions.eq("shiTiLeiDH", shiTiLeiDH))
 				.uniqueResult();
 		if(stl==null){
@@ -174,7 +174,7 @@ public class DataUtils {
 	        PreparedStatement pstmt = null;
 	        ResultSet rs = null;
 	        try{
-	        	conn = HibernateSessionFactory.getConnection(HibernateSessionFactory.defaultSessionFactory);
+	        	conn = HibernateSessionFactory.getConnection();
 	        	
         		pstmt = conn.prepareStatement(sql);
         		rs = pstmt.executeQuery();
@@ -273,7 +273,7 @@ public class DataUtils {
 	        PreparedStatement pstmt = null;
 	        ResultSet rs = null;
 	        try{
-	        	conn = HibernateSessionFactory.getConnection(HibernateSessionFactory.defaultSessionFactory);
+	        	conn = HibernateSessionFactory.getConnection();
 	        	
 	        	rs = conn.createStatement().executeQuery("select count(*) rowCount from ("+sql+") ");
 	        	if(rs.next()){
@@ -377,7 +377,7 @@ public class DataUtils {
 		
 	public static Map<String,Object> getListByGN(String gndh,String czdh,int start,int limit,String filterString,String sortString,Integer yhdm) 
 			throws Exception{
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		Map<String,Object> result = new HashMap<String,Object>();
 		int totalCount = 0;
 		//功能实体类
@@ -478,7 +478,7 @@ public class DataUtils {
 	
 	public static Map<String,Object> getListBySTL(String stldh,int start,int limit,String filterString,String sortString) 
 			throws Exception{
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		Map<String,Object> result = new HashMap<String,Object>();
 		int totalCount = 0;
 		//功能实体类
@@ -712,7 +712,7 @@ public class DataUtils {
 		JSONObject result = new JSONObject();
 		try {
 			Map<String, Object> root = new HashMap<String, Object>();
-			Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			Session sess = HibernateSessionFactory.getSession();
 			//当前用户
 			ShiTiLei dataStl = ShiTiLei.getShiTiLeiByDH(shiTiLeiDH);
 			YongHu yh = (YongHu)sess.load(YongHu.class, yongHuDM);
@@ -937,17 +937,24 @@ public class DataUtils {
 		return result;
 	}
 	
-	public static Result doDelele(String gongNengDH,List<Integer> idList,Integer yongHuDM) {
+	public static Result doDelele(String gongNengDH,String caoZuoDH,List<Integer> idList,Integer yongHuDM) {
 		Result result = null;
 		try {
-			Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			//检查操作代号
+			if(!"delete".equals(caoZuoDH)){
+				return new JSONMessageResult("不允许使用操作"+caoZuoDH+"删除记录！");
+			}
+			
+			Session sess = HibernateSessionFactory.getSession();
 			//设置或取消删除标记
 			GongNeng gn = GongNeng.getGongNengByDH(gongNengDH);
 			Class<?> stlClass = Class.forName(gn.getShiTiLei().getShiTiLeiClassName());
 			Method setRelaShanChuZTMethod = stlClass.getMethod("setRelaShanChuZT",new Class[]{boolean.class});
 			
 			for(Integer id:idList){
-				
+				if(!AuthUtils.checkAuth(gongNengDH,caoZuoDH, id, yongHuDM)){
+					return new JSONMessageResult("记录("+gongNengDH+"."+caoZuoDH+"."+id+")不存在或用户对此记录没有操作权限！");
+				}
 				EntityI entityI = (EntityI)sess.load(stlClass, id);
 				if(!gn.getShiTiLei().getShiFouYWB()){
 					//删除数据
@@ -1003,16 +1010,13 @@ public class DataUtils {
 		Result result = null;
 		Session sess = null;
 		try {
-			if(caoZuoDH.equals("delete")){
-				return doDelele(gongNengDH, idList, yongHuDM);
-			}
 			
 			GongNeng gn = GongNeng.getGongNengByDH(gongNengDH);
 			if(gn==null){
 				return new JSONMessageResult("功能("+gongNengDH+")不存在!");
 			}
 			
-			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			sess = HibernateSessionFactory.getSession();
 			
 			GongNengCZ gncz = (GongNengCZ)sess.createCriteria(GongNengCZ.class)
 					.add(Restrictions.eq("gongNeng.id",gn.getGongNengDM()))
@@ -1034,7 +1038,7 @@ public class DataUtils {
 					}
 					
 					//调用原始操作对应的方法取得初始对象
-					EntityI entityI = (EntityI)DataUtils.getData(gncz,id,yongHuDM);
+					EntityI entityI = (EntityI)getData(gncz,id,yongHuDM);
 					currentObjList.add(entityI);
 				}
 			}
@@ -1118,7 +1122,7 @@ public class DataUtils {
 	
 	private static EntityI getData(GongNengCZ gncz,Integer id,Integer yhdm) throws Exception{
 		//返回新增或已存在的实体类对象
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		YongHu yh = null;
 		GongNengCZ originalGNCZ = gncz;
 		ShiTiLei originalStl = originalGNCZ.getGongNeng().getShiTiLei();

@@ -61,13 +61,13 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
-import com.poweruniverse.nim.data.entity.GongNeng;
-import com.poweruniverse.nim.data.entity.GongNengGZL;
-import com.poweruniverse.nim.data.entity.LiuChengJS;
-import com.poweruniverse.nim.data.entity.LiuChengJSSJ;
-import com.poweruniverse.nim.data.entity.LiuChengJSXJ;
-import com.poweruniverse.nim.data.entity.YongHu;
-import com.poweruniverse.nim.data.entity.base.BusinessI;
+import com.poweruniverse.nim.data.entity.system.GongNeng;
+import com.poweruniverse.nim.data.entity.system.GongNengGZL;
+import com.poweruniverse.nim.data.entity.system.LiuChengJS;
+import com.poweruniverse.nim.data.entity.system.LiuChengJSSJ;
+import com.poweruniverse.nim.data.entity.system.LiuChengJSXJ;
+import com.poweruniverse.nim.data.entity.system.YongHu;
+import com.poweruniverse.nim.data.entity.system.base.BusinessI;
 import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 import com.poweruniverse.nim.data.service.utils.TaskUtils;
 import com.poweruniverse.oim.activiti.TaskCandidateExpression;
@@ -418,7 +418,7 @@ public class ExecutionEntity extends VariableScopeImpl implements ActivityExecut
     			historyId = (Integer)this.getVariable("historyId");
     			dengLuDH = (String)this.getVariable("dengLuDH");
     			yongHuMC = (String)this.getVariable("yongHuMC");
-    			Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+    			Session sess = HibernateSessionFactory.getSession();
             	try {
             		String gongNengGZLDH = ((ProcessDefinitionEntity)this.getProcessDefinition()).getKey();
             		oim_Workflow_logger.debug("      task gongNengGZLDH..."+gongNengGZLDH);

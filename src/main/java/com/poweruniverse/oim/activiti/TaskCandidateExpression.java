@@ -9,8 +9,8 @@ import org.activiti.engine.impl.el.Expression;
 import org.activiti.engine.impl.persistence.entity.ExecutionEntity;
 import org.activiti.engine.runtime.ProcessInstance;
 
-import com.poweruniverse.nim.data.entity.LiuChengJS;
-import com.poweruniverse.nim.data.entity.YongHu;
+import com.poweruniverse.nim.data.entity.system.LiuChengJS;
+import com.poweruniverse.nim.data.entity.system.YongHu;
 import com.poweruniverse.nim.data.service.utils.TaskUtils;
 
 /*

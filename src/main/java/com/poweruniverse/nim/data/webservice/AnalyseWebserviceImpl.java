@@ -22,7 +22,7 @@ import com.poweruniverse.nim.base.bean.UserInfo;
 import com.poweruniverse.nim.base.description.Application;
 import com.poweruniverse.nim.base.message.StringResult;
 import com.poweruniverse.nim.base.webservice.BasePlateformWebservice;
-import com.poweruniverse.nim.data.entity.YongHu;
+import com.poweruniverse.nim.data.entity.system.YongHu;
 import com.poweruniverse.nim.data.pageParser.ActionElParser;
 import com.poweruniverse.nim.data.pageParser.DatasourceElParser;
 import com.poweruniverse.nim.data.pageParser.FormElParser;
@@ -71,7 +71,7 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 			Integer yongHuDM = this.getYongHuDM(wsContext,false);
 			//检查pageUrl 是否合法(无.. js后缀)
 			
-			sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			sess = HibernateSessionFactory.getSession();
 			
 			Map<String, Object> root = new HashMap<String, Object>();
 			//加入用户信息

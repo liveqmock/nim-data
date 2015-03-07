@@ -11,10 +11,10 @@ import org.dom4j.Element;
 
 import com.poweruniverse.nim.base.bean.BaseJavaDatasource;
 import com.poweruniverse.nim.base.utils.FreemarkerUtils;
-import com.poweruniverse.nim.data.entity.GongNeng;
-import com.poweruniverse.nim.data.entity.ShiTiLei;
-import com.poweruniverse.nim.data.entity.ZiDuan;
-import com.poweruniverse.nim.data.entity.base.EntityI;
+import com.poweruniverse.nim.data.entity.system.GongNeng;
+import com.poweruniverse.nim.data.entity.system.ShiTiLei;
+import com.poweruniverse.nim.data.entity.system.ZiDuan;
+import com.poweruniverse.nim.data.entity.system.base.EntityI;
 import com.poweruniverse.nim.data.service.utils.DataUtils;
 import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 import com.poweruniverse.nim.data.service.utils.JSONConvertUtils;
@@ -704,7 +704,7 @@ public class DatasourceElParser {
 					"listenerDefs:" +listenersObj.toString()+",\n"+
 			"});\n";
 			if("true".equals(autoLoad)){
-				Object dataVariable_value = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).createSQLQuery(sqlString).uniqueResult();
+				Object dataVariable_value = HibernateSessionFactory.getSession().createSQLQuery(sqlString).uniqueResult();
 				if (dataVariable_value != null && dataVariable_value instanceof Clob) {
                 	Clob clob = (Clob)dataVariable_value;
                 	dataVariable_value = clob.getSubString(1, (int) clob.length());

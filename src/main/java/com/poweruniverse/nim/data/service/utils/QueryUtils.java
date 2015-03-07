@@ -18,19 +18,19 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 
-import com.poweruniverse.nim.data.entity.GongNengCZ;
-import com.poweruniverse.nim.data.entity.GongNengGZL;
-import com.poweruniverse.nim.data.entity.GongNengGZLTJ;
-import com.poweruniverse.nim.data.entity.GongNengLC;
-import com.poweruniverse.nim.data.entity.GongNengLCMX;
-import com.poweruniverse.nim.data.entity.JueSe;
-import com.poweruniverse.nim.data.entity.JueSeQXGNCZ;
-import com.poweruniverse.nim.data.entity.JueSeQXGNCZMX;
-import com.poweruniverse.nim.data.entity.ShiTiLei;
-import com.poweruniverse.nim.data.entity.YongHu;
-import com.poweruniverse.nim.data.entity.YongHuJS;
-import com.poweruniverse.nim.data.entity.ZiDuan;
-import com.poweruniverse.nim.data.entity.ZiDuanLX;
+import com.poweruniverse.nim.data.entity.system.GongNengCZ;
+import com.poweruniverse.nim.data.entity.system.GongNengGZL;
+import com.poweruniverse.nim.data.entity.system.GongNengGZLTJ;
+import com.poweruniverse.nim.data.entity.system.GongNengLC;
+import com.poweruniverse.nim.data.entity.system.GongNengLCMX;
+import com.poweruniverse.nim.data.entity.system.JueSe;
+import com.poweruniverse.nim.data.entity.system.JueSeQXGNCZ;
+import com.poweruniverse.nim.data.entity.system.JueSeQXGNCZMX;
+import com.poweruniverse.nim.data.entity.system.ShiTiLei;
+import com.poweruniverse.nim.data.entity.system.YongHu;
+import com.poweruniverse.nim.data.entity.system.YongHuJS;
+import com.poweruniverse.nim.data.entity.system.ZiDuan;
+import com.poweruniverse.nim.data.entity.system.ZiDuanLX;
 
 public class QueryUtils {
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
@@ -71,7 +71,7 @@ public class QueryUtils {
 	 * @return
 	 */
 	public static List<Permit> getPermitsByGZLTJ(YongHu yh,GongNengGZL gzl){
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		if(!sess.contains(yh)){
 			yh =(YongHu)sess.load(YongHu.class, yh.getYongHuDM());
 		}
@@ -242,7 +242,7 @@ public class QueryUtils {
 		//属性字段的类型
 		String type = query.getType();
 		if(type==null){
-			ShiTiLei yhSTL = (ShiTiLei)HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory).load(ShiTiLei.class,18);
+			ShiTiLei yhSTL = (ShiTiLei)HibernateSessionFactory.getSession().load(ShiTiLei.class,18);
 			type=yhSTL.getZiDuanLX(synString).getZiDuanLXDH();
 		}
 		//值的正确类型
@@ -683,7 +683,7 @@ public class QueryUtils {
 	 * @return
 	 */
 	public static List<Permit> getPermitsByYHAuth(YongHu yh,GongNengCZ gncz,boolean addAssigneeAuth){
-		Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+		Session sess = HibernateSessionFactory.getSession();
 		if(!sess.contains(yh)){
 			yh =(YongHu)sess.load(YongHu.class, yh.getYongHuDM());
 		}
@@ -717,7 +717,7 @@ public class QueryUtils {
 				//功能操作需要授权 初始设置basefilters为空集合 表示全部不允许
 				//然后再根据权限加入允许的范围
 					//取当前用户对此功能操作的权限
-				Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+				Session sess = HibernateSessionFactory.getSession();
 				@SuppressWarnings("unchecked")
 				List<JueSeQXGNCZ> yhqxgnczs = (List<JueSeQXGNCZ>)sess.createCriteria(JueSeQXGNCZ.class)
 						.add(Restrictions.eq("gongNengCZ.id", gncz.getGongNengCZDM()))
@@ -766,7 +766,7 @@ public class QueryUtils {
 			//功能操作需要授权 初始设置basefilters为空集合 表示全部不允许
 			//然后再根据权限加入允许的范围
 				//取当前用户对此功能操作的权限
-			Session sess = HibernateSessionFactory.getSession(HibernateSessionFactory.defaultSessionFactory);
+			Session sess = HibernateSessionFactory.getSession();
 			@SuppressWarnings("unchecked")
 			List<JueSeQXGNCZ> yhqxgnczs = (List<JueSeQXGNCZ>)sess.createCriteria(JueSeQXGNCZ.class)
 					.add(Restrictions.eq("gongNengCZ.id", gncz.getGongNengCZDM()))

@@ -4,9 +4,9 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import com.poweruniverse.nim.data.entity.GongNengGZLTJGS;
-import com.poweruniverse.nim.data.entity.GongNengLCGS;
-import com.poweruniverse.nim.data.entity.JueSeQXGNCZMXGS;
+import com.poweruniverse.nim.data.entity.system.GongNengGZLTJGS;
+import com.poweruniverse.nim.data.entity.system.GongNengLCGS;
+import com.poweruniverse.nim.data.entity.system.JueSeQXGNCZMXGS;
 
 
 public class Permit{
