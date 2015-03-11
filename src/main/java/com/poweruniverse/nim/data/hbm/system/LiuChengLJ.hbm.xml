@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- version:2015-03-08 11:16:00 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.system.LiuChengLJ" table="SYS_LiuChengLJ" >
+    	<!--主键-->
+        <id name="liuChengLJDM" type="integer">
+	        <column name="liuChengLJDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--流程路径代号-->
+        <property name="liuChengLJDH" type="java.lang.String" lazy="false">
+        	<column name="liuChengLJDH" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--功能代号-->
+        <property name="gongNengDH" type="java.lang.String" lazy="false">
+        	<column name="gongNengDH" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--对象代码-->
+        <property name="gongNengObjId" type="java.lang.Integer" lazy="false">
+        	<column name="gongNengObjId" precision="12" scale="0" not-null="false" />
+        </property>
+     </class>
+</hibernate-mapping>

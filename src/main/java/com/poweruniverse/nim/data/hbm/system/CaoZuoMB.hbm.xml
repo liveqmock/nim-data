@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- version:2015-03-08 11:15:59 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.system.CaoZuoMB" table="SYS_CaoZuoMB" >
+    	<!--主键-->
+        <id name="caoZuoMBDM" type="integer">
+	        <column name="caoZuoMBDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--操作模版名称-->
+        <property name="caoZuoMBMC" type="java.lang.String" lazy="false">
+        	<column name="caoZuoMBMC" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--操作模版代号-->
+        <property name="caoZuoMBDH" type="java.lang.String" lazy="false">
+        	<column name="caoZuoMBDH" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--功能操作-->
+        <many-to-one name="gongNengCZ" class="com.poweruniverse.nim.data.entity.system.GongNengCZ" fetch="select">
+            <column name="gongNengCZDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--操作模版路径-->
+        <property name="caoZuoMBLJ" type="java.lang.String" lazy="false">
+        	<column name="caoZuoMBLJ" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--用户-->
+        <many-to-one name="yongHu" class="com.poweruniverse.nim.data.entity.system.YongHu" fetch="select">
+            <column name="yongHuDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--基础页面-->
+        <property name="jiChuYM" type="java.lang.String" lazy="false">
+        	<column name="jiChuYM" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--条件明细集合-->
+        <set name="mxs" inverse="true"  lazy="true" cascade="all-delete-orphan" order-by="caoZuoMBTJMXDM" >
+        	<key>
+        		<column name="caoZuoMBDM" precision="12" scale="0" not-null="true" />
+        	</key>
+        	<one-to-many class="com.poweruniverse.nim.data.entity.system.CaoZuoMBTJMX" />
+        </set>
+		<!--条件显示-->
+        <property name="moBanTJXS" type="java.lang.String" lazy="false">
+        	<column name="moBanTJXS" precision="300" scale="0" not-null="false" />
+        </property>
+     </class>
+</hibernate-mapping>

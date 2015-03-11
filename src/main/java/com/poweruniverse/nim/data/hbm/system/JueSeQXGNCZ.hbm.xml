@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- version:2015-03-08 11:15:59 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.system.JueSeQXGNCZ" table="SYS_JueSeQXGNCZ" >
+    	<!--主键-->
+        <id name="jueSeQXGNCZDM" type="integer">
+	        <column name="jueSeQXGNCZDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--角色-->
+        <many-to-one name="jueSe" class="com.poweruniverse.nim.data.entity.system.JueSe" fetch="select">
+            <column name="jueSeDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--功能操作-->
+        <many-to-one name="gongNengCZ" class="com.poweruniverse.nim.data.entity.system.GongNengCZ" fetch="select">
+            <column name="gongNengCZDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--权限明细-->
+        <set name="mxs" inverse="true"  lazy="true" cascade="all-delete-orphan" order-by="jueSeQXMXDM" >
+        	<key>
+        		<column name="jueSeQXGNCZDM" precision="12" scale="0" not-null="true" />
+        	</key>
+        	<one-to-many class="com.poweruniverse.nim.data.entity.system.JueSeQXGNCZMX" />
+        </set>
+     </class>
+</hibernate-mapping>

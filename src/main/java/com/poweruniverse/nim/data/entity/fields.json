@@ -1,0 +1,53 @@
+[{
+	"name":"shiTiLeiBB"
+},{
+	"name":"shiTiLeiMC"
+},{
+	"name":"shiTiLeiDH"
+},{
+	"name":"zhuJianLie"
+},{
+	"name":"xianShiLie"
+},{
+	"name":"paiXuLie"
+},{
+	"name":"biaoMing"
+},{
+	"name":"shiTiLeiClassName"
+},{
+	"name":"shiFouYWB"
+},{
+	"name":"xiTong",
+	"fields":[{"name":"xiTongDH"}]
+},{
+	"name":"zds",
+	"fields":[{
+		"name":"ziDuanBT"
+	},{
+		"name":"ziDuanSM"
+	},{
+		"name":"lieMing"
+	},{
+		"name":"ziDuanDH"
+	},{
+		"name":"guanLianFLZD","fields":[{"name":"ziDuanDH"},{"name":"lieMing"},{"name":"shiTiLei","fields":[{"name":"shiTiLeiDH"}]}]
+	},{
+		"name":"ziDuanDM"
+	},{
+		"name":"ziDuanCD"
+	},{
+		"name":"ziDuanJD"
+	},{
+		"name":"yunXuKZ"
+	},{
+		"name":"yanChiJZ"
+	},{
+		"name":"shiFouWY"
+	},{
+		"name":"ziDuanLX","fields":[{"name":"ziDuanLXDH"}]
+	},{
+		"name":"guanLianSTL","fields":[{"name":"shiTiLeiDH"},{"name":"shiTiLeiClassName"},{"name":"zhuJianLie"},{"name":"paiXuLie"},{"name":"shiFouYWB"}]
+	}]
+}]
+
+

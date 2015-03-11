@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- version:2015-03-08 11:15:59 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.system.ZhiWu" table="SYS_ZhiWu" >
+    	<!--主键-->
+        <id name="zhiWuDM" type="integer">
+	        <column name="zhiWuDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--备注-->
+        <property name="zhiWuBZ" type="java.lang.String" lazy="false">
+        	<column name="zhiWuBZ" precision="1900" scale="0" not-null="false" />
+        </property>
+		<!--名称-->
+        <property name="zhiWuMC" type="java.lang.String" lazy="false">
+        	<column name="zhiWuMC" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--编号-->
+        <property name="zhiWuBH" type="java.lang.String" lazy="false">
+        	<column name="zhiWuBH" precision="200" scale="0" not-null="false" />
+        </property>
+     </class>
+</hibernate-mapping>

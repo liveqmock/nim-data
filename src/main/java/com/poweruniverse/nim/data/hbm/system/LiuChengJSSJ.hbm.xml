@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- version:2015-03-08 11:16:00 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.system.LiuChengJSSJ" table="SYS_LiuChengJSSJ" >
+    	<!--主键-->
+        <id name="liuChengJSSJDM" type="integer">
+	        <column name="liuChengJSSJDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--上级流程检视-->
+        <many-to-one name="shangJiLCJS" class="com.poweruniverse.nim.data.entity.system.LiuChengJS" fetch="select">
+            <column name="shangJiLCJSDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--流程检视-->
+        <many-to-one name="liuChengJS" class="com.poweruniverse.nim.data.entity.system.LiuChengJS" fetch="select">
+            <column name="liuChengJSDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--流程路径-->
+        <property name="transitionId" type="java.lang.String" lazy="false">
+        	<column name="transitionId" precision="200" scale="0" not-null="false" />
+        </property>
+     </class>
+</hibernate-mapping>

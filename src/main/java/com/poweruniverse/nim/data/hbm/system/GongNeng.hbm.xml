@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- version:2015-03-08 11:30:25 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.system.GongNeng" table="SYS_GongNeng" >
+    	<!--主键-->
+        <id name="gongNengDM" type="integer">
+	        <column name="gongNengDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--功能名称-->
+        <property name="gongNengMC" type="java.lang.String" lazy="false">
+        	<column name="gongNengMC" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--功能代号-->
+        <property name="gongNengDH" type="java.lang.String" lazy="false">
+        	<column name="gongNengDH" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--功能实现类-->
+        <property name="gongNengClass" type="java.lang.String" lazy="false">
+        	<column name="gongNengClass" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--操作集合-->
+        <set name="czs" inverse="true"  lazy="true" cascade="all-delete-orphan" order-by="gongNengCZXH" >
+        	<key>
+        		<column name="gongNengDM" precision="12" scale="0" not-null="true" />
+        	</key>
+        	<one-to-many class="com.poweruniverse.nim.data.entity.system.GongNengCZ" />
+        </set>
+		<!--功能图片-->
+        <property name="gongNengIMG" type="java.lang.String" lazy="false">
+        	<column name="gongNengIMG" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--功能文本-->
+        <property name="gongNengText" type="java.lang.String" lazy="false">
+        	<column name="gongNengText" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--功能序号-->
+        <property name="gongNengXH" type="java.lang.Integer" lazy="false">
+        	<column name="gongNengXH" precision="12" scale="0" not-null="false" />
+        </property>
+		<!--实体类-->
+        <many-to-one name="shiTiLei" class="com.poweruniverse.nim.data.entity.system.ShiTiLei" fetch="select">
+            <column name="shiTiLeiDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--系统-->
+        <many-to-one name="xiTong" class="com.poweruniverse.nim.data.entity.system.XiTong" fetch="select">
+            <column name="xitongdm" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--是否流程功能-->
+        <property name="shiFouLCGN" type="java.lang.Boolean" lazy="false">
+        	<column name="shiFouLCGN" precision="1" scale="0" not-null="false" />
+        </property>
+     </class>
+</hibernate-mapping>

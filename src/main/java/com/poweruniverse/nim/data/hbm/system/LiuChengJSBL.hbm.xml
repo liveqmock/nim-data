@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- version:2015-03-08 11:16:00 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.system.LiuChengJSBL" table="SYS_LiuChengJSBL" >
+    	<!--主键-->
+        <id name="liuChengJSBLDM" type="integer">
+	        <column name="liuChengJSBLDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--流程检视-->
+        <many-to-one name="liuChengJS" class="com.poweruniverse.nim.data.entity.system.LiuChengJS" fetch="select">
+            <column name="liuChengJSDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--流程检视变量代号-->
+        <property name="liuChengJSBLDH" type="java.lang.String" lazy="false">
+        	<column name="liuChengJSBLDH" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--流程检视变量名称-->
+        <property name="liuChengJSBLMC" type="java.lang.String" lazy="false">
+        	<column name="liuChengJSBLMC" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--流程检视变量值-->
+        <property name="liuChengJSBLZ" type="java.lang.String" lazy="false">
+        	<column name="liuChengJSBLZ" precision="5000" scale="0" not-null="false" />
+        </property>
+		<!--流程检视变量值显示-->
+        <property name="liuChengJSBLZXS" type="java.lang.String" lazy="false">
+        	<column name="liuChengJSBLZXS" precision="5000" scale="0" not-null="false" />
+        </property>
+		<!--字段类型-->
+        <many-to-one name="ziDuanLX" class="com.poweruniverse.nim.data.entity.system.ZiDuanLX" fetch="select">
+            <column name="ziDuanLXDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+		<!--原值-->
+        <property name="yuanZ" type="java.lang.String" lazy="false">
+        	<column name="yuanZ" precision="5000" scale="0" not-null="false" />
+        </property>
+		<!--原值显示-->
+        <property name="yuanZXS" type="java.lang.String" lazy="false">
+        	<column name="yuanZXS" precision="5000" scale="0" not-null="false" />
+        </property>
+     </class>
+</hibernate-mapping>
