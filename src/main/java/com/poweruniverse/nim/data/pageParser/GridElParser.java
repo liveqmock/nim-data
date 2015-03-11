@@ -130,7 +130,23 @@ public class GridElParser {
 						if(columnPreScript!=null && columnPreScript.length()>0){
 							gridScriptContent += columnPreScript;
 						}
-						colArray.add(columnCfgObj.get("field"));
+						
+						JSONObject columnListenersObj = new JSONObject();
+						
+						JSONObject columnDef = columnCfgObj.getJSONObject("field");
+						if(columnDef.containsKey("onChange")){
+							columnListenersObj.put("onChange",columnDef.getString("onChange"));
+							columnDef.remove("onChange");
+						}
+						
+						if(columnDef.containsKey("onLoad")){
+							columnListenersObj.put("onLoad",columnDef.getString("onLoad"));
+							columnDef.remove("onLoad");
+						}
+						
+						columnDef.put("listenerDefs", columnListenersObj);
+						
+						colArray.add(columnDef);
 					}
 				}
 			}
@@ -155,7 +171,22 @@ public class GridElParser {
 						if(columnPreScript!=null && columnPreScript.length()>0){
 							gridScriptContent += columnPreScript;
 						}
-						colArray.add(columnCfgObj.get("field"));
+						
+						JSONObject columnListenersObj = new JSONObject();
+						
+						JSONObject columnDef = columnCfgObj.getJSONObject("field");
+						if(columnDef.containsKey("onChange")){
+							columnListenersObj.put("onChange",columnDef.getString("onChange"));
+							columnDef.remove("onChange");
+						}
+						
+						if(columnDef.containsKey("onLoad")){
+							columnListenersObj.put("onLoad",columnDef.getString("onLoad"));
+							columnDef.remove("onLoad");
+						}
+						
+						columnDef.put("listenerDefs", columnListenersObj);
+						colArray.add(columnDef);
 					}
 				}
 			}

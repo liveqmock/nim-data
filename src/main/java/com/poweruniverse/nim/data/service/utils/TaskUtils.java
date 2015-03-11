@@ -440,7 +440,9 @@ public class TaskUtils {
 		}
 		//先确定使用当前功能下的哪个工作流
 		if(gnczl==null){
-			Set<GongNengGZL> gzls = workFlowGNCZ.getGongNeng().getGzls();
+			Session sess = HibernateSessionFactory.getSession();
+			@SuppressWarnings("unchecked")
+			List<GongNengGZL> gzls = (List<GongNengGZL>)sess.createCriteria(GongNengGZL.class).add(Restrictions.eq("gongNeng.id", workFlowGNCZ.getGongNeng().getGongNengDM())).list();
 			if(gzls.size()==1){
 				gnczl = gzls.iterator().next();
 			}else if(gzls.size()>1){
@@ -622,7 +624,11 @@ public class TaskUtils {
 		if(newBusiObj==null){
 			return null;
 		}
-		for(GongNengCZBL czbl:gncz.getCzbls()){
+		Session sess = HibernateSessionFactory.getSession();
+		@SuppressWarnings("unchecked")
+		List<GongNengCZBL> czbls = (List<GongNengCZBL>)sess.createCriteria(GongNengCZBL.class).add(Restrictions.eq("gongNengCZ.id", gncz.getGongNengCZDM())).list();
+		
+		for(GongNengCZBL czbl:czbls){
 			//集合字段不处理
 			if(!ZiDuanLX.isSetType(czbl.getZiDuan().getZiDuanLX().getZiDuanLXDH())){
 				String zddh = czbl.getZiDuan().getZiDuanDH();

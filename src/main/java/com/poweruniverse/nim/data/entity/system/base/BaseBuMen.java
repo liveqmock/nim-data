@@ -1,12 +1,11 @@
 package com.poweruniverse.nim.data.entity.system.base;
 import java.io.Serializable;
-
+import java.util.List;
 import com.poweruniverse.nim.data.entity.Version;
-
 /*
 * 实体类：部门
 */
-@Version("2015-03-05 15:49:01")
+@Version("2015-03-08 11:15:59")
 public abstract class BaseBuMen  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;
@@ -66,11 +65,6 @@ public abstract class BaseBuMen  implements Serializable,Comparable<Object> ,Ent
 	public java.lang.String getBuMenJJ(){return this.buMenJJ ;}
 	public void setBuMenJJ(java.lang.String buMenJJ){this.buMenJJ = buMenJJ;}
 	
-	// 对象：所属公司 （suoShuGS）
-	private com.poweruniverse.nim.data.entity.system.BuMen suoShuGS;
-	public com.poweruniverse.nim.data.entity.system.BuMen getSuoShuGS(){return this.suoShuGS ;}
-	public void setSuoShuGS(com.poweruniverse.nim.data.entity.system.BuMen suoShuGS){this.suoShuGS = suoShuGS;}
-
 			
 	// 属性：汇总编号 （huiZongBH）
 	private java.lang.String huiZongBH = null;
@@ -137,7 +131,6 @@ public abstract class BaseBuMen  implements Serializable,Comparable<Object> ,Ent
 		buMen.setBuMenJB(buMenJB);
 		buMen.setBuMenQM(buMenQM);
 		buMen.setBuMenJJ(buMenJJ);
-		buMen.setSuoShuGS(suoShuGS);
 		buMen.setHuiZongBH(huiZongBH);
 		buMen.setShiFouYWBM(shiFouYWBM);
 		

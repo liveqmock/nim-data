@@ -445,7 +445,6 @@ public class DatasourceElParser {
 					sqlString = FreemarkerUtils.processTemplate(sqlString, root);
 				} catch (Exception e) {
 					//出错的情况下 不autoload
-					
 					autoLoad = "false";
 				}
 			}
@@ -490,14 +489,18 @@ public class DatasourceElParser {
 			
 			Integer id = null;
 			if(idString!=null && "true".equals(autoLoad)){
-				if(idString.indexOf("<#")>=0 || idString.indexOf("${")>=0){
-					if(params!=null){
-						idString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+idString;
+				try {
+					if(idString.indexOf("<#")>=0 || idString.indexOf("${")>=0){
+						if(params!=null){
+							idString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+idString;
+						}
+						idString = FreemarkerUtils.processTemplate(idString, root);
 					}
-					idString = FreemarkerUtils.processTemplate(idString, root);
+					idString = idString.replaceAll("\\\\n", "");
+					id = Integer.valueOf(idString);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				idString = idString.replaceAll("\\\\n", "");
-				id = Integer.valueOf(idString);
 			}
 			
 			GongNeng dataGn = GongNeng.getGongNengByDH(gongNengDH);
@@ -576,14 +579,19 @@ public class DatasourceElParser {
 			String idString= recordEl.attributeValue("id"); 
 			Integer id = null;
 			if(idString!=null && "true".equals(autoLoad)){
-				if(idString.indexOf("<#")>=0 || idString.indexOf("${")>=0){
-					if(params!=null){
-						idString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+idString;
+				try {
+					if(idString.indexOf("<#")>=0 || idString.indexOf("${")>=0){
+						if(params!=null){
+							idString = "<#assign _paramsString>"+params.toString()+"</#assign><#assign params = _paramsString?eval />"+idString;
+						}
+						idString = FreemarkerUtils.processTemplate(idString, root);
 					}
-					idString = FreemarkerUtils.processTemplate(idString, root);
+					idString = idString.replaceAll("\\\\n", "");
+					id = Integer.valueOf(idString);
+				} catch (Exception e) {
+					e.printStackTrace();
 				}
-				idString = idString.replaceAll("\\\\n", "");
-				id = Integer.valueOf(idString);
+				
 			}
 			
 			

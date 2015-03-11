@@ -370,7 +370,16 @@ public class FormElParser {
 						fieldsPreScript += fieldPreScript;
 					}
 					
-					fieldArray.add(fieldCfgObj.get("field"));
+					JSONObject fieldDef = fieldCfgObj.getJSONObject("field");
+					if(fieldDef.containsKey("onChange")){
+						JSONObject fieldListenersObj = new JSONObject();
+						fieldListenersObj.put("onChange",fieldDef.getString("onChange"));
+						fieldDef.put("listenerDefs", fieldListenersObj);
+						
+						fieldDef.remove("onChange");
+					}
+					
+					fieldArray.add(fieldDef);
 				}
 			}
 			

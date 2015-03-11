@@ -1,12 +1,11 @@
 package com.poweruniverse.nim.data.entity.system.base;
 import java.io.Serializable;
-
+import java.util.List;
 import com.poweruniverse.nim.data.entity.Version;
-
 /*
 * 实体类：功能
 */
-@Version("2015-03-05 15:49:09")
+@Version("2015-03-08 11:30:25")
 public abstract class BaseGongNeng  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;
@@ -85,16 +84,16 @@ public abstract class BaseGongNeng  implements Serializable,Comparable<Object> ,
 	}
 	
 			
+	// 属性：功能图片 （gongNengIMG）
+	private java.lang.String gongNengIMG = null;
+	public java.lang.String getGongNengIMG(){return this.gongNengIMG ;}
+	public void setGongNengIMG(java.lang.String gongNengIMG){this.gongNengIMG = gongNengIMG;}
+	
+			
 	// 属性：功能文本 （gongNengText）
 	private java.lang.String gongNengText = null;
 	public java.lang.String getGongNengText(){return this.gongNengText ;}
 	public void setGongNengText(java.lang.String gongNengText){this.gongNengText = gongNengText;}
-	
-			
-	// 属性：功能URL （gongNengURL）
-	private java.lang.String gongNengURL = null;
-	public java.lang.String getGongNengURL(){return this.gongNengURL ;}
-	public void setGongNengURL(java.lang.String gongNengURL){this.gongNengURL = gongNengURL;}
 	
 			
 	// 属性：功能序号 （gongNengXH）
@@ -113,98 +112,10 @@ public abstract class BaseGongNeng  implements Serializable,Comparable<Object> ,
 	public void setXiTong(com.poweruniverse.nim.data.entity.system.XiTong xiTong){this.xiTong = xiTong;}
 
 			
-	// 属性：是否webservice （shiFouWS）
-	private java.lang.Boolean shiFouWS = new java.lang.Boolean(false);
-	public java.lang.Boolean getShiFouWS(){return this.shiFouWS ;}
-	public void setShiFouWS(java.lang.Boolean shiFouWS){this.shiFouWS = shiFouWS;}
-	
-			
-	// 属性：webservice类名 （wsClass）
-	private java.lang.String wsClass = null;
-	public java.lang.String getWsClass(){return this.wsClass ;}
-	public void setWsClass(java.lang.String wsClass){this.wsClass = wsClass;}
-	
-			
 	// 属性：是否流程功能 （shiFouLCGN）
 	private java.lang.Boolean shiFouLCGN = new java.lang.Boolean(false);
 	public java.lang.Boolean getShiFouLCGN(){return this.shiFouLCGN ;}
 	public void setShiFouLCGN(java.lang.Boolean shiFouLCGN){this.shiFouLCGN = shiFouLCGN;}
-	
-	// 集合：功能流程集合 （lcs）
-	private java.util.Set<com.poweruniverse.nim.data.entity.system.GongNengLC> lcs = new java.util.TreeSet<com.poweruniverse.nim.data.entity.system.GongNengLC>();
-	public java.util.Set<com.poweruniverse.nim.data.entity.system.GongNengLC> getLcs(){return this.lcs ;}
-	public void setLcs(java.util.Set<com.poweruniverse.nim.data.entity.system.GongNengLC> lcs){this.lcs = lcs;}
-	public void addTolcs(Object parent,Object detail){
-		com.poweruniverse.nim.data.entity.system.GongNeng mainObj = (com.poweruniverse.nim.data.entity.system.GongNeng)parent;
-		com.poweruniverse.nim.data.entity.system.GongNengLC subObj = (com.poweruniverse.nim.data.entity.system.GongNengLC)detail;
-		subObj.setGongNeng(mainObj);
-		mainObj.getLcs().add(subObj);
-	}
-	public void removeFromlcs(Object parent,Object detail){
-		com.poweruniverse.nim.data.entity.system.GongNeng mainObj = (com.poweruniverse.nim.data.entity.system.GongNeng)parent;
-		com.poweruniverse.nim.data.entity.system.GongNengLC subObj = (com.poweruniverse.nim.data.entity.system.GongNengLC)detail;
-		subObj.setGongNeng(null);
-		mainObj.getLcs().remove(subObj);
-	}
-	public Object getlcsById(Object id){
-		java.util.Iterator<com.poweruniverse.nim.data.entity.system.GongNengLC> ds = this.getLcs().iterator();
-		com.poweruniverse.nim.data.entity.system.GongNengLC d = null;
-		while(ds.hasNext()){
-			d = ds.next();
-			if(d.getGongNengLCDM()!=null && d.getGongNengLCDM().equals(id)){
-				return d;
-			}
-		}
-		return null;
-	}
-	public com.poweruniverse.nim.data.entity.system.GongNengLC newlcsByParent(com.poweruniverse.nim.data.entity.system.GongNeng parent) throws Exception{
-		com.poweruniverse.nim.data.entity.system.GongNengLC subObj = new com.poweruniverse.nim.data.entity.system.GongNengLC();
-		//
-		subObj.setGongNeng(parent);
-		//
-		return subObj;
-	}
-	
-			
-	// 属性：是否记录日志 （shiFouJLRZ）
-	private java.lang.Boolean shiFouJLRZ = new java.lang.Boolean(false);
-	public java.lang.Boolean getShiFouJLRZ(){return this.shiFouJLRZ ;}
-	public void setShiFouJLRZ(java.lang.Boolean shiFouJLRZ){this.shiFouJLRZ = shiFouJLRZ;}
-	
-	// 集合：工作流集合 （gzls）
-	private java.util.Set<com.poweruniverse.nim.data.entity.system.GongNengGZL> gzls = new java.util.TreeSet<com.poweruniverse.nim.data.entity.system.GongNengGZL>();
-	public java.util.Set<com.poweruniverse.nim.data.entity.system.GongNengGZL> getGzls(){return this.gzls ;}
-	public void setGzls(java.util.Set<com.poweruniverse.nim.data.entity.system.GongNengGZL> gzls){this.gzls = gzls;}
-	public void addTogzls(Object parent,Object detail){
-		com.poweruniverse.nim.data.entity.system.GongNeng mainObj = (com.poweruniverse.nim.data.entity.system.GongNeng)parent;
-		com.poweruniverse.nim.data.entity.system.GongNengGZL subObj = (com.poweruniverse.nim.data.entity.system.GongNengGZL)detail;
-		subObj.setGongNeng(mainObj);
-		mainObj.getGzls().add(subObj);
-	}
-	public void removeFromgzls(Object parent,Object detail){
-		com.poweruniverse.nim.data.entity.system.GongNeng mainObj = (com.poweruniverse.nim.data.entity.system.GongNeng)parent;
-		com.poweruniverse.nim.data.entity.system.GongNengGZL subObj = (com.poweruniverse.nim.data.entity.system.GongNengGZL)detail;
-		subObj.setGongNeng(null);
-		mainObj.getGzls().remove(subObj);
-	}
-	public Object getgzlsById(Object id){
-		java.util.Iterator<com.poweruniverse.nim.data.entity.system.GongNengGZL> ds = this.getGzls().iterator();
-		com.poweruniverse.nim.data.entity.system.GongNengGZL d = null;
-		while(ds.hasNext()){
-			d = ds.next();
-			if(d.getGongNengGZLDM()!=null && d.getGongNengGZLDM().equals(id)){
-				return d;
-			}
-		}
-		return null;
-	}
-	public com.poweruniverse.nim.data.entity.system.GongNengGZL newgzlsByParent(com.poweruniverse.nim.data.entity.system.GongNeng parent) throws Exception{
-		com.poweruniverse.nim.data.entity.system.GongNengGZL subObj = new com.poweruniverse.nim.data.entity.system.GongNengGZL();
-		//
-		subObj.setGongNeng(parent);
-		//
-		return subObj;
-	}
 	
 	public boolean equals (Object obj) {
 		if (null == obj) return false;
@@ -260,21 +171,12 @@ public abstract class BaseGongNeng  implements Serializable,Comparable<Object> ,
 		for(com.poweruniverse.nim.data.entity.system.GongNengCZ subObj:this.getCzs()){
 			gongNeng.addToczs(gongNeng, subObj.clone());
 		}
+		gongNeng.setGongNengIMG(gongNengIMG);
 		gongNeng.setGongNengText(gongNengText);
-		gongNeng.setGongNengURL(gongNengURL);
 		gongNeng.setGongNengXH(gongNengXH);
 		gongNeng.setShiTiLei(shiTiLei);
 		gongNeng.setXiTong(xiTong);
-		gongNeng.setShiFouWS(shiFouWS);
-		gongNeng.setWsClass(wsClass);
 		gongNeng.setShiFouLCGN(shiFouLCGN);
-		for(com.poweruniverse.nim.data.entity.system.GongNengLC subObj:this.getLcs()){
-			gongNeng.addTolcs(gongNeng, subObj.clone());
-		}
-		gongNeng.setShiFouJLRZ(shiFouJLRZ);
-		for(com.poweruniverse.nim.data.entity.system.GongNengGZL subObj:this.getGzls()){
-			gongNeng.addTogzls(gongNeng, subObj.clone());
-		}
 		
 		return gongNeng;
 	}

@@ -32,8 +32,11 @@ public class HibernateSessionFactory{
     
     private static Set<String> baseEntityMappings = new HashSet<String>();
     
-    public static Configuration initial(File cfgFile,JSONObject sessConfig) {
+    public static boolean initial(File cfgFile,JSONObject sessConfig) {
+    	boolean isOk = true;
 		try {
+			configuration = sessConfig;
+			
 		    System.out.println("building SessionFactory ..."+cfgFile.getPath());
 		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/XiTong.hbm.xml");
 		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/GongNeng.hbm.xml");
@@ -48,15 +51,24 @@ public class HibernateSessionFactory{
 		    
 		    sessionConfiguration = new Configuration ().configure(cfgFile);
 		    for(String resourceName:baseEntityMappings){
-		    	sessionConfiguration.addResource(resourceName);
+		    	try {
+					sessionConfiguration.addResource(resourceName);
+				} catch (Exception e) {
+					 System.err.println("添加映射资源("+resourceName+")失败");
+					 isOk = false;
+					e.printStackTrace();
+				}
+		    	if(!isOk){
+					break;
+				}
 		    }
-		    configuration = sessConfig;
 			System.out.println("sessionFactory   builded");
 	    } catch (Exception e) {
-		     System.err.println("%%%% Error Creating SessionFactory  ("+cfgFile.getPath()+")%%%%");
-		     e.printStackTrace();
+	    	isOk = false;
+		    System.err.println("%%%% Error Creating SessionFactory  ("+cfgFile.getPath()+")%%%%");
+		    e.printStackTrace();
 	    }
-	    return sessionConfiguration;
+	    return isOk;
     }
     
     public static boolean loadMappings() throws Exception{
@@ -81,7 +93,7 @@ public class HibernateSessionFactory{
 				}
 			}else{
 				System.err.println("---------------------------------------");
-				System.err.println("系统"+xiTongConfig.getString("name")+"的mapping文件不存在！");
+				System.err.println("系统"+xiTongConfig.getString("name")+"的映射文件("+mappingFileName+")不存在,hibernate没有加载相关的实体类映射！");
 				System.err.println("---------------------------------------");
 			}
 		}
@@ -109,6 +121,12 @@ public class HibernateSessionFactory{
     		sessionFactory = sessionConfiguration.buildSessionFactory() ;
     	}
     	return sessionFactory;
+    }
+    
+    public static void close(){
+    	if(sessionFactory!=null){
+    		sessionFactory.close();;
+    	}
     }
     
     public static Connection getConnection(){
