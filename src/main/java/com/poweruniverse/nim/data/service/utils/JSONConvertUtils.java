@@ -19,10 +19,10 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.dom4j.Element;
 import org.dom4j.tree.DefaultAttribute;
 
-import com.poweruniverse.nim.data.entity.system.ShiTiLei;
-import com.poweruniverse.nim.data.entity.system.ZiDuan;
-import com.poweruniverse.nim.data.entity.system.ZiDuanLX;
-import com.poweruniverse.nim.data.entity.system.base.EntityI;
+import com.poweruniverse.nim.data.entity.sys.ShiTiLei;
+import com.poweruniverse.nim.data.entity.sys.ZiDuan;
+import com.poweruniverse.nim.data.entity.sys.ZiDuanLX;
+import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 
 public class JSONConvertUtils {
 	public static SimpleDateFormat dsf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.S");

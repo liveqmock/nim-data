@@ -4,7 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import com.poweruniverse.nim.data.entity.system.base.EntityI;
+import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 
 public class MethodResult {
 	private List<EntityI> currentDataList = null;//本次操作的对象

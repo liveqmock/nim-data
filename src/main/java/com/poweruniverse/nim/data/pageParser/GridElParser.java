@@ -134,17 +134,17 @@ public class GridElParser {
 						JSONObject columnListenersObj = new JSONObject();
 						
 						JSONObject columnDef = columnCfgObj.getJSONObject("field");
-						if(columnDef.containsKey("onChange")){
-							columnListenersObj.put("onChange",columnDef.getString("onChange"));
-							columnDef.remove("onChange");
-						}
-						
-						if(columnDef.containsKey("onLoad")){
-							columnListenersObj.put("onLoad",columnDef.getString("onLoad"));
-							columnDef.remove("onLoad");
-						}
-						
-						columnDef.put("listenerDefs", columnListenersObj);
+//						if(columnDef.containsKey("onChange")){
+//							columnListenersObj.put("onChange",columnDef.getString("onChange"));
+//							columnDef.remove("onChange");
+//						}
+//						
+//						if(columnDef.containsKey("onLoad")){
+//							columnListenersObj.put("onLoad",columnDef.getString("onLoad"));
+//							columnDef.remove("onLoad");
+//						}
+//						
+//						columnDef.put("listenerDefs", columnListenersObj);
 						
 						colArray.add(columnDef);
 					}
@@ -175,17 +175,17 @@ public class GridElParser {
 						JSONObject columnListenersObj = new JSONObject();
 						
 						JSONObject columnDef = columnCfgObj.getJSONObject("field");
-						if(columnDef.containsKey("onChange")){
-							columnListenersObj.put("onChange",columnDef.getString("onChange"));
-							columnDef.remove("onChange");
-						}
-						
-						if(columnDef.containsKey("onLoad")){
-							columnListenersObj.put("onLoad",columnDef.getString("onLoad"));
-							columnDef.remove("onLoad");
-						}
-						
-						columnDef.put("listenerDefs", columnListenersObj);
+//						if(columnDef.containsKey("onChange")){
+//							columnListenersObj.put("onChange",columnDef.getString("onChange"));
+//							columnDef.remove("onChange");
+//						}
+//						
+//						if(columnDef.containsKey("onLoad")){
+//							columnListenersObj.put("onLoad",columnDef.getString("onLoad"));
+//							columnDef.remove("onLoad");
+//						}
+//						
+//						columnDef.put("listenerDefs", columnListenersObj);
 						colArray.add(columnDef);
 					}
 				}

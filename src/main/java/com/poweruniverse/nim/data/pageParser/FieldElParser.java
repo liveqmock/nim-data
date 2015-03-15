@@ -19,7 +19,15 @@ public class FieldElParser {
 		String fieldsPreScript = "";
 
 		JSONObject fieldObj = JSONConvertUtils.applyXML2Json(fieldEl,false);
-		
+		JSONObject listenersObj = new JSONObject();
+		for(Object keyName:fieldObj.keySet()){
+			if(((String)keyName).startsWith("on")){
+				String listener = fieldObj.getString((String)keyName);
+				listenersObj.put(keyName, listener);
+			}
+		}
+		fieldObj.put("listenerDefs", listenersObj);
+			
 		//处理字段的数据源定义
 		Element fieldDatasetEl = fieldEl.element("dataset");
 		if(fieldDatasetEl!=null){

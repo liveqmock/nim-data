@@ -2,7 +2,7 @@ package ${packageName}.base;
 import java.io.Serializable;
 import java.util.List;
 import com.poweruniverse.nim.data.entity.Version;
-import com.poweruniverse.nim.data.entity.system.base.EntityI;
+import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 /*
 * 实体类：${stl.shiTiLeiMC}
 */
@@ -76,8 +76,8 @@ public abstract class Base${className}  implements Serializable,Comparable<Objec
 		<#elseif zd.ziDuanLX.ziDuanLXDH = 'object'>
 	// 对象：${zd.ziDuanBT} （${zd.ziDuanDH}）
 	<#if zd.guanLianSTL??> 
-	<#if zd.guanLianSTL.shiTiLeiClassName = 'com.poweruniverse.oim.server.entity.system.BiZhong'>
-	private ${zd.guanLianSTL.shiTiLeiClassName!'null'} ${zd.ziDuanDH} = new com.poweruniverse.oim.server.entity.system.BiZhong(1,"人民币",1d);
+	<#if zd.guanLianSTL.shiTiLeiClassName = 'com.poweruniverse.oim.server.entity.sys.BiZhong'>
+	private ${zd.guanLianSTL.shiTiLeiClassName!'null'} ${zd.ziDuanDH} = new com.poweruniverse.oim.server.entity.sys.BiZhong(1,"人民币",1d);
 	<#else>
 	private ${zd.guanLianSTL.shiTiLeiClassName!'null'} ${zd.ziDuanDH};
 	</#if>  

@@ -12,7 +12,7 @@ import net.sf.json.JSONArray;
 
 import org.apache.commons.beanutils.PropertyUtils;
 
-import com.poweruniverse.nim.data.entity.system.base.EntityI;
+import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 
 public class ValueUtils {
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

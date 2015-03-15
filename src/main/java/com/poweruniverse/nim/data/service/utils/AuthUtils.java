@@ -9,13 +9,13 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
-import com.poweruniverse.nim.data.entity.system.GongNengCZ;
-import com.poweruniverse.nim.data.entity.system.JueSe;
-import com.poweruniverse.nim.data.entity.system.JueSeQXGNCZ;
-import com.poweruniverse.nim.data.entity.system.LiuChengJS;
-import com.poweruniverse.nim.data.entity.system.ShiTiLei;
-import com.poweruniverse.nim.data.entity.system.YongHu;
-import com.poweruniverse.nim.data.entity.system.YongHuZT;
+import com.poweruniverse.nim.data.entity.sys.GongNengCZ;
+import com.poweruniverse.nim.data.entity.sys.JueSe;
+import com.poweruniverse.nim.data.entity.sys.JueSeQXGNCZ;
+import com.poweruniverse.nim.data.entity.sys.LiuChengJS;
+import com.poweruniverse.nim.data.entity.sys.ShiTiLei;
+import com.poweruniverse.nim.data.entity.sys.YongHu;
+import com.poweruniverse.nim.data.entity.sys.YongHuZT;
 
 public class AuthUtils {
 	

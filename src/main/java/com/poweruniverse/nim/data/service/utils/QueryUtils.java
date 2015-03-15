@@ -18,19 +18,19 @@ import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
 import org.hibernate.criterion.Restrictions;
 
-import com.poweruniverse.nim.data.entity.system.GongNengCZ;
-import com.poweruniverse.nim.data.entity.system.GongNengGZL;
-import com.poweruniverse.nim.data.entity.system.GongNengGZLTJ;
-import com.poweruniverse.nim.data.entity.system.GongNengLC;
-import com.poweruniverse.nim.data.entity.system.GongNengLCMX;
-import com.poweruniverse.nim.data.entity.system.JueSe;
-import com.poweruniverse.nim.data.entity.system.JueSeQXGNCZ;
-import com.poweruniverse.nim.data.entity.system.JueSeQXGNCZMX;
-import com.poweruniverse.nim.data.entity.system.ShiTiLei;
-import com.poweruniverse.nim.data.entity.system.YongHu;
-import com.poweruniverse.nim.data.entity.system.YongHuJS;
-import com.poweruniverse.nim.data.entity.system.ZiDuan;
-import com.poweruniverse.nim.data.entity.system.ZiDuanLX;
+import com.poweruniverse.nim.data.entity.sys.GongNengCZ;
+import com.poweruniverse.nim.data.entity.sys.GongNengGZL;
+import com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ;
+import com.poweruniverse.nim.data.entity.sys.GongNengLC;
+import com.poweruniverse.nim.data.entity.sys.GongNengLCMX;
+import com.poweruniverse.nim.data.entity.sys.JueSe;
+import com.poweruniverse.nim.data.entity.sys.JueSeQXGNCZ;
+import com.poweruniverse.nim.data.entity.sys.JueSeQXGNCZMX;
+import com.poweruniverse.nim.data.entity.sys.ShiTiLei;
+import com.poweruniverse.nim.data.entity.sys.YongHu;
+import com.poweruniverse.nim.data.entity.sys.YongHuJS;
+import com.poweruniverse.nim.data.entity.sys.ZiDuan;
+import com.poweruniverse.nim.data.entity.sys.ZiDuanLX;
 
 public class QueryUtils {
 	private static SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");

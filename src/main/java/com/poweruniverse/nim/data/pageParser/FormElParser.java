@@ -9,7 +9,7 @@ import net.sf.json.JSONObject;
 import org.dom4j.Element;
 
 import com.poweruniverse.nim.base.utils.FreemarkerUtils;
-import com.poweruniverse.nim.data.entity.system.ShiTiLei;
+import com.poweruniverse.nim.data.entity.sys.ShiTiLei;
 import com.poweruniverse.nim.data.service.utils.DataUtils;
 import com.poweruniverse.nim.data.service.utils.JSONConvertUtils;
 
@@ -371,13 +371,13 @@ public class FormElParser {
 					}
 					
 					JSONObject fieldDef = fieldCfgObj.getJSONObject("field");
-					if(fieldDef.containsKey("onChange")){
-						JSONObject fieldListenersObj = new JSONObject();
-						fieldListenersObj.put("onChange",fieldDef.getString("onChange"));
-						fieldDef.put("listenerDefs", fieldListenersObj);
-						
-						fieldDef.remove("onChange");
-					}
+//					if(fieldDef.containsKey("onChange")){
+//						JSONObject fieldListenersObj = new JSONObject();
+//						fieldListenersObj.put("onChange",fieldDef.getString("onChange"));
+//						fieldDef.put("listenerDefs", fieldListenersObj);
+//						
+//						fieldDef.remove("onChange");
+//					}
 					
 					fieldArray.add(fieldDef);
 				}

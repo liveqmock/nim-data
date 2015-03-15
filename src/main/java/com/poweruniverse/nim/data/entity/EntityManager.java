@@ -42,10 +42,10 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
 import com.poweruniverse.nim.base.description.Application;
-import com.poweruniverse.nim.data.entity.system.ShiTiLei;
-import com.poweruniverse.nim.data.entity.system.XiTong;
-import com.poweruniverse.nim.data.entity.system.ZiDuan;
-import com.poweruniverse.nim.data.entity.system.ZiDuanLX;
+import com.poweruniverse.nim.data.entity.sys.ShiTiLei;
+import com.poweruniverse.nim.data.entity.sys.XiTong;
+import com.poweruniverse.nim.data.entity.sys.ZiDuan;
+import com.poweruniverse.nim.data.entity.sys.ZiDuanLX;
 import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 import com.poweruniverse.nim.data.service.utils.JSONConvertUtils;
 
@@ -105,9 +105,9 @@ public class EntityManager {
 				List<Element> mappingEls = (List<Element>)configurationDoc.getRootElement().elements("mapping");
 				for(int i=0;i<mappingEls.size();i++){
 					Element mappingEl = mappingEls.get(i) ;
-					String resourceName = mappingEl.attributeValue("resource");//com/poweruniverse/nim/data/hbm/system/XiTong.hbm.xml
-					String entityName = resourceName.substring(0,resourceName.indexOf("."));//com/poweruniverse/nim/data/hbm/system/XiTong
-//					String hbmPartName = entityName.substring(entityPackage.length()+1);//hbm/system/XiTong
+					String resourceName = mappingEl.attributeValue("resource");//com/poweruniverse/nim/data/hbm/sys/XiTong.hbm.xml
+					String entityName = resourceName.substring(0,resourceName.indexOf("."));//com/poweruniverse/nim/data/hbm/sys/XiTong
+//					String hbmPartName = entityName.substring(entityPackage.length()+1);//hbm/sys/XiTong
 					
 					if(!resourceName.startsWith(entityPackage.replaceAll("\\.", "/"))){
 						System.err.println("映射文件("+mappingFileName+")第"+i+"行的映射信息错误,实体类位置必须与application.cfg.xml文件中系统"+xiTongName+"的entityPackage参数("+entityPackage+")保持一致");
@@ -253,7 +253,7 @@ public class EntityManager {
 				//再循环一次 检查是否数据库中 是否缺少实体类
 				for(int i=0;i<mappingEls.size();i++){
 					Element mappingEl = mappingEls.get(i) ;
-					String resourceName = mappingEl.attributeValue("resource");//hbm/system/XiTong.hbm.xml
+					String resourceName = mappingEl.attributeValue("resource");//hbm/sys/XiTong.hbm.xml
 					//读取定义文件中的版本信息,创建不存在的实体类
 					JSONObject defJson = resourceDefineMap.get(resourceName);
 					if(defJson !=null ){
@@ -282,7 +282,7 @@ public class EntityManager {
 				//第三次循环检查是否数据库中 是否实体类的版本早于定义文件中的版本号
 				for(int i=0;i<mappingEls.size();i++){
 					Element mappingEl = mappingEls.get(i) ;
-					String resourceName = mappingEl.attributeValue("resource");//hbm/system/XiTong.hbm.xml
+					String resourceName = mappingEl.attributeValue("resource");//hbm/sys/XiTong.hbm.xml
 					
 					//读取定义文件中的版本信息,与数据库中实体类的版本进行比较
 					JSONObject defJson = resourceDefineMap.get(resourceName);

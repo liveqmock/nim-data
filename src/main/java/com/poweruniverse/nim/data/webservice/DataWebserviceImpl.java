@@ -42,14 +42,14 @@ import com.poweruniverse.nim.base.message.ObjectResult;
 import com.poweruniverse.nim.base.message.Result;
 import com.poweruniverse.nim.base.webservice.BasePlateformWebservice;
 import com.poweruniverse.nim.data.bean.MethodResult;
-import com.poweruniverse.nim.data.entity.system.GongNeng;
-import com.poweruniverse.nim.data.entity.system.GongNengCZ;
-import com.poweruniverse.nim.data.entity.system.ShiTiLei;
-import com.poweruniverse.nim.data.entity.system.YongHu;
-import com.poweruniverse.nim.data.entity.system.ZiDuan;
-import com.poweruniverse.nim.data.entity.system.ZiDuanLX;
-import com.poweruniverse.nim.data.entity.system.base.BusinessI;
-import com.poweruniverse.nim.data.entity.system.base.EntityI;
+import com.poweruniverse.nim.data.entity.sys.GongNeng;
+import com.poweruniverse.nim.data.entity.sys.GongNengCZ;
+import com.poweruniverse.nim.data.entity.sys.ShiTiLei;
+import com.poweruniverse.nim.data.entity.sys.YongHu;
+import com.poweruniverse.nim.data.entity.sys.ZiDuan;
+import com.poweruniverse.nim.data.entity.sys.ZiDuanLX;
+import com.poweruniverse.nim.data.entity.sys.base.BusinessI;
+import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 import com.poweruniverse.nim.data.service.utils.AuthUtils;
 import com.poweruniverse.nim.data.service.utils.DataUtils;
 import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
@@ -393,8 +393,8 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			if(!AuthUtils.checkAuth(gongNengDH,caoZuoDH, id, yhdm)){
 				throw new Exception("记录("+gongNengDH+"."+caoZuoDH+"."+id+")不存在或用户没有权限！");
 			}
-			Object obj = sess.load(gncz.getGongNeng().getShiTiLei().getShiTiLeiClassName(), id);
-			
+//			Object obj = sess.load(gncz.getGongNeng().getShiTiLei().getShiTiLeiClassName(), id);
+			Object obj =  DataUtils.getObjectByGNCZ(gncz, id, yhdm);
 			//创建返回对象
 			JSONObject meta = new JSONObject();
 			meta.put("zhuJianLie", gncz.getGongNeng().getShiTiLei().getZhuJianLie());

@@ -2,7 +2,7 @@ package com.poweruniverse.nim.data.entity;
 
 import org.hibernate.criterion.Restrictions;
 
-import com.poweruniverse.nim.data.entity.system.ZiDuanLX;
+import com.poweruniverse.nim.data.entity.sys.ZiDuanLX;
 import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 
 public class OracleType {

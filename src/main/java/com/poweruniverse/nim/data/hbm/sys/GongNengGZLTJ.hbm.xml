@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- version:2015-03-08 11:15:59 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ" table="SYS_GongNengGZLTJ" >
+    	<!--主键-->
+        <id name="gongNengGZLTJDM" type="integer">
+	        <column name="gongNengGZLTJDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--公式集合-->
+        <set name="gss" inverse="true"  lazy="true" cascade="all-delete-orphan" order-by="gongNengGZLTJGSDM" >
+        	<key>
+        		<column name="gongNengGZLTJDM" precision="12" scale="0" not-null="true" />
+        	</key>
+        	<one-to-many class="com.poweruniverse.nim.data.entity.sys.GongNengGZLTJGS" />
+        </set>
+		<!--条件显示-->
+        <property name="liuZhuanTJXS" type="java.lang.String" lazy="false">
+        	<column name="liuZhuanTJXS" precision="5000" scale="0" not-null="false" />
+        </property>
+		<!--功能工作流-->
+        <many-to-one name="gongNengGZL" class="com.poweruniverse.nim.data.entity.sys.GongNengGZL" fetch="select">
+            <column name="gongNengGZLDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+     </class>
+</hibernate-mapping>

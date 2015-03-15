@@ -26,8 +26,8 @@ import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.delegate.ActivityExecution;
 import org.activiti.engine.impl.pvm.runtime.InterpretableExecution;
 
-import com.poweruniverse.nim.data.entity.system.LiuChengJS;
-import com.poweruniverse.nim.data.entity.system.LiuChengJSXJ;
+import com.poweruniverse.nim.data.entity.sys.LiuChengJS;
+import com.poweruniverse.nim.data.entity.sys.LiuChengJSXJ;
 
 /**
  * Helper class for implementing BPMN 2.0 activities, offering convenience

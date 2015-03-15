@@ -17,8 +17,8 @@ import com.poweruniverse.nim.base.message.JSONMessageResult;
 import com.poweruniverse.nim.base.utils.Encrypt;
 import com.poweruniverse.nim.base.utils.MD5Utils;
 import com.poweruniverse.nim.base.webservice.BasePlateformWebservice;
-import com.poweruniverse.nim.data.entity.system.YongHu;
-import com.poweruniverse.nim.data.entity.system.YongHuZT;
+import com.poweruniverse.nim.data.entity.sys.YongHu;
+import com.poweruniverse.nim.data.entity.sys.YongHuZT;
 import com.poweruniverse.nim.data.service.utils.AuthUtils;
 import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 

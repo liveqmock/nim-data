@@ -38,16 +38,16 @@ public class HibernateSessionFactory{
 			configuration = sessConfig;
 			
 		    System.out.println("building SessionFactory ..."+cfgFile.getPath());
-		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/XiTong.hbm.xml");
-		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/GongNeng.hbm.xml");
-		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/GongNengLB.hbm.xml");
-		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/GongNengCZ.hbm.xml");
-		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/CaoZuoLB.hbm.xml");
-		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/ShiTiLei.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/sys/XiTong.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/sys/GongNeng.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/sys/GongNengLB.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/sys/GongNengCZ.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/sys/CaoZuoLB.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/sys/ShiTiLei.hbm.xml");
 		    
-		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/ShiTiLeiLX.hbm.xml");
-		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/ZiDuan.hbm.xml");
-		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/system/ZiDuanLX.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/sys/ShiTiLeiLX.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/sys/ZiDuan.hbm.xml");
+		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/sys/ZiDuanLX.hbm.xml");
 		    
 		    sessionConfiguration = new Configuration ().configure(cfgFile);
 		    for(String resourceName:baseEntityMappings){

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC 
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<!-- version:2015-03-08 11:15:59 -->
+<hibernate-mapping auto-import="false">  
+    <class name="com.poweruniverse.nim.data.entity.sys.GongNengLB" table="SYS_GongNengLB" >
+    	<!--主键-->
+        <id name="gongNengLBDM" type="integer">
+	        <column name="gongNengLBDM" precision="12" scale="0" />
+	        <generator class="increment"></generator>
+        </id>
+        
+		<!--功能类别名称-->
+        <property name="gongNengLBMC" type="java.lang.String" lazy="false">
+        	<column name="gongNengLBMC" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--功能类别序号-->
+        <property name="gongNengLBXH" type="java.lang.Integer" lazy="false">
+        	<column name="gongNengLBXH" precision="12" scale="0" not-null="false" />
+        </property>
+		<!--功能类别代号-->
+        <property name="gongNengLBDH" type="java.lang.String" lazy="false">
+        	<column name="gongNengLBDH" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--系统-->
+        <many-to-one name="xiTong" class="com.poweruniverse.nim.data.entity.sys.XiTong" fetch="select">
+            <column name="xiTongDM" precision="12" scale="0" not-null="false" />
+        </many-to-one>
+        
+     </class>
+</hibernate-mapping>

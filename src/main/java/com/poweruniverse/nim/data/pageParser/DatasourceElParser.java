@@ -11,10 +11,10 @@ import org.dom4j.Element;
 
 import com.poweruniverse.nim.base.bean.BaseJavaDatasource;
 import com.poweruniverse.nim.base.utils.FreemarkerUtils;
-import com.poweruniverse.nim.data.entity.system.GongNeng;
-import com.poweruniverse.nim.data.entity.system.ShiTiLei;
-import com.poweruniverse.nim.data.entity.system.ZiDuan;
-import com.poweruniverse.nim.data.entity.system.base.EntityI;
+import com.poweruniverse.nim.data.entity.sys.GongNeng;
+import com.poweruniverse.nim.data.entity.sys.ShiTiLei;
+import com.poweruniverse.nim.data.entity.sys.ZiDuan;
+import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 import com.poweruniverse.nim.data.service.utils.DataUtils;
 import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 import com.poweruniverse.nim.data.service.utils.JSONConvertUtils;
