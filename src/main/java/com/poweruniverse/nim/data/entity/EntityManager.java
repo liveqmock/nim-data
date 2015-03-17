@@ -812,7 +812,11 @@ public class EntityManager {
 			int ziDuanJD = ziDuan.getZiDuanJD()==null?0:ziDuan.getZiDuanJD().intValue();
 			//如果是对象类型 字段的宽度应该从关联实体类的主键中取得
 			if(ziDuan.getZiDuanLX().getZiDuanLXDH().equals("object")){
-				ziDuanCD = ziDuan.getGuanLianSTL().getZiDuan(ziDuan.getGuanLianSTL().getZhuJianLie()).getZiDuanCD().intValue();
+				ShiTiLei ziDuanStl = ziDuan.getGuanLianSTL();
+				if(ziDuanStl == null){
+					throw new Exception("实体类'"+ziDuan.getShiTiLei().getShiTiLeiDH()+"'中的字段'"+ziDuan.getZiDuanDH()+"'为对象类型，但关联实体类为空！");
+				}
+				ziDuanCD = ziDuanStl.getZiDuan(ziDuanStl.getZhuJianLie()).getZiDuanCD().intValue();
 			}
 			//逻辑型 字段的宽度为1
 			if(ziDuan.getZiDuanLX().getZiDuanLXDH().equals("boolean")){

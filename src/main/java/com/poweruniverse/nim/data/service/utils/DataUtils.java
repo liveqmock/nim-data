@@ -949,14 +949,17 @@ public class DataUtils {
 			//设置或取消删除标记
 			GongNeng gn = GongNeng.getGongNengByDH(gongNengDH);
 			Class<?> stlClass = Class.forName(gn.getShiTiLei().getShiTiLeiClassName());
-			Method setRelaShanChuZTMethod = stlClass.getMethod("setRelaShanChuZT",new Class[]{boolean.class});
+			Method setRelaShanChuZTMethod = null;
+			if(gn.getShiTiLei().getShiFouYWB()){
+				stlClass.getMethod("setRelaShanChuZT",new Class[]{boolean.class});
+			}
 			
 			for(Integer id:idList){
 				if(!AuthUtils.checkAuth(gongNengDH,caoZuoDH, id, yongHuDM)){
 					return new JSONMessageResult("记录("+gongNengDH+"."+caoZuoDH+"."+id+")不存在或用户对此记录没有操作权限！");
 				}
 				EntityI entityI = (EntityI)sess.load(stlClass, id);
-				if(!gn.getShiTiLei().getShiFouYWB()){
+				if(setRelaShanChuZTMethod==null){
 					//删除数据
 					sess.delete(entityI);
 				}else{
@@ -995,6 +998,7 @@ public class DataUtils {
 					}
 				}
 			}
+			result = new JSONMessageResult();
 		}catch (InvocationTargetException e){
 			e.printStackTrace();
 			result = new JSONMessageResult(e.getTargetException().getMessage());

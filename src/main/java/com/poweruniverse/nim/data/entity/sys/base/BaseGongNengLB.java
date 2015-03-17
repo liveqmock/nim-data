@@ -2,10 +2,11 @@ package com.poweruniverse.nim.data.entity.sys.base;
 import java.io.Serializable;
 import java.util.List;
 import com.poweruniverse.nim.data.entity.Version;
+import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 /*
 * 实体类：功能类别
 */
-@Version("2015-03-08 11:15:59")
+@Version("2015-03-09 01:28:15")
 public abstract class BaseGongNengLB  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;
@@ -48,11 +49,6 @@ public abstract class BaseGongNengLB  implements Serializable,Comparable<Object>
 	public java.lang.String getGongNengLBDH(){return this.gongNengLBDH ;}
 	public void setGongNengLBDH(java.lang.String gongNengLBDH){this.gongNengLBDH = gongNengLBDH;}
 	
-	// 对象：系统 （xiTong）
-	private com.poweruniverse.nim.data.entity.sys.XiTong xiTong;
-	public com.poweruniverse.nim.data.entity.sys.XiTong getXiTong(){return this.xiTong ;}
-	public void setXiTong(com.poweruniverse.nim.data.entity.sys.XiTong xiTong){this.xiTong = xiTong;}
-
 	public boolean equals (Object obj) {
 		if (null == obj) return false;
 		if (!(obj instanceof com.poweruniverse.nim.data.entity.sys.GongNengLB)) return false;
@@ -104,7 +100,6 @@ public abstract class BaseGongNengLB  implements Serializable,Comparable<Object>
 		gongNengLB.setGongNengLBMC(gongNengLBMC);
 		gongNengLB.setGongNengLBXH(gongNengLBXH);
 		gongNengLB.setGongNengLBDH(gongNengLBDH);
-		gongNengLB.setXiTong(xiTong);
 		
 		return gongNengLB;
 	}

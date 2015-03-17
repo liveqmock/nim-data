@@ -2,10 +2,11 @@ package com.poweruniverse.nim.data.entity.sys.base;
 import java.io.Serializable;
 import java.util.List;
 import com.poweruniverse.nim.data.entity.Version;
+import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 /*
 * 实体类：功能流程明细
 */
-@Version("2015-03-08 11:15:59")
+@Version("2015-03-16 11:15:59")
 public abstract class BaseGongNengLCMX  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;
