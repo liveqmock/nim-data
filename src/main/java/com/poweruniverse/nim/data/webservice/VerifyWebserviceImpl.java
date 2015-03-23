@@ -76,7 +76,7 @@ public class VerifyWebserviceImpl extends BasePlateformWebservice {
 					.add(Restrictions.eq("dengLuDH", userName)).uniqueResult();
 			if (yongHu == null) {
 				logger.error("验证用户："+userName+" 密码:*** ip:"+clientIP+" ...失败：无该用户！");
-				return new JSONMessageResult("无该用户,请联系管理员！");
+				return new JSONMessageResult("无该用户"+userName+",请联系管理员！");
 			}
 			String dengLuDH = yongHu.getDengLuDH();
 			// 检查用户名是否有效

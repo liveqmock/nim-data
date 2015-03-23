@@ -37,7 +37,7 @@ public class HibernateSessionFactory{
 		try {
 			configuration = sessConfig;
 			
-		    System.out.println("building SessionFactory ..."+cfgFile.getPath());
+		    System.out.println("building min SessionConfiguration..."+cfgFile.getPath());
 		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/sys/XiTong.hbm.xml");
 		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/sys/GongNeng.hbm.xml");
 		    baseEntityMappings.add("com/poweruniverse/nim/data/hbm/sys/GongNengLB.hbm.xml");
@@ -62,20 +62,23 @@ public class HibernateSessionFactory{
 					break;
 				}
 		    }
-			System.out.println("sessionFactory   builded");
+			System.out.println("min SessionConfiguration builded");
 	    } catch (Exception e) {
 	    	isOk = false;
-		    System.err.println("%%%% Error Creating SessionFactory  ("+cfgFile.getPath()+")%%%%");
+		    System.err.println("%%%% Error Creating SessionConfiguration  ("+cfgFile.getPath()+")%%%%");
 		    e.printStackTrace();
 	    }
 	    return isOk;
     }
     
     public static boolean loadMappings() throws Exception{
+    	System.out.println("building normal SessionConfiguration...");
     	JSONArray xiTongConfigs = configuration.getJSONArray("xiTongs");
     	for(int i=0;i<xiTongConfigs.size();i++){
 			JSONObject xiTongConfig = xiTongConfigs.getJSONObject(i);
 			String mappingFileName = Application.getInstance().getContextPath()+ "WEB-INF/mapping."+xiTongConfig.getString("name")+".xml";
+			
+			System.out.println("	addResource from "+xiTongConfig.getString("name")+"...");
 			
 			SAXReader reader = new SAXReader();
 			File mappingFile = new File(mappingFileName);
@@ -97,6 +100,7 @@ public class HibernateSessionFactory{
 				System.err.println("---------------------------------------");
 			}
 		}
+    	System.out.println("normal SessionConfiguration builded");
     	if(sessionFactory!=null){
     		sessionFactory.close();
     		sessionFactory = null;

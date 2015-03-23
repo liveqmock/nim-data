@@ -1,1 +1,141 @@
-{"shiTiLeiDM":14,"shiTiLeiBB":"2015-03-16 11:15:59","shiTiLeiMC":"部门","shiTiLeiDH":"SYS_BuMen","zhuJianLie":"buMenDM","xianShiLie":"buMenMC","paiXuLie":"buMenDM","biaoMing":"SYS_BuMen","shiTiLeiClassName":"com.poweruniverse.nim.data.entity.sys.BuMen","shiFouYWB":false,"xiTong":{"xiTongDM":6,"xiTongDH":"sys"},"zds":[{"ziDuanDM":138,"ziDuanBT":"部门代码","lieMing":"buMenDM","ziDuanDH":"buMenDM","ziDuanCD":12,"yunXuKZ":false,"yanChiJZ":true,"ziDuanLX":{"ziDuanLXDM":2,"ziDuanLXDH":"int"}},{"ziDuanDM":139,"ziDuanBT":"部门名称","lieMing":"buMenMC","ziDuanDH":"buMenMC","ziDuanCD":200,"yunXuKZ":true,"yanChiJZ":true,"ziDuanLX":{"ziDuanLXDM":1,"ziDuanLXDH":"string"}},{"ziDuanDM":140,"ziDuanBT":"部门编号","lieMing":"buMenBH","ziDuanDH":"buMenBH","ziDuanCD":200,"yunXuKZ":true,"yanChiJZ":true,"ziDuanLX":{"ziDuanLXDM":1,"ziDuanLXDH":"string"}},{"ziDuanDM":3087,"ziDuanBT":"上级部门","lieMing":"shangJiBM","ziDuanDH":"shangJiBM","ziDuanCD":0,"ziDuanJD":0,"yunXuKZ":true,"yanChiJZ":false,"ziDuanLX":{"ziDuanLXDM":9,"ziDuanLXDH":"object"},"guanLianSTL":{"shiTiLeiDM":14,"shiTiLeiDH":"SYS_BuMen","shiTiLeiClassName":"com.poweruniverse.nim.data.entity.sys.BuMen","zhuJianLie":"buMenDM","paiXuLie":"buMenDM","shiFouYWB":false}},{"ziDuanDM":3088,"ziDuanBT":"部门级别","lieMing":"buMenJB","ziDuanDH":"buMenJB","ziDuanCD":2,"ziDuanJD":0,"yunXuKZ":false,"yanChiJZ":false,"ziDuanLX":{"ziDuanLXDM":2,"ziDuanLXDH":"int"}},{"ziDuanDM":3089,"ziDuanBT":"部门全名","lieMing":"BUMENQM","ziDuanDH":"buMenQM","ziDuanCD":200,"ziDuanJD":0,"yunXuKZ":true,"yanChiJZ":false,"shiFouWY":false,"ziDuanLX":{"ziDuanLXDM":1,"ziDuanLXDH":"string"}},{"ziDuanDM":3473,"ziDuanBT":"部门简介","lieMing":"buMenJJ","ziDuanDH":"buMenJJ","ziDuanCD":1900,"ziDuanJD":0,"yunXuKZ":true,"yanChiJZ":false,"ziDuanLX":{"ziDuanLXDM":7,"ziDuanLXDH":"text"}},{"ziDuanDM":5068,"ziDuanBT":"汇总编号","lieMing":"huiZongBH","ziDuanDH":"huiZongBH","ziDuanCD":40,"ziDuanJD":0,"yunXuKZ":false,"yanChiJZ":false,"ziDuanLX":{"ziDuanLXDM":1,"ziDuanLXDH":"string"}},{"ziDuanDM":16184,"ziDuanBT":"是否业务部门","lieMing":"shiFouYWBM","ziDuanDH":"shiFouYWBM","ziDuanCD":1,"ziDuanJD":0,"yunXuKZ":false,"yanChiJZ":false,"shiFouWY":false,"ziDuanLX":{"ziDuanLXDM":5,"ziDuanLXDH":"boolean"}}]}
+{
+	"shiTiLeiDM" : 14,
+	"shiTiLeiBB" : "2015-03-16 11:15:59",
+	"shiTiLeiMC" : "部门",
+	"shiTiLeiDH" : "SYS_BuMen",
+	"zhuJianLie" : "buMenDM",
+	"xianShiLie" : "buMenMC",
+	"paiXuLie" : "buMenDM",
+	"biaoMing" : "SYS_BuMen",
+	"shiTiLeiClassName" : "com.poweruniverse.nim.data.entity.sys.BuMen",
+	"shiFouYWB" : false,
+	"xiTong" : {
+		"xiTongDM" : 6,
+		"xiTongDH" : "sys"
+	},
+	"zds" : [{
+				"ziDuanDM" : 138,
+				"ziDuanBT" : "部门代码",
+				"lieMing" : "buMenDM",
+				"ziDuanDH" : "buMenDM",
+				"ziDuanCD" : 12,
+				"yunXuKZ" : false,
+				"yanChiJZ" : true,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 2,
+					"ziDuanLXDH" : "int"
+				}
+			}, {
+				"ziDuanDM" : 139,
+				"ziDuanBT" : "部门名称",
+				"lieMing" : "buMenMC",
+				"ziDuanDH" : "buMenMC",
+				"ziDuanCD" : 200,
+				"yunXuKZ" : true,
+				"yanChiJZ" : true,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 1,
+					"ziDuanLXDH" : "string"
+				}
+			}, {
+				"ziDuanDM" : 140,
+				"ziDuanBT" : "部门编号",
+				"lieMing" : "buMenBH",
+				"ziDuanDH" : "buMenBH",
+				"ziDuanCD" : 200,
+				"yunXuKZ" : true,
+				"yanChiJZ" : true,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 1,
+					"ziDuanLXDH" : "string"
+				}
+			}, {
+				"ziDuanDM" : 3087,
+				"ziDuanBT" : "上级部门",
+				"lieMing" : "shangJiBM",
+				"ziDuanDH" : "shangJiBM",
+				"ziDuanCD" : 0,
+				"ziDuanJD" : 0,
+				"yunXuKZ" : true,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 9,
+					"ziDuanLXDH" : "object"
+				},
+				"guanLianSTL" : {
+					"shiTiLeiDM" : 14,
+					"shiTiLeiDH" : "SYS_BuMen",
+					"shiTiLeiClassName" : "com.poweruniverse.nim.data.entity.sys.BuMen",
+					"zhuJianLie" : "buMenDM",
+					"paiXuLie" : "buMenDM",
+					"shiFouYWB" : false
+				}
+			}, {
+				"ziDuanDM" : 3088,
+				"ziDuanBT" : "部门级别",
+				"lieMing" : "buMenJB",
+				"ziDuanDH" : "buMenJB",
+				"ziDuanCD" : 2,
+				"ziDuanJD" : 0,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 2,
+					"ziDuanLXDH" : "int"
+				}
+			}, {
+				"ziDuanDM" : 3089,
+				"ziDuanBT" : "部门全名",
+				"lieMing" : "BUMENQM",
+				"ziDuanDH" : "buMenQM",
+				"ziDuanCD" : 200,
+				"ziDuanJD" : 0,
+				"yunXuKZ" : true,
+				"yanChiJZ" : false,
+				"shiFouWY" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 1,
+					"ziDuanLXDH" : "string"
+				}
+			}, {
+				"ziDuanDM" : 3473,
+				"ziDuanBT" : "部门简介",
+				"lieMing" : "buMenJJ",
+				"ziDuanDH" : "buMenJJ",
+				"ziDuanCD" : 1900,
+				"ziDuanJD" : 0,
+				"yunXuKZ" : true,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 7,
+					"ziDuanLXDH" : "text"
+				}
+			}, {
+				"ziDuanDM" : 5068,
+				"ziDuanBT" : "汇总编号",
+				"lieMing" : "huiZongBH",
+				"ziDuanDH" : "huiZongBH",
+				"ziDuanCD" : 40,
+				"ziDuanJD" : 0,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 1,
+					"ziDuanLXDH" : "string"
+				}
+			}, {
+				"ziDuanDM" : 16184,
+				"ziDuanBT" : "是否业务部门",
+				"lieMing" : "shiFouYWBM",
+				"ziDuanDH" : "shiFouYWBM",
+				"ziDuanCD" : 1,
+				"ziDuanJD" : 0,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"shiFouWY" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 5,
+					"ziDuanLXDH" : "boolean"
+				}
+			}]
+}

@@ -235,7 +235,7 @@ public class EntityManager {
 				//编译生成的java文件(如果是调试模式 不执行编译动作)
 				if(tobeCompiled.size()>0){
 					ret = false;
-					if("system".equals(xiTongName)){
+					if("sys".equals(xiTongName)){
 						//系统实体类有变化，不编译
 						System.err.println("------------------------------------------------------------");
 						System.err.println("为nim-data组件生成了新的java代码，请刷新eclipse中的程序目录并重新编译nim-data组件,再重新启动程序！");
@@ -380,9 +380,7 @@ public class EntityManager {
 			}
 			//生成目标文件
 			JSONObject jsonData = JSONConvertUtils.object2JSONObject(stl, entityObj, fieldsArray);
-			if(!jsonData.containsKey("shiTiLeiBB") || (jsonData.get("shiTiLeiBB") instanceof JSONNull) ){
-				jsonData.put("shiTiLeiBB", versionString);
-			}
+			jsonData.put("shiTiLeiBB", versionString);
 			//将文件写入
 			FileUtils.writeStringToFile(defineFile, jsonData.toString());
 			//将当前文件链接添加到hibernate.cfg.xml文件中
@@ -700,7 +698,7 @@ public class EntityManager {
 				int ziDuanCD = ziDuan.getZiDuanCD()==null?0:ziDuan.getZiDuanCD().intValue();
 				int ziDuanJD = ziDuan.getZiDuanJD()==null?0:ziDuan.getZiDuanJD().intValue();
 				//如果是对象类型 字段的宽度应该从关联实体类的主键中取得
-				if(ziDuan.getZiDuanLX().getZiDuanLXDH().equals("object")){
+				if(ZiDuanLX.isObjectType(ziDuan.getZiDuanLX().getZiDuanLXDH())){
 					ziDuanCD = ziDuan.getGuanLianSTL().getZiDuan(ziDuan.getGuanLianSTL().getZhuJianLie()).getZiDuanCD().intValue();
 				}
 				//逻辑型 字段的宽度为2
@@ -811,7 +809,7 @@ public class EntityManager {
 			int ziDuanCD = ziDuan.getZiDuanCD()==null?0:ziDuan.getZiDuanCD().intValue();
 			int ziDuanJD = ziDuan.getZiDuanJD()==null?0:ziDuan.getZiDuanJD().intValue();
 			//如果是对象类型 字段的宽度应该从关联实体类的主键中取得
-			if(ziDuan.getZiDuanLX().getZiDuanLXDH().equals("object")){
+			if(ZiDuanLX.isObjectType(ziDuan.getZiDuanLX().getZiDuanLXDH())){
 				ShiTiLei ziDuanStl = ziDuan.getGuanLianSTL();
 				if(ziDuanStl == null){
 					throw new Exception("实体类'"+ziDuan.getShiTiLei().getShiTiLeiDH()+"'中的字段'"+ziDuan.getZiDuanDH()+"'为对象类型，但关联实体类为空！");
@@ -823,7 +821,7 @@ public class EntityManager {
 				ziDuanCD = 1;
 			}
 			//如果是对象类型 字段的宽度应该从关联实体类的主键中取得
-			if(ziDuan.getZiDuanLX().getZiDuanLXDH().equals("object")){
+			if(ZiDuanLX.isObjectType(ziDuan.getZiDuanLX().getZiDuanLXDH())){
 				ziDuanCD = ziDuan.getGuanLianSTL().getZiDuan(ziDuan.getGuanLianSTL().getZhuJianLie()).getZiDuanCD().intValue();
 			}
 			//检查字段类型

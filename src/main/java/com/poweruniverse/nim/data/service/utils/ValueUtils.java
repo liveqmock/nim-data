@@ -104,9 +104,7 @@ public class ValueUtils {
 			}else{
 				obj = Integer.valueOf(valueString);
 			}
-		}else if(type.equals("persent") || type.equals("yuan") || type.equals("yuanrmb")|| type.equals("money") || 
-				type.equals("tenthousandmoney")|| type.equals("tenthousand") || type.equals("tenthousandrmb") || 
-				type.equals("double") || type.equals("float") || type.equals("number")){
+		}else if(type.equals("double")){
 			obj = Double.valueOf(valueString);
 		}else if(type.equals("string") || type.equals("text")  || type.equals("varchar") || type.equals("varchar2")){
 			if(valueString.startsWith("[")){
@@ -150,7 +148,9 @@ public class ValueUtils {
 			obj = DateFormat.getDateTimeInstance().parse(valueString);
 		}else if(type.equals("object")){
 			obj = Integer.valueOf(valueString);
-		}else if(type.equals("set") || type.equals("fileset") || type.equals("officefileset")){
+		}else if(type.equals("file")){
+			obj = Integer.valueOf(valueString);
+		}else if(type.equals("set") || type.equals("fileset") ){
 		}else{
 			throw new Exception("getValueOfCorrectType():未定义处理代码的数据类型："+type+","+valueString);
 		}

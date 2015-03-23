@@ -46,6 +46,7 @@ import com.poweruniverse.nim.data.entity.sys.LiuChengJS;
 import com.poweruniverse.nim.data.entity.sys.ShiTiLei;
 import com.poweruniverse.nim.data.entity.sys.YongHu;
 import com.poweruniverse.nim.data.entity.sys.ZiDuan;
+import com.poweruniverse.nim.data.entity.sys.ZiDuanLX;
 import com.poweruniverse.nim.data.entity.sys.base.BusinessI;
 import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 import com.poweruniverse.nim.data.pageParser.DatasourceElParser;
@@ -122,9 +123,11 @@ public class DataUtils {
 	 * 只能取到有权限的数据对象
 	 */
 	public static Object getObjectBySTL(String shiTiLeiDH,Integer id) throws Exception{
+		if(id==null){
+			throw new Exception("主键值不存在！");
+		}
 		
 		Session sess = HibernateSessionFactory.getSession();
-
 		//取得数据
 		ShiTiLei stl = (ShiTiLei)sess.createCriteria(ShiTiLei.class)
 				.add(Restrictions.eq("shiTiLeiDH", shiTiLeiDH))
@@ -1315,7 +1318,7 @@ public class DataUtils {
 		JSONObject zdMeta = new JSONObject();
 		zdMeta.put("name", stl.getZhuJianLie());
 		for(ZiDuan zd :stl.getZds()){
-			if("object".equals(zd.getZiDuanLX().getZiDuanLXDH()) || "set".equals(zd.getZiDuanLX().getZiDuanLXDH()) ){
+			if(ZiDuanLX.isObjectType(zd.getZiDuanLX().getZiDuanLXDH()) || ZiDuanLX.isSetType(zd.getZiDuanLX().getZiDuanLXDH())  ){
 				JSONObject zdMeta1 = new JSONObject();
 				zdMeta1.put("name", stl.getZhuJianLie());
 				

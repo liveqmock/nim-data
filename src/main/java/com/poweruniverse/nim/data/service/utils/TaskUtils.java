@@ -737,7 +737,7 @@ public class TaskUtils {
 				Object v = null;
 				if(lcjsbl.getYuanZ()!=null){
 					v = ValueUtils.getValueOfCorrectType(lcjsbl.getYuanZ(),zdlxdh, null);
-					if("object".equalsIgnoreCase(zdlxdh) && v!=null){
+					if(ZiDuanLX.isObjectType(zdlxdh) && v!=null){
 						ShiTiLei zdStl = stl.getZiDuan(lcjsbl.getLiuChengJSBLDH()).getGuanLianSTL();
 						Object zdObj = Class.forName(zdStl.getShiTiLeiClassName()).newInstance();
 						PropertyUtils.setProperty(zdObj, zdStl.getZhuJianLie(), v);

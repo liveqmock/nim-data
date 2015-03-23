@@ -120,8 +120,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 				for(ZiDuan zd:dataStl.getZds()){
 					JSONObject zdObj = new JSONObject();
 					zdObj.put("name", zd.getZiDuanDH());
-					
-					if(zd.getZiDuanLX().getZiDuanLXDH().equals("set") || zd.getZiDuanLX().getZiDuanLXDH().equals("object") ){
+					if(ZiDuanLX.isObjectType(zd.getZiDuanLX().getZiDuanLXDH()) || ZiDuanLX.isSetType(zd.getZiDuanLX().getZiDuanLXDH())){
 						JSONArray subZdArray = new JSONArray();
 						
 						JSONObject zjlObj = new JSONObject();
@@ -251,7 +250,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 					JSONObject zdObj = new JSONObject();
 					zdObj.put("name", zd.getZiDuanDH());
 					
-					if(zd.getZiDuanLX().getZiDuanLXDH().equals("set") || zd.getZiDuanLX().getZiDuanLXDH().equals("object") ){
+					if(ZiDuanLX.isObjectType(zd.getZiDuanLX().getZiDuanLXDH()) || ZiDuanLX.isSetType(zd.getZiDuanLX().getZiDuanLXDH())){
 						JSONArray subZdArray = new JSONArray();
 						
 						JSONObject zjlObj = new JSONObject();
@@ -418,7 +417,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 					JSONObject zdObj = new JSONObject();
 					zdObj.put("name", zd.getZiDuanDH());
 					
-					if(zd.getZiDuanLX().getZiDuanLXDH().equals("set") || zd.getZiDuanLX().getZiDuanLXDH().equals("object") ){
+					if(ZiDuanLX.isObjectType(zd.getZiDuanLX().getZiDuanLXDH()) || ZiDuanLX.isSetType(zd.getZiDuanLX().getZiDuanLXDH())){
 						JSONArray subZdArray = new JSONArray();
 						
 						JSONObject zjlObj = new JSONObject();
@@ -613,7 +612,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 					JSONObject zdObj = new JSONObject();
 					zdObj.put("name", zd.getZiDuanDH());
 					
-					if(zd.getZiDuanLX().getZiDuanLXDH().equals("set") || zd.getZiDuanLX().getZiDuanLXDH().equals("object") ){
+					if(ZiDuanLX.isObjectType(zd.getZiDuanLX().getZiDuanLXDH()) || ZiDuanLX.isSetType(zd.getZiDuanLX().getZiDuanLXDH())){
 						JSONArray subZdArray = new JSONArray();
 						
 						JSONObject zjlObj = new JSONObject();

@@ -6,4 +6,8 @@
 	<webservice name="verify" class="com.poweruniverse.nim.data.webservice.VerifyWebserviceImpl"/>
 	<!-- 提供页面分析服务 -->
 	<webservice name="analyse" class="com.poweruniverse.nim.data.webservice.AnalyseWebserviceImpl"  />
+	<!-- 提供附件服务 -->
+	<webservice name="file" class="com.poweruniverse.nim.data.webservice.FileWebserviceImpl"  />
+	<!-- 提供工作流任务服务 -->
+	<webservice name="task" class="com.poweruniverse.nim.data.webservice.TaskWebserviceImpl"  />
 </component>

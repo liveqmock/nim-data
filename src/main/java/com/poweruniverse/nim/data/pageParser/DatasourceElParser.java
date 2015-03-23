@@ -591,7 +591,6 @@ public class DatasourceElParser {
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
-				
 			}
 			
 			
@@ -623,7 +622,7 @@ public class DatasourceElParser {
 					"fields:" +fieldJsonArray.toString()+"\n"+
 			"});\n";
 			if("true".equals(autoLoad)){
-				Object obj = DataUtils.getObjectBySTL(shiTiLeiDH,Integer.valueOf(id));
+				Object obj = DataUtils.getObjectBySTL(shiTiLeiDH,id);
 				if(obj!=null){
 					JSONObject jsonData = JSONConvertUtils.object2JSONObject(dataStl,obj,fieldJsonArray);
 					dataScriptContent += ""+varName+"_init_data = {\n" +

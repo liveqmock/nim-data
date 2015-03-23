@@ -83,7 +83,6 @@ public class GridElParser {
 					gridCfgObj+"\n"+
 			");\n";
 		}else if("treeDisplayGrid".equals(gridEl.attributeValue("component"))){
-			
 			//
 			Element treeEl = gridEl.element("tree");
 			JSONObject treeObj = JSONConvertUtils.applyXML2Json(treeEl,false);
@@ -131,22 +130,7 @@ public class GridElParser {
 							gridScriptContent += columnPreScript;
 						}
 						
-						JSONObject columnListenersObj = new JSONObject();
-						
-						JSONObject columnDef = columnCfgObj.getJSONObject("field");
-//						if(columnDef.containsKey("onChange")){
-//							columnListenersObj.put("onChange",columnDef.getString("onChange"));
-//							columnDef.remove("onChange");
-//						}
-//						
-//						if(columnDef.containsKey("onLoad")){
-//							columnListenersObj.put("onLoad",columnDef.getString("onLoad"));
-//							columnDef.remove("onLoad");
-//						}
-//						
-//						columnDef.put("listenerDefs", columnListenersObj);
-						
-						colArray.add(columnDef);
+						colArray.add(columnCfgObj.getJSONObject("field"));
 					}
 				}
 			}
@@ -172,21 +156,7 @@ public class GridElParser {
 							gridScriptContent += columnPreScript;
 						}
 						
-						JSONObject columnListenersObj = new JSONObject();
-						
-						JSONObject columnDef = columnCfgObj.getJSONObject("field");
-//						if(columnDef.containsKey("onChange")){
-//							columnListenersObj.put("onChange",columnDef.getString("onChange"));
-//							columnDef.remove("onChange");
-//						}
-//						
-//						if(columnDef.containsKey("onLoad")){
-//							columnListenersObj.put("onLoad",columnDef.getString("onLoad"));
-//							columnDef.remove("onLoad");
-//						}
-//						
-//						columnDef.put("listenerDefs", columnListenersObj);
-						colArray.add(columnDef);
+						colArray.add(columnCfgObj.getJSONObject("field"));
 					}
 				}
 			}
@@ -198,7 +168,6 @@ public class GridElParser {
 			gridScriptContent+="var "+gridVarName+" = LUI.SubGrid.createNew(\n" +
 					gridCfgObj+"\n"+
 			");\n";
-		
 		}
 		
 		//注册

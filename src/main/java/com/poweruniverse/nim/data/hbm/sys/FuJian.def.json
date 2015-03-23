@@ -1,0 +1,282 @@
+{
+	"shiTiLeiMC" : "附件",
+	"shiTiLeiDH" : "SYS_FuJian",
+	"zhuJianLie" : "fuJianDM",
+	"xianShiLie" : "shangChuanWJM",
+	"paiXuLie" : "fuJianDM",
+	"biaoMing" : "SYS_FuJian",
+	"shiTiLeiClassName" : "com.poweruniverse.nim.data.entity.sys.FuJian",
+	"shiFouYWB" : false,
+	"xiTong" : {
+		"xiTongDH" : "sys"
+	},
+	"zds" : [{
+				"ziDuanDM" : 1353,
+				"ziDuanBT" : "上传长度",
+				"lieMing" : "shangChuanCD",
+				"ziDuanDH" : "shangChuanCD",
+				"ziDuanCD" : 18,
+				"ziDuanJD" : 6,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 10,
+					"ziDuanLXDH" : "double"
+				}
+			}, {
+				"ziDuanDM" : 1354,
+				"ziDuanBT" : "静态文件名",
+				"lieMing" : "jingTaiWJM",
+				"ziDuanDH" : "jingTaiWJM",
+				"ziDuanCD" : 200,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 1,
+					"ziDuanLXDH" : "string"
+				}
+			}, {
+				"ziDuanDM" : 1355,
+				"ziDuanBT" : "临时文件名",
+				"lieMing" : "lingShiWJM",
+				"ziDuanDH" : "lingShiWJM",
+				"ziDuanCD" : 200,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 1,
+					"ziDuanLXDH" : "string"
+				}
+			}, {
+				"ziDuanDM" : 1356,
+				"ziDuanBT" : "上传文件名",
+				"lieMing" : "shangChuanWJM",
+				"ziDuanDH" : "shangChuanWJM",
+				"ziDuanCD" : 200,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 1,
+					"ziDuanLXDH" : "string"
+				}
+			}, {
+				"ziDuanDM" : 1357,
+				"ziDuanBT" : "fuJianLX",
+				"lieMing" : "fuJianLXDM",
+				"ziDuanDH" : "fuJianLX",
+				"ziDuanCD" : 12,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 9,
+					"ziDuanLXDH" : "object"
+				},
+				"guanLianSTL" : {
+					"shiTiLeiDM" : 194,
+					"shiTiLeiDH" : "SYS_FuJianLX",
+					"shiTiLeiClassName" : "com.poweruniverse.nim.data.entity.sys.FuJianLX",
+					"zhuJianLie" : "fuJianLXDM",
+					"paiXuLie" : "fuJianLXDM",
+					"shiFouYWB" : false
+				}
+			}, {
+				"ziDuanDM" : 1359,
+				"ziDuanBT" : "下载次数",
+				"lieMing" : "xiaZaiCS",
+				"ziDuanDH" : "xiaZaiCS",
+				"ziDuanCD" : 12,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 2,
+					"ziDuanLXDH" : "int"
+				}
+			}, {
+				"ziDuanDM" : 1360,
+				"ziDuanBT" : "修改人",
+				"lieMing" : "xiuGaiRen",
+				"ziDuanDH" : "xiuGaiRen",
+				"ziDuanCD" : 200,
+				"yunXuKZ" : true,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 1,
+					"ziDuanLXDH" : "string"
+				}
+			}, {
+				"ziDuanDM" : 1361,
+				"ziDuanBT" : "是否上传完成",
+				"lieMing" : "shiFouSCWC",
+				"ziDuanDH" : "shiFouSCWC",
+				"ziDuanCD" : 1,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 5,
+					"ziDuanLXDH" : "boolean"
+				}
+			}, {
+				"ziDuanBT" : "上传用户",
+				"lieMing" : "shangChuanYHDM",
+				"ziDuanDH" : "shangChuanYH",
+				"ziDuanCD" : 12,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDH" : "object"
+				},
+				"guanLianSTL" : {
+					"shiTiLeiDH" : "SYS_YongHu",
+					"shiTiLeiClassName" : "com.poweruniverse.nim.data.entity.sys.YongHu",
+					"zhuJianLie" : "yongHuDM",
+					"paiXuLie" : "yongHuDM",
+					"shiFouYWB" : false
+				}
+			}, {
+				"ziDuanBT" : "上传日期",
+				"lieMing" : "shangChuanRQ",
+				"ziDuanDH" : "shangChuanRQ",
+				"ziDuanCD" : 7,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDH" : "date"
+				}
+			}, {
+				"ziDuanDM" : 1366,
+				"ziDuanBT" : "文件后缀",
+				"lieMing" : "wenJianHZ",
+				"ziDuanDH" : "wenJianHZ",
+				"ziDuanCD" : 200,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 1,
+					"ziDuanLXDH" : "string"
+				}
+			}, {
+				"ziDuanDM" : 1367,
+				"ziDuanBT" : "上传用户名称",
+				"lieMing" : "shangChuanYHMC",
+				"ziDuanDH" : "shangChuanYHMC",
+				"ziDuanCD" : 200,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 1,
+					"ziDuanLXDH" : "string"
+				}
+			}, {
+				"ziDuanDM" : 1369,
+				"ziDuanBT" : "文件长度",
+				"lieMing" : "wenJianCD",
+				"ziDuanDH" : "wenJianCD",
+				"ziDuanCD" : 18,
+				"ziDuanJD" : 6,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 10,
+					"ziDuanLXDH" : "double"
+				}
+			}, {
+				"ziDuanDM" : 1370,
+				"ziDuanBT" : "备注",
+				"lieMing" : "beiZhu",
+				"ziDuanDH" : "beiZhu",
+				"ziDuanCD" : 1900,
+				"yunXuKZ" : true,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 7,
+					"ziDuanLXDH" : "text"
+				}
+			}, {
+				"ziDuanDM" : 1371,
+				"ziDuanBT" : "附件代码",
+				"lieMing" : "fuJianDM",
+				"ziDuanDH" : "fuJianDM",
+				"ziDuanCD" : 12,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 2,
+					"ziDuanLXDH" : "int"
+				}
+			}, {
+				"ziDuanDM" : 1372,
+				"ziDuanBT" : "存储文件名",
+				"lieMing" : "cunChuWJM",
+				"ziDuanDH" : "cunChuWJM",
+				"ziDuanCD" : 200,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 1,
+					"ziDuanLXDH" : "string"
+				}
+			}, {
+				"ziDuanDM" : 3144,
+				"ziDuanBT" : "上传部门",
+				"lieMing" : "shangChuanBMDM",
+				"ziDuanDH" : "shangChuanBM",
+				"ziDuanCD" : 12,
+				"yunXuKZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 9,
+					"ziDuanLXDH" : "object"
+				},
+				"guanLianSTL" : {
+					"shiTiLeiDM" : 19,
+					"shiTiLeiDH" : "SYS_BuMen",
+					"shiTiLeiClassName" : "com.poweruniverse.nim.data.entity.sys.BuMen",
+					"zhuJianLie" : "buMenDM",
+					"paiXuLie" : "buMenDM",
+					"shiFouYWB" : false
+				}
+			}, {
+				"ziDuanDM" : 3692,
+				"ziDuanBT" : "删除状态",
+				"lieMing" : "shanChuZT",
+				"ziDuanDH" : "shanChuZT",
+				"ziDuanCD" : 2,
+				"yunXuKZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDM" : 5,
+					"ziDuanLXDH" : "boolean"
+				}
+			}, {
+				"ziDuanBT" : "是否传输完成",
+				"lieMing" : "shiFouCSWC",
+				"ziDuanDH" : "shiFouCSWC",
+				"ziDuanCD" : 1,
+				"ziDuanJD" : 0,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"shiFouWY" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDH" : "boolean"
+				}
+			}, {
+				"ziDuanBT" : "传输次数",
+				"lieMing" : "chuanShuCS",
+				"ziDuanDH" : "chuanShuCS",
+				"ziDuanCD" : 12,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDH" : "int"
+				}
+			}, {
+				"ziDuanBT" : "传输错误信息",
+				"lieMing" : "chuanShuCWXX",
+				"ziDuanDH" : "chuanShuCWXX",
+				"ziDuanCD" : 200,
+				"yunXuKZ" : false,
+				"yanChiJZ" : false,
+				"ziDuanLX" : {
+					"ziDuanLXDH" : "string"
+				}
+			}],
+	"shiTiLeiBB" : "2015-03-19 09:57:11"
+}

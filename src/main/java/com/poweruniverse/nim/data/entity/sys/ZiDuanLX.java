@@ -12,8 +12,13 @@ public class ZiDuanLX  extends BaseZiDuanLX {
 	public static final int ZiDuanLX_DOUBLE = 10;
 	public static final int ZiDuanLX_BOOLEAN = 5;
 	public static final int ZiDuanLX_DATE = 3;
+	public static final int ZiDuanLX_TEXT = 7;
+	public static final int ZiDuanLX_MONTH = 4;
 	public static final int ZiDuanLX_OBJECT = 9;
 	public static final int ZiDuanLX_SET = 8;
+	public static final int ZiDuanLX_File = 11;
+	public static final int ZiDuanLX_Fileset = 12;
+	public static final int ZiDuanLX_Dictionary = 13;
 	public static final String ZiDuanLX_INT_DH = "int";
 
 	// constructors
@@ -37,15 +42,11 @@ public class ZiDuanLX  extends BaseZiDuanLX {
 	
 	//关联对象字段
 	public static boolean isObjectType(String type){
-		return "object".equalsIgnoreCase(type) || "objectwithnew".equalsIgnoreCase(type) || "objectradio".equalsIgnoreCase(type) || "file".equalsIgnoreCase(type) || "treecodeselect".equalsIgnoreCase(type)  || "bmselect".equalsIgnoreCase(type) || "yhselect".equalsIgnoreCase(type)|| "ygselect".equalsIgnoreCase(type);
+		return "object".equalsIgnoreCase(type) || "file".equalsIgnoreCase(type) ;
 	}
 	//集合字段
 	public static boolean isSetType(String type){
-		return "set".equalsIgnoreCase(type) || "fileset".equalsIgnoreCase(type) || "crossset".equalsIgnoreCase(type);
+		return "set".equalsIgnoreCase(type) || "fileset".equalsIgnoreCase(type) ;
 	}
-	//集合选择字段
-	public static boolean isMultiSetType(String type){
-		return "twincol".equalsIgnoreCase(type) || "multiselect".equalsIgnoreCase(type) || "bmmultiselect".equalsIgnoreCase(type) || "yhmultiselect".equalsIgnoreCase(type)|| "ygmultiselect".equalsIgnoreCase(type);
-		}
 	
 }
