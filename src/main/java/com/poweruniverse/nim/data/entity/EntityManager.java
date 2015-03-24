@@ -138,14 +138,16 @@ public class EntityManager {
 					}else{
 						try {
 							defJson = JSONObject.fromObject(defJsonString);
+							resourceDefineMap.put(resourceName, defJson);
 						} catch (Exception e) {
 							System.err.println("实体类("+entityName+")的定义文件不是有效的json对象,忽略java文件和hbm文件的版本检查");
 							continue;
 						}
 					}
 					
-					if(defJson!=null){
-						resourceDefineMap.put(resourceName, defJson);
+					//在开发模式下 检查hbm文件和java类文件 是否需要更新版本
+					if((("sys".equals(xiTongName) && Application.getInstance().isPlateformMode()) || (!"sys".equals(xiTongName) && Application.getInstance().isDevelopMode())) 
+							&& defJson!=null){
 						defineVersion = dateFm.parse(defJson.getString("shiTiLeiBB"));
 						
 						if(defineVersion!=null){

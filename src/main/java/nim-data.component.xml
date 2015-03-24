@@ -1,5 +1,5 @@
 <!-- nim-data组件 提供的webservice服务 -->
-<component name="nim-data">
+<component name="nim-data" type="plateform" clientSrcPath="D:/data/workspace/nim-data-wsclient/src/main/java/" clientPackage="nim.data.wsclient">
 	<!-- 提供数据服务 -->
 	<webservice name="data" class="com.poweruniverse.nim.data.webservice.DataWebserviceImpl" />
 	<!-- 提供用户验证服务 -->

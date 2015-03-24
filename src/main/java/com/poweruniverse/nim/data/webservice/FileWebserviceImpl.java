@@ -33,6 +33,7 @@ import com.poweruniverse.nim.data.entity.sys.FuJianLX;
 import com.poweruniverse.nim.data.entity.sys.YongHu;
 import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 
+@javax.xml.ws.soap.MTOM
 @WebService
 public class FileWebserviceImpl extends BasePlateformWebservice {
 	@Resource
