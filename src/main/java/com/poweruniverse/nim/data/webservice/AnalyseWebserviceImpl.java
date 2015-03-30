@@ -21,7 +21,7 @@ import org.hibernate.Session;
 import com.poweruniverse.nim.base.bean.UserInfo;
 import com.poweruniverse.nim.base.description.Application;
 import com.poweruniverse.nim.base.message.StringResult;
-import com.poweruniverse.nim.base.webservice.BasePlateformWebservice;
+import com.poweruniverse.nim.baseClass.BasePlateformWebservice;
 import com.poweruniverse.nim.data.entity.sys.YongHu;
 import com.poweruniverse.nim.data.pageParser.ActionElParser;
 import com.poweruniverse.nim.data.pageParser.DatasourceElParser;
@@ -85,8 +85,12 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 			}
 					
 			Application app = Application.getInstance();
-			String dataScriptContent = "\n//默认页面标题\n"+
-					"document.title= '"+app.getTitle()+"';";
+			String dataScriptContent = "";
+			if(isIndependent){
+				dataScriptContent = "\n//默认页面标题\n"+
+								    "document.title= '"+app.getTitle()+"';";
+			}
+					
 			//读取页面xml文件定义
 			if(pageContent!=null){
 				SAXReader reader = new SAXReader();
@@ -100,7 +104,7 @@ public class AnalyseWebserviceImpl extends BasePlateformWebservice {
 				dataScriptContent += pageResult.getString("pageScriptContent");
 				boolean needsLogin = pageResult.getBoolean("needsLogin");
 				if(needsLogin && yongHuDM==null){
-					dataScriptContent += "\n//跳转至登录页面\n"+
+					dataScriptContent += "\n//页面需要登录且未登录 跳转至登录页面\n"+
 							"LUI.Page.instance.redirect('"+app.getLoginPage()+"');";
 					return new StringResult(dataScriptContent);
 				}

@@ -6,7 +6,7 @@ import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 /*
 * 实体类：功能
 */
-@Version("2015-03-16 11:30:25")
+@Version("2015-03-29 21:44:42")
 public abstract class BaseGongNeng  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;
@@ -42,12 +42,6 @@ public abstract class BaseGongNeng  implements Serializable,Comparable<Object> ,
 	private java.lang.String gongNengDH = null;
 	public java.lang.String getGongNengDH(){return this.gongNengDH ;}
 	public void setGongNengDH(java.lang.String gongNengDH){this.gongNengDH = gongNengDH;}
-	
-			
-	// 属性：功能实现类 （gongNengClass）
-	private java.lang.String gongNengClass = null;
-	public java.lang.String getGongNengClass(){return this.gongNengClass ;}
-	public void setGongNengClass(java.lang.String gongNengClass){this.gongNengClass = gongNengClass;}
 	
 	// 集合：操作集合 （czs）
 	private java.util.Set<com.poweruniverse.nim.data.entity.sys.GongNengCZ> czs = new java.util.TreeSet<com.poweruniverse.nim.data.entity.sys.GongNengCZ>();
@@ -118,6 +112,18 @@ public abstract class BaseGongNeng  implements Serializable,Comparable<Object> ,
 	public java.lang.Boolean getShiFouLCGN(){return this.shiFouLCGN ;}
 	public void setShiFouLCGN(java.lang.Boolean shiFouLCGN){this.shiFouLCGN = shiFouLCGN;}
 	
+			
+	// 属性：流程完成事件 （processEndAction）
+	private java.lang.String processEndAction = null;
+	public java.lang.String getProcessEndAction(){return this.processEndAction ;}
+	public void setProcessEndAction(java.lang.String processEndAction){this.processEndAction = processEndAction;}
+	
+			
+	// 属性：流程开始事件 （processStartAction）
+	private java.lang.String processStartAction = null;
+	public java.lang.String getProcessStartAction(){return this.processStartAction ;}
+	public void setProcessStartAction(java.lang.String processStartAction){this.processStartAction = processStartAction;}
+	
 	public boolean equals (Object obj) {
 		if (null == obj) return false;
 		if (!(obj instanceof com.poweruniverse.nim.data.entity.sys.GongNeng)) return false;
@@ -168,7 +174,6 @@ public abstract class BaseGongNeng  implements Serializable,Comparable<Object> ,
 		
 		gongNeng.setGongNengMC(gongNengMC);
 		gongNeng.setGongNengDH(gongNengDH);
-		gongNeng.setGongNengClass(gongNengClass);
 		for(com.poweruniverse.nim.data.entity.sys.GongNengCZ subObj:this.getCzs()){
 			gongNeng.addToczs(gongNeng, subObj.clone());
 		}
@@ -178,6 +183,8 @@ public abstract class BaseGongNeng  implements Serializable,Comparable<Object> ,
 		gongNeng.setShiTiLei(shiTiLei);
 		gongNeng.setXiTong(xiTong);
 		gongNeng.setShiFouLCGN(shiFouLCGN);
+		gongNeng.setProcessEndAction(processEndAction);
+		gongNeng.setProcessStartAction(processStartAction);
 		
 		return gongNeng;
 	}

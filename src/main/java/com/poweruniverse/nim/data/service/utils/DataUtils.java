@@ -1,7 +1,6 @@
 package com.poweruniverse.nim.data.service.utils;
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -19,18 +18,11 @@ import java.util.Map;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.activiti.engine.HistoryService;
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngines;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.impl.ServiceImpl;
-import org.activiti.engine.impl.persistence.entity.HistoricProcessInstanceEntity;
 import org.dom4j.Element;
 import org.hibernate.Criteria;
 import org.hibernate.Session;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.MatchMode;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Property;
@@ -38,8 +30,13 @@ import org.hibernate.criterion.Restrictions;
 
 import com.poweruniverse.nim.base.message.JSONDataResult;
 import com.poweruniverse.nim.base.message.JSONMessageResult;
-import com.poweruniverse.nim.base.message.Result;
 import com.poweruniverse.nim.base.utils.FreemarkerUtils;
+import com.poweruniverse.nim.base.utils.NimJSONArray;
+import com.poweruniverse.nim.base.utils.NimJSONObject;
+import com.poweruniverse.nim.data.action.AfterAction;
+import com.poweruniverse.nim.data.action.BeforeAction;
+import com.poweruniverse.nim.data.action.LoadAction;
+import com.poweruniverse.nim.data.action.OnAction;
 import com.poweruniverse.nim.data.entity.sys.GongNeng;
 import com.poweruniverse.nim.data.entity.sys.GongNengCZ;
 import com.poweruniverse.nim.data.entity.sys.LiuChengJS;
@@ -50,7 +47,6 @@ import com.poweruniverse.nim.data.entity.sys.ZiDuanLX;
 import com.poweruniverse.nim.data.entity.sys.base.BusinessI;
 import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 import com.poweruniverse.nim.data.pageParser.DatasourceElParser;
-import com.poweruniverse.oim.activiti.ClearProcessInstanceBussinessKeyCmd;
 
 public class DataUtils {
 	public static SimpleDateFormat dtf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
@@ -82,9 +78,11 @@ public class DataUtils {
 		
 		Session sess = HibernateSessionFactory.getSession();
 		//取得数据
-		
+		YongHu yh = null;
 		if(yongHuDM==null){
 			throw new Exception("未登录或已超时，请重新登录！");
+		}else{
+			yh = (YongHu)sess.load(YongHu.class, yongHuDM);
 		}
 		
 		//用这个openGNDH、openCZDH确定和检查权限
@@ -101,16 +99,10 @@ public class DataUtils {
 				obj = sess.load(gncz.getGongNeng().getShiTiLei().getShiTiLeiClassName(), id);
 			}
 			
-			if(gncz.getGongNeng().getGongNengClass()!=null){
-				try {
-					Class<?> gongNengClass = Class.forName(gncz.getGongNeng().getGongNengClass());
-					Method getFormObjectMethod = gongNengClass.getMethod("getFormObject",new Class[]{String.class,Integer.class,Integer.class,Object.class,GongNengCZ.class});
-					obj = getFormObjectMethod.invoke(gongNengClass.newInstance(), new Object[]{gncz.getCaoZuoDH(),id,yongHuDM,obj,gncz});
-				} catch (NoSuchMethodException e) {
-				} catch (ClassNotFoundException e1) {
-				} catch (Exception e1) {
-					e1.printStackTrace();
-				}
+			if(gncz.getLoadAction()!=null){
+				Class<?> actionClass = Class.forName(gncz.getLoadAction());
+				LoadAction loadAction = (LoadAction)actionClass.newInstance();
+				obj = loadAction.invoke(yh, gncz, (EntityI)obj);
 			}
 		}else{
 			throw new Exception("记录("+gncz.getGongNeng().getGongNengMC()+"."+gncz.getCaoZuoMC()+"."+id+")不存在或用户没有权限！");
@@ -730,7 +722,7 @@ public class DataUtils {
 			
 			//取得满足条件的流程检视对象
 			int totalCount = 0;
-			JSONArray dataJsonArray = new JSONArray();
+			NimJSONArray dataJsonArray = new NimJSONArray();
 
 			Criteria criteria = sess.createCriteria(Class.forName(dataStl.getShiTiLeiClassName()));
 			//传递来的过滤条件
@@ -885,11 +877,11 @@ public class DataUtils {
 						lcjsFields.add(fields.getJSONObject(li));
 					}
 				}
-				dataJsonArray = JSONConvertUtils.objectList2JSONArray(dataStl,lcjsList,lcjsFields);
+				dataJsonArray = JSONConvertUtils.Entities2JSONArray(dataStl,lcjsList,lcjsFields);
 				//循环根据workflow中的属性定义  设置/覆盖其中的信息
 				for(int i=0;i<lcjsList.size();i++){
 					LiuChengJS lcjs = (LiuChengJS)lcjsList.get(i);
-					JSONObject jsonDataObj = dataJsonArray.getJSONObject(i);
+					NimJSONObject jsonDataObj = dataJsonArray.getJSONObject(i);
 					//取得功能对象
 					GongNeng busiGn = GongNeng.getGongNengByDH(lcjs.getGongNengDH());
 					root.put("gn", busiGn);
@@ -940,87 +932,38 @@ public class DataUtils {
 		return result;
 	}
 	
-	public static Result doDelele(String gongNengDH,String caoZuoDH,List<Integer> idList,Integer yongHuDM) {
-		Result result = null;
-		try {
-			//检查操作代号
-			if(!"delete".equals(caoZuoDH)){
-				return new JSONMessageResult("不允许使用操作"+caoZuoDH+"删除记录！");
-			}
-			
-			Session sess = HibernateSessionFactory.getSession();
-			//设置或取消删除标记
-			GongNeng gn = GongNeng.getGongNengByDH(gongNengDH);
-			Class<?> stlClass = Class.forName(gn.getShiTiLei().getShiTiLeiClassName());
-			Method setRelaShanChuZTMethod = null;
-			if(gn.getShiTiLei().getShiFouYWB()){
-				stlClass.getMethod("setRelaShanChuZT",new Class[]{boolean.class});
-			}
-			
-			for(Integer id:idList){
-				if(!AuthUtils.checkAuth(gongNengDH,caoZuoDH, id, yongHuDM)){
-					return new JSONMessageResult("记录("+gongNengDH+"."+caoZuoDH+"."+id+")不存在或用户对此记录没有操作权限！");
-				}
-				EntityI entityI = (EntityI)sess.load(stlClass, id);
-				if(setRelaShanChuZTMethod==null){
-					//删除数据
-					sess.delete(entityI);
-				}else{
-					BusinessI busiI = (BusinessI)entityI;
-					setRelaShanChuZTMethod.invoke(entityI, new Object[]{true});
-					sess.update(entityI);
-					//业务表 且流程功能 且数据与流程已绑定的话 
-					//还需要删除流程实例
-					if(gn.getShiFouLCGN()!=null  && busiI.getProcessInstanceId()!=null){
-						ProcessEngine myProcessEngine = ProcessEngines.getDefaultProcessEngine();
-						RuntimeService runtimeService = myProcessEngine.getRuntimeService();
-						HistoryService historyService = myProcessEngine.getHistoryService();
-						
-						HistoricProcessInstanceEntity hisprocessInstance = (HistoricProcessInstanceEntity)historyService.createHistoricProcessInstanceQuery().processInstanceId(busiI.getProcessInstanceId()).singleResult();
-						if(hisprocessInstance!=null){
-							//删除流程之前 先将流程中的business_Key_清空
-							((ServiceImpl)runtimeService).getCommandExecutor().execute(new ClearProcessInstanceBussinessKeyCmd(busiI.getProcessInstanceId()));
-							//删除流程
-							runtimeService.deleteProcessInstance(busiI.getProcessInstanceId(), "用户删除数据");
-						}
-						
-						//删除流程检视
-						@SuppressWarnings("unchecked")
-						List<LiuChengJS> lcjss = sess.createCriteria(LiuChengJS.class)
-								.add(Restrictions.eq("gongNengDH",gongNengDH))
-								.add(Restrictions.eq("gongNengObjId",busiI.pkValue()))
-								.list();
-						for(LiuChengJS lcjs:lcjss){
-							sess.delete(lcjs);
-						}
-						//删除关联信息
-						busiI.setProcessInstanceId(null);
-						busiI.setProcessInstanceEnded(false);
-						busiI.setProcessInstanceTerminated(false);
-						sess.update(busiI);
-					}
-				}
-			}
-			result = new JSONMessageResult();
-		}catch (InvocationTargetException e){
-			e.printStackTrace();
-			result = new JSONMessageResult(e.getTargetException().getMessage());
-		}catch (Exception e){
-			e.printStackTrace();
-			result = new JSONMessageResult(e.getMessage());
-		}
-		return result;
-	}
+//	public static JSONMessageResult doDelele(GongNengCZ gncz,EntityI obj,YongHu yongHu) {
+//		JSONMessageResult result = null;
+//		try {
+//			//检查操作代号
+//			if(!"delete".equals(gncz.getCaoZuoDH())){
+//				return new JSONMessageResult("不允许使用操作"+gncz.getCaoZuoDH()+"删除记录！");
+//			}
+//			
+//			Session sess = HibernateSessionFactory.getSession();
+//
+//			
+//		
+//			result = new JSONMessageResult();
+//		}catch (InvocationTargetException e){
+//			e.printStackTrace();
+//			result = new JSONMessageResult(e.getTargetException().getMessage());
+//		}catch (Exception e){
+//			e.printStackTrace();
+//			result = new JSONMessageResult(e.getMessage());
+//		}
+//		return result;
+//	}
 	
-	public static Result doExec(String gongNengDH,String caoZuoDH,List<Integer> idList,Integer yongHuDM) {
+	public static JSONDataResult doExec(String gongNengDH,String caoZuoDH,List<Integer> idList,Integer yongHuDM) {
 		
-		Result result = null;
+		JSONDataResult result = null;
 		Session sess = null;
 		try {
 			
 			GongNeng gn = GongNeng.getGongNengByDH(gongNengDH);
 			if(gn==null){
-				return new JSONMessageResult("功能("+gongNengDH+")不存在!");
+				return new JSONDataResult("功能("+gongNengDH+")不存在!");
 			}
 			
 			sess = HibernateSessionFactory.getSession();
@@ -1029,76 +972,75 @@ public class DataUtils {
 					.add(Restrictions.eq("gongNeng.id",gn.getGongNengDM()))
 					.add(Restrictions.eq("caoZuoDH", caoZuoDH)).uniqueResult();
 			if(gncz==null){
-				return new JSONMessageResult("功能操作:"+gongNengDH+"."+caoZuoDH+"不存在！");
+				return new JSONDataResult("功能操作:"+gongNengDH+"."+caoZuoDH+"不存在！");
 			}
 			//检查登录状态 并取得当前用户代码
 			
 			String fieldsMeta = null;
-			YongHu yh = (YongHu)sess.load(YongHu.class, yongHuDM);
+			YongHu yh = null;
+			if(yongHuDM!=null){
+				yh = (YongHu)sess.load(YongHu.class, yongHuDM);
+			}
 			//
 			List<EntityI> currentObjList = new ArrayList<EntityI>();
 			//检查权限
 			if(idList!=null){
 				for(Integer id:idList){
 					if(!AuthUtils.checkAuth(gongNengDH,caoZuoDH, id, yongHuDM)){
-						return new JSONMessageResult("记录("+gongNengDH+"."+caoZuoDH+"."+id+")不存在或用户对此记录没有操作权限！");
+						return new JSONDataResult("记录("+gongNengDH+"."+caoZuoDH+"."+id+")不存在或用户对此记录没有操作权限！");
 					}
 					
 					//调用原始操作对应的方法取得初始对象
-					EntityI entityI = (EntityI)getData(gncz,id,yongHuDM);
+					EntityI entityI = (EntityI)getObjectByGNCZ(gncz,id,yongHuDM);
 					currentObjList.add(entityI);
 				}
 			}
-			//
-			Class<?> gnActionClass = null;
-			Object gnActionInstance = null;
-			try {
-				gnActionClass = Class.forName(gncz.getGongNeng().getGongNengClass());
-				gnActionInstance = gnActionClass.newInstance();
-			} catch (Exception e) {
+			//取得事件对象
+			BeforeAction beforeAction = null;
+			OnAction onAction = null;
+			AfterAction afterAction = null;
+			
+			if(gncz.getBeforeAction()!=null){
+				beforeAction = (BeforeAction)Class.forName(gncz.getBeforeAction()).newInstance();
 			}
-			String firstCZDH = caoZuoDH.replaceFirst(caoZuoDH.substring(0, 1),caoZuoDH.substring(0, 1).toUpperCase());
-			//检查功能action类中 是否实现了before方法
-			Method beforeMethod=getBeforeMethod(gnActionClass,"before"+firstCZDH);
-			if(beforeMethod!=null){
-				Result beforeRet = (Result)beforeMethod.invoke(gnActionInstance, new Object[]{gongNengDH,caoZuoDH,currentObjList,null,yongHuDM});
-				if(!beforeRet.isSuccess()){
-					return beforeRet;
-				}
+			if(gncz.getOnAction()!=null){
+				onAction = (OnAction)Class.forName(gncz.getOnAction()).newInstance();
 			}
-			//检查功能action类中 是否实现了on方法
-			Method onMethod = getOnMethod(gnActionClass,"on"+firstCZDH);
-			if(onMethod!=null){
-				Result onRet = (Result)onMethod.invoke(gnActionInstance, new Object[]{gongNengDH,caoZuoDH,currentObjList,null,yongHuDM});
-				if(!onRet.isSuccess()){
-					return onRet;
+			if(gncz.getAfterAction()!=null){
+				afterAction = (AfterAction)Class.forName(gncz.getAfterAction()).newInstance();
+			}
+			//循环处理所有对象
+			for(EntityI entityI:currentObjList){
+				if(entityI instanceof BusinessI){
+					//为业务对象的业务字段赋值
+					BusinessI p = (BusinessI)entityI;
+					p.setXiuGaiRen(yh.getYongHuMC());
+					p.setXiuGaiRQ(Calendar.getInstance().getTime());
 				}
-			}else{
-				for(EntityI entityI:currentObjList){
-					if(entityI instanceof BusinessI){
-						//为业务对象的业务字段赋值
-						BusinessI p = (BusinessI)entityI;
-						p.setXiuGaiRen(yh.getYongHuMC());
-						p.setXiuGaiRQ(Calendar.getInstance().getTime());
+				//检查功能action类中 是否实现了before方法
+				if(beforeAction!=null){
+
+					JSONMessageResult beforeActionResult = beforeAction.invoke(yh, gncz, entityI,null);
+					if(!beforeActionResult.isSuccess()){
+						return new JSONDataResult(beforeActionResult.getErrorMsg());
 					}
-					sess.saveOrUpdate(entityI);
 				}
-			}	
-			
-			//检查功能action类中 是否实现了after方法
-			Method afterMethod=getAfterMethod(gnActionClass,"after"+firstCZDH);
-			if(afterMethod!=null){
-				Result afterRet = (Result)afterMethod.invoke(gnActionInstance, new Object[]{gongNengDH,caoZuoDH,currentObjList,null,yongHuDM});
-				if(!afterRet.isSuccess()){
-					return afterRet;
+				
+				if(onAction!=null){
+					JSONMessageResult onActionResult = onAction.invoke(yh, gncz, entityI,null);
+					if(!onActionResult.isSuccess()){
+						return new JSONDataResult(onActionResult.getErrorMsg());
+					}
 				}
-			}
-			
-			//检查当前功能是否流程功能
-			if(gncz.getGongNeng().getShiFouLCGN()!=null && gncz.getGongNeng().getShiFouLCGN()){// && gncz.getDuiXiangXG()
-				for(EntityI entityI:currentObjList){
-					TaskUtils.completeTask((BusinessI)entityI,null, gncz, yh,false);
+				
+				if(afterAction!=null){
+					JSONMessageResult afterActionResult = afterAction.invoke(yh, gncz, entityI,null);
+					if(!afterActionResult.isSuccess()){
+						return new JSONDataResult(afterActionResult.getErrorMsg());
+					}
 				}
+				
+				sess.saveOrUpdate(entityI);
 			}
 			//检查返回字段定义
 			if(fieldsMeta==null){
@@ -1110,208 +1052,82 @@ public class DataUtils {
 				retIds.add(currentEntityI.pkValue());
 			}
 			//
-			JSONArray rows = JSONConvertUtils.objectList2JSONArray(gncz.getGongNeng().getShiTiLei(),currentObjList,JSONArray.fromObject(fieldsMeta));
+			NimJSONArray rows = JSONConvertUtils.Entities2JSONArray(gncz.getGongNeng().getShiTiLei(),currentObjList,JSONArray.fromObject(fieldsMeta));
 			
 			result = new JSONDataResult(rows, rows.size(), 0, 0, null);
-			
 		
 		}catch (InvocationTargetException e){
 			e.printStackTrace();
-			result = new JSONMessageResult( e.getTargetException().getMessage());
+			result = new JSONDataResult( e.getTargetException().getMessage());
 		}catch (Exception e){
 			e.printStackTrace();
-			result = new JSONMessageResult(e.getMessage());
+			result = new JSONDataResult(e.getMessage());
 		}
 		return result;
 	}
 	
 
 	
-	private static EntityI getData(GongNengCZ gncz,Integer id,Integer yhdm) throws Exception{
-		//返回新增或已存在的实体类对象
-		Session sess = HibernateSessionFactory.getSession();
-		YongHu yh = null;
-		GongNengCZ originalGNCZ = gncz;
-		ShiTiLei originalStl = originalGNCZ.getGongNeng().getShiTiLei();
-		ShiTiLei realSTL = originalStl;
-		GongNengCZ realGNCZ = originalGNCZ;
-		//当前用户对象
-		if(yhdm!=null){
-			yh = (YongHu)sess.load(YongHu.class,yhdm);
-		}
-		//正常方式 原始对象
-		EntityI obj = null;
-		if(id!=null){
-			obj = (EntityI)sess.load(originalStl.getShiTiLeiClassName(), id);
-		}else{
-			Class<?> stlClass = Class.forName(originalStl.getShiTiLeiClassName());
-			obj = (EntityI)stlClass.newInstance();
-		}
-		
-		try {
-			Class<?> gongNengClass = Class.forName(gncz.getGongNeng().getGongNengClass());
-			Method getFormObjectMethod = gongNengClass.getMethod("getFormObject",new Class[]{String.class,Integer.class,Integer.class,Object.class,GongNengCZ.class});
-			obj = (EntityI)getFormObjectMethod.invoke(gongNengClass.newInstance(), new Object[]{gncz.getCaoZuoDH(),id,yhdm,obj,gncz});
-		} catch (Exception e1) {
-		}
-		//如果是show 且流程功能 设置查看状态
-		if(gncz.getCaoZuoDH().equals("show") && gncz.getGongNeng().getShiFouLCGN()){
-			//查找对应的流程检视 将当前用户的待办设为已查看
-			@SuppressWarnings("unchecked")
-			List<LiuChengJS> currentLCJSs = (List<LiuChengJS>)sess.createCriteria(LiuChengJS.class)
-					.add(Restrictions.eq("gongNengDH",gncz.getGongNeng().getGongNengDH()))
-					.add(Restrictions.eq("gongNengObjId",obj.pkValue()))
-					.add(Restrictions.eq("caoZuoDH", gncz.getCaoZuoDH()))
-					.add(Restrictions.like("caoZuoRen", gncz.getCaoZuoDH()+" ",MatchMode.ANYWHERE))
-					.add(Restrictions.eq("shiFouCK", false))//未查看
-					.add(Restrictions.eq("shiFouCL", false))//未处理
-					.add(Restrictions.eq("shiFouWC", false))//未完成
-					.add(Restrictions.eq("shiFouSC", false))//未删除
-					.list();
-			for(LiuChengJS currentLCJS:currentLCJSs){
-				currentLCJS.setShiFouCK(true);
-				sess.update(currentLCJS);
-			}
-		}
-		//检查当前功能操作中 是否有自动赋值的设置
-//		for(GongNengCZFZ gnczfz:gncz.getFzs()){
-//			if(gnczfz.getFuZhiSJ().getFuZhiSJDM().intValue() == FuZhiSJ.fuZhiSJ_load){
-//				if(testFuzhiTJ(obj,gnczfz.getMxs())){
-//					//赋值目标（这里只应该对当前对象的直接字段 或关联子集的直接字段赋值 ）
-//					String fuZhiMB = gnczfz.getFuZhiMB();
-//					//赋值内容
-//					String fuZhiNR = gnczfz.getFuZhiMB();
-//					
-//				}
+//	public static EntityI getData(GongNengCZ gncz,Integer id,Integer yhdm) throws Exception{
+//		//返回新增或已存在的实体类对象
+//		Session sess = HibernateSessionFactory.getSession();
+//		YongHu yh = null;
+//		GongNengCZ originalGNCZ = gncz;
+//		ShiTiLei originalStl = originalGNCZ.getGongNeng().getShiTiLei();
+//		ShiTiLei realSTL = originalStl;
+//		GongNengCZ realGNCZ = originalGNCZ;
+//		//当前用户对象
+//		if(yhdm!=null){
+//			yh = (YongHu)sess.load(YongHu.class,yhdm);
+//		}
+//		//正常方式 原始对象
+//		EntityI obj = null;
+//		if(id!=null){
+//			obj = (EntityI)sess.load(originalStl.getShiTiLeiClassName(), id);
+//		}else{
+//			Class<?> stlClass = Class.forName(originalStl.getShiTiLeiClassName());
+//			obj = (EntityI)stlClass.newInstance();
+//		}
+//		
+//		try {
+//			Class<?> gongNengClass = Class.forName(gncz.getGongNeng().getGongNengClass());
+//			Method getFormObjectMethod = gongNengClass.getMethod("getFormObject",new Class[]{String.class,Integer.class,Integer.class,Object.class,GongNengCZ.class});
+//			obj = (EntityI)getFormObjectMethod.invoke(gongNengClass.newInstance(), new Object[]{gncz.getCaoZuoDH(),id,yhdm,obj,gncz});
+//		} catch (Exception e1) {
+//		}
+//		//如果是show 且流程功能 设置查看状态
+//		if(gncz.getCaoZuoDH().equals("show") && gncz.getGongNeng().getShiFouLCGN()){
+//			//查找对应的流程检视 将当前用户的待办设为已查看
+//			@SuppressWarnings("unchecked")
+//			List<LiuChengJS> currentLCJSs = (List<LiuChengJS>)sess.createCriteria(LiuChengJS.class)
+//					.add(Restrictions.eq("gongNengDH",gncz.getGongNeng().getGongNengDH()))
+//					.add(Restrictions.eq("gongNengObjId",obj.pkValue()))
+//					.add(Restrictions.eq("caoZuoDH", gncz.getCaoZuoDH()))
+//					.add(Restrictions.like("caoZuoRen", gncz.getCaoZuoDH()+" ",MatchMode.ANYWHERE))
+//					.add(Restrictions.eq("shiFouCK", false))//未查看
+//					.add(Restrictions.eq("shiFouCL", false))//未处理
+//					.add(Restrictions.eq("shiFouWC", false))//未完成
+//					.add(Restrictions.eq("shiFouSC", false))//未删除
+//					.list();
+//			for(LiuChengJS currentLCJS:currentLCJSs){
+//				currentLCJS.setShiFouCK(true);
+//				sess.update(currentLCJS);
 //			}
 //		}
-		return obj;
-	}
-	
-	
-	
-	public static Method getAfterMethod(Class<?> gnActionClass,String methodName) throws Exception{
-		Method method=null;
-		if(gnActionClass!=null){
-			//检查类中是否存在此名称的方法
-			boolean nameExists = false;
-			Method[] ms = gnActionClass.getMethods();
-			for(Method m:ms){
-				if(m.getName().endsWith("Save")){
-					throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+m.getName()+"方法，改写为after{CaoZuoDH}!例:public MethodResult afterAppend(String,String,List,JSONObject,Integer)");
-				}
-			}
-			for(Method m:ms){
-				if(m.getName().equals(methodName)){
-					nameExists = true;
-					break;
-				}
-			}
-			
-			//取得符合条件的方法
-			try {
-				method = gnActionClass.getMethod(methodName,new Class[]{String.class,String.class,List.class,JSONObject.class,Integer.class});
-			} catch (Exception e) {
-			}
-			if(method==null && nameExists){
-				throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+methodName+"方法签名及返回值改写为:public MethodResult "+methodName+"(String,String,List,JSONObject,Integer)");
-			}
-		}
-		return method;
-	}
-	
-	//before方法
-	public static Method getBeforeMethod(Class<?> gnActionClass,String methodName) throws Exception{
-		Method method=null;
-		if(gnActionClass!=null){
-			//检查类中是否存在此名称的方法
-			boolean nameExists = false;
-			Method[] ms = gnActionClass.getMethods();
-			for(Method m:ms){
-				if(m.getName().endsWith("Save")){
-					throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+m.getName()+"方法，改写为before{CaoZuoDH}!例:public MethodResult beforeAppend(String,String,List,JSONObject,Integer)");
-				}
-			}
-			for(Method m:ms){
-				if(m.getName().equals(methodName)){
-					nameExists = true;
-					break;
-				}
-			}
-			
-			//取得符合条件的方法
-			try {
-				method = gnActionClass.getMethod(methodName,new Class[]{String.class,String.class,List.class,JSONObject.class,Integer.class});
-			} catch (Exception e) {
-			}
-			if(method==null && nameExists){
-				throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+methodName+"方法签名及返回值改写为:public MethodResult "+methodName+"(String,String,List,JSONObject,Integer)");
-			}
-		}
-		return method;
-	}
-
-	//prepare方法
-	public static Method getPrepareMethod(Class<?> gnActionClass,String methodName) throws Exception{
-		Method method=null;
-		if(gnActionClass!=null){
-			//检查类中是否存在此名称的方法
-			boolean nameExists = false;
-			Method[] ms = gnActionClass.getMethods();
-			for(Method m:ms){
-				if(m.getName().endsWith("Save")){
-					throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+m.getName()+"方法，改写为prepare{CaoZuoDH}!例:public MethodResult prepareAppend(String,String,List,JSONObject,Integer)");
-				}
-			}
-			for(Method m:ms){
-				if(m.getName().equals(methodName)){
-					nameExists = true;
-					break;
-				}
-			}
-			
-			//取得符合条件的方法
-			try {
-				method = gnActionClass.getMethod(methodName,new Class[]{String.class,String.class,List.class,JSONObject.class,Integer.class});
-			} catch (Exception e) {
-			}
-			if(method==null && nameExists){
-				throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+methodName+"方法签名及返回值改写为:public MethodResult "+methodName+"(String,String,List,JSONObject,Integer)");
-			}
-		}
-		return method;
-	}
-
-	//on方法
-	public static Method getOnMethod(Class<?> gnActionClass,String methodName) throws Exception{
-		Method method=null;
-		if(gnActionClass!=null){
-			//检查类中是否存在此名称的方法
-			boolean nameExists = false;
-			Method[] ms = gnActionClass.getMethods();
-			for(Method m:ms){
-				if(m.getName().endsWith("Save")){
-					throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+m.getName()+"方法，改写为on{CaoZuoDH}!例:public MethodResult onAppend(String,String,List,JSONObject,Integer)");
-				}
-			}
-			for(Method m:ms){
-				if(m.getName().equals(methodName)){
-					nameExists = true;
-					break;
-				}
-			}
-			
-			//取得符合条件的方法
-			try {
-				method = gnActionClass.getMethod(methodName,new Class[]{String.class,String.class,List.class,JSONObject.class,Integer.class});
-			} catch (Exception e) {
-			}
-			if(method==null && nameExists){
-				throw new Exception("请将功能类"+gnActionClass.getName()+"中的"+methodName+"方法签名及返回值改写为:public MethodResult "+methodName+"(String,String,List,JSONObject,Integer)");
-			}
-		}
-		return method;
-	}
+//		//检查当前功能操作中 是否有自动赋值的设置
+////		for(GongNengCZFZ gnczfz:gncz.getFzs()){
+////			if(gnczfz.getFuZhiSJ().getFuZhiSJDM().intValue() == FuZhiSJ.fuZhiSJ_load){
+////				if(testFuzhiTJ(obj,gnczfz.getMxs())){
+////					//赋值目标（这里只应该对当前对象的直接字段 或关联子集的直接字段赋值 ）
+////					String fuZhiMB = gnczfz.getFuZhiMB();
+////					//赋值内容
+////					String fuZhiNR = gnczfz.getFuZhiMB();
+////					
+////				}
+////			}
+////		}
+//		return obj;
+//	}
 	
 	public static JSONArray getPkMetaFromSTL(ShiTiLei stl){
 		JSONArray stlMeta = new JSONArray();
@@ -1335,24 +1151,5 @@ public class DataUtils {
 		return stlMeta;
 	}
 	
-//	public static JSONObject setPkFromEntity(ShiTiLei stl,JSONObject jsonObj){
-//		if(jsonObj.containsKey("_entity")){
-//			EntityI obj = (EntityI)jsonObj.get("_entity");
-//			if(obj!=null){
-//				jsonObj.put(stl.getZhuJianLie(), obj.pkValue());
-//				for(ZiDuan zd :stl.getZds()){
-//					if("set".equals(zd.getZiDuanLX().getZiDuanLXDH()) && jsonObj.containsKey(zd.getZiDuanDH())){
-//						JSONArray subDataArray = jsonObj.getJSONArray(zd.getZiDuanDH());
-//						for(int i=0;i<subDataArray.size();i++){
-//							JSONObject subDataObj = subDataArray.getJSONObject(i);
-//							setPkFromEntity(zd.getGuanLianSTL(),subDataObj);
-//						}
-//					}
-//				}
-//			}
-//			jsonObj.remove("_entity");
-//		}
-//		return jsonObj;
-//	}
 	
 }

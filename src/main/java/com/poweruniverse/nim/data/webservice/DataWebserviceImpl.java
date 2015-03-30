@@ -2,7 +2,6 @@ package com.poweruniverse.nim.data.webservice;
 
 
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.sql.Clob;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -24,13 +23,6 @@ import javax.xml.ws.WebServiceContext;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 
-import org.activiti.engine.HistoryService;
-import org.activiti.engine.ProcessEngine;
-import org.activiti.engine.ProcessEngines;
-import org.activiti.engine.RuntimeService;
-import org.activiti.engine.impl.ServiceImpl;
-import org.activiti.engine.impl.persistence.entity.HistoricProcessInstanceEntity;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
@@ -38,10 +30,14 @@ import com.poweruniverse.nim.base.bean.BaseJavaDatasource;
 import com.poweruniverse.nim.base.bean.UserInfo;
 import com.poweruniverse.nim.base.message.JSONDataResult;
 import com.poweruniverse.nim.base.message.JSONMessageResult;
-import com.poweruniverse.nim.base.message.ObjectResult;
-import com.poweruniverse.nim.base.message.Result;
-import com.poweruniverse.nim.base.webservice.BasePlateformWebservice;
-import com.poweruniverse.nim.data.bean.MethodResult;
+import com.poweruniverse.nim.base.utils.NimJSONArray;
+import com.poweruniverse.nim.base.utils.NimJSONObject;
+import com.poweruniverse.nim.baseClass.BasePlateformWebservice;
+import com.poweruniverse.nim.data.action.AfterAction;
+import com.poweruniverse.nim.data.action.BeforeAction;
+import com.poweruniverse.nim.data.action.LoadAction;
+import com.poweruniverse.nim.data.action.OnAction;
+import com.poweruniverse.nim.data.action.PrepareAction;
 import com.poweruniverse.nim.data.entity.sys.GongNeng;
 import com.poweruniverse.nim.data.entity.sys.GongNengCZ;
 import com.poweruniverse.nim.data.entity.sys.ShiTiLei;
@@ -56,7 +52,6 @@ import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 import com.poweruniverse.nim.data.service.utils.JSONConvertUtils;
 import com.poweruniverse.nim.data.service.utils.NativeSQLOrder;
 import com.poweruniverse.nim.data.service.utils.TaskUtils;
-import com.poweruniverse.oim.activiti.ClearProcessInstanceBussinessKeyCmd;
 
 @WebService
 public class DataWebserviceImpl extends BasePlateformWebservice {
@@ -164,7 +159,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			}
 			
 			//将数据转换为json格式 添加到页面中
-			JSONArray rows = JSONConvertUtils.objectList2JSONArray(dataStl,objs,fieldJsonArray);
+			NimJSONArray rows = JSONConvertUtils.Entities2JSONArray(dataStl,objs,fieldJsonArray);
 			//
 			ret = new JSONDataResult(rows, totalCount, start, limit,meta);
 		}catch (InvocationTargetException e){
@@ -225,6 +220,10 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			boolean needAuth = gncz.getKeYiSQ();//需要授权？
 			//需要授权的功能操作 必须提供用户名、密码用于验证用户身份
 			Integer yhdm = this.getYongHuDM(wsContext,needAuth);
+			YongHu yh = null;
+			if(yhdm!=null){
+				yh = (YongHu)sess.load(YongHu.class, yhdm);
+			}
 			//这里
 			GongNeng gn = gncz.getGongNeng();
 			//
@@ -292,40 +291,28 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 					fieldJsonArray.add(zjlObj);
 				}
 			}
+			
 			//
-			Method mtd = null;
-			Class<?> cls = null;
-			//允许在list之前 触发可能存在的beforeList事件 
-			Result beforeListResult = null;
-			try {
-				cls = Class.forName(gn.getGongNengClass());
-				mtd = cls.getMethod("beforeList",new Class[]{String.class,Integer.class,Integer.class,String.class,String.class,String.class,Integer.class});
-				beforeListResult = (Result)mtd.invoke(cls.newInstance(), new Object[]{caoZuoDH,start,limit,fieldJsonArray.toString(),filters,sorts,yhdm});
-			} catch (Exception e) {
+			Map<String,Object> listResult = DataUtils.getListByGN(gongNengDH,caoZuoDH,start,limit,filters,sorts,yhdm);
+			@SuppressWarnings("unchecked")
+			List<EntityI> objs =  (List<EntityI>)listResult.get("objs");
+		
+			//允许在list之后  触发可能存在的loadAction  对取得的结果进行处理
+			if(gncz.getLoadAction()!=null){
+				Class<?> actionClass = Class.forName(gncz.getLoadAction());
+				LoadAction loadAction = (LoadAction)actionClass.newInstance();
+				
+				for(EntityI obj:objs){
+					JSONMessageResult loadActionResult = loadAction.invoke(yh, gncz, (EntityI)obj);
+					if(!loadActionResult.isSuccess()){
+						return new JSONDataResult(loadActionResult.getErrorMsg());
+					}
+				}
 			}
 			
-			if(beforeListResult!=null && !beforeListResult.isSuccess()){
-				result = new JSONDataResult(beforeListResult.getErrorMsg()) ;
-			}else{
-				//
-				Map<String,Object> listResult = DataUtils.getListByGN(gongNengDH,caoZuoDH,start,limit,filters,sorts,yhdm);
-				List<EntityI> objs =  (List<EntityI>)listResult.get("objs");
-			
-				//允许在list之后  触发可能存在的afterList事件  对取得的结果集进行处理
-				try {
-					cls = Class.forName(gn.getGongNengClass());
-					mtd = cls.getMethod("afterList",new Class[]{String.class,Integer.class,Integer.class,String.class,String.class,String.class,List.class,Integer.class});
-					JSONDataResult afterListResult = (JSONDataResult)mtd.invoke(cls.newInstance(), new Object[]{caoZuoDH,start,limit,fieldJsonArray.toString(),filters,sorts,objs,yhdm});
-					if(afterListResult.isSuccess()){
-						result = afterListResult;
-					}
-				} catch (Exception e) {
-				}
-				
-				if(result==null){
-					JSONArray rows = JSONConvertUtils.objectList2JSONArray(gn.getShiTiLei(), objs, fieldJsonArray);
-					result = new JSONDataResult(rows, (Integer)listResult.get("totalCount"), start, limit,meta);
-				}
+			if(result==null){
+				NimJSONArray rows = JSONConvertUtils.Entities2JSONArray(gn.getShiTiLei(), objs, fieldJsonArray);
+				result = new JSONDataResult(rows, (Integer)listResult.get("totalCount"), start, limit,meta);
 			}
 			
 			//提交 并关闭session
@@ -461,10 +448,10 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			}
 			
 			//将数据转换为json格式 添加到页面中
-			JSONObject row = JSONConvertUtils.object2JSONObject(gncz.getGongNeng().getShiTiLei(),obj,fieldJsonArray);
+			NimJSONObject row = JSONConvertUtils.Entity2JSONObject(gncz.getGongNeng().getShiTiLei(),obj,fieldJsonArray);
 			
 			
-			JSONArray rows= new JSONArray();
+			NimJSONArray rows= new NimJSONArray();
 			rows.add(row);
 			
 			result = new JSONDataResult(rows, 1, 0, 0,meta);
@@ -544,7 +531,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 					.addOrder(NativeSQLOrder.raw("( case ziduanlxdm when 8 then -20 when 9 then -18 when 1 then -16 when 7 then -14 when 2 then -12 when 10 then -10 else ziduanlxdm end)"))
 					.list();
 			//
-			JSONArray zdsArray = JSONConvertUtils.objectList2JSONArray(stl,zds,fieldJsonArray);
+			NimJSONArray zdsArray = JSONConvertUtils.Entities2JSONArray(stl,zds,fieldJsonArray);
 			
 			retMsg = new JSONDataResult(zdsArray, zds.size(), 0, 0, null);
 			
@@ -656,10 +643,10 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			}
 			
 			//将数据转换为json格式 添加到页面中
-			JSONObject row = JSONConvertUtils.object2JSONObject(stl,obj,fieldJsonArray);
+			NimJSONObject row = JSONConvertUtils.Entity2JSONObject(stl,obj,fieldJsonArray);
 			
 			
-			JSONArray rows= new JSONArray();
+			NimJSONArray rows= new NimJSONArray();
 			rows.add(row);
 			
 			result = new JSONDataResult(rows, 1, 0, 0,meta);
@@ -695,7 +682,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
     		rs = pstmt.executeQuery();
     		ResultSetMetaData rsmd = rs.getMetaData();
     		
-    		JSONArray zdArray = new JSONArray();
+    		NimJSONArray zdArray = new NimJSONArray();
     		
     		for(int i=1;i<=rsmd.getColumnCount();i++){
     			String name = rsmd.getColumnName(i);
@@ -820,7 +807,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			JSONArray fieldJsonArray = JSONArray.fromObject(fields);
 
 			Map<String,Object> listResult = DataUtils.getListBySQL(sql,start,limit,fieldJsonArray);
-			JSONArray rows =  (JSONArray)listResult.get("objs");
+			NimJSONArray rows =  (NimJSONArray)listResult.get("rows");
 			int totalCount = (Integer)listResult.get("totalCount");
 			//创建返回对象
 			ret = new JSONDataResult(rows, totalCount, start, limit,null);
@@ -878,7 +865,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			//取得数据对象(用老的程序方法)
 			BaseJavaDatasource javaDS = (BaseJavaDatasource)Class.forName(className).newInstance();
 			JSONObject jsonData = javaDS.getData(filterArray,paramsObject,start,limit);
-			ret = new JSONDataResult(jsonData.getJSONArray("rows"), jsonData.getInt("totalCount"), start, limit,null);
+			ret = new JSONDataResult(new NimJSONArray(jsonData.getJSONArray("rows")), jsonData.getInt("totalCount"), start, limit,null);
 		} catch (Exception e) {
 			ret = new JSONDataResult(e.getMessage());
 			e.printStackTrace();
@@ -928,12 +915,12 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			JSONObject qRsult = DataUtils.getTodoListByHibernate(
 					shiTiLeiDH,start,limit,JSONArray.fromObject(fields),JSONArray.fromObject(workflows),filters,sorts,yhdm,todoOnly);
 			int totalCount = 0;
-			JSONArray rows = null;
+			NimJSONArray rows = null;
 			if(qRsult.getBoolean("success")){
 				totalCount = qRsult.getInt("totalCount");
-				rows = qRsult.getJSONArray("data");
+				rows = new NimJSONArray(qRsult.getJSONArray("data"));
 			}else{
-				rows = new JSONArray();
+				rows = new NimJSONArray();
 			}
 			
 			JSONObject meta = new JSONObject();
@@ -981,29 +968,112 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			}
 			
 			Integer yongHuDM = this.getYongHuDM(wsContext,true);
-			//
-			JSONArray idArray = JSONArray.fromObject(submitData);
-			List<Integer> idList = new ArrayList<Integer>();
-			//检查权限
-			for(int i=0;i<idArray.size();i++){
-				JSONObject idObj = idArray.getJSONObject(i);
-				Integer id = idObj.getInt(gncz.getGongNeng().getShiTiLei().getZhuJianLie());
-				idList.add(id);
+			YongHu yh = null;
+			if(yongHuDM!=null){
+				yh = (YongHu)sess.load(YongHu.class, yongHuDM);
 			}
 			//
-			Result execResult = null;
-			if("delete".equals(caoZuoDH)){
-				execResult= DataUtils.doDelele(gongNengDH, caoZuoDH, idList, yongHuDM);
-			}else{
-				execResult= DataUtils.doExec(gongNengDH, caoZuoDH, idList, yongHuDM);
+			NimJSONArray dataArray = NimJSONArray.fromObject(submitData);
+
+			//取得事件对象
+			BeforeAction beforeAction = null;
+			OnAction onAction = null;
+			AfterAction afterAction = null;
+			
+			if(gncz.getBeforeAction()!=null){
+				try {
+					beforeAction = (BeforeAction)Class.forName(gncz.getBeforeAction()).newInstance();
+				} catch (ClassNotFoundException e) {
+					return new JSONDataResult("功能操作("+gongNengDH+"."+caoZuoDH+")的before事件处理类("+gncz.getBeforeAction()+")不存在！");
+				}
+			}
+			if(gncz.getOnAction()!=null){
+				try {
+					onAction = (OnAction)Class.forName(gncz.getOnAction()).newInstance();
+				} catch (ClassNotFoundException e) {
+					return new JSONDataResult("功能操作("+gongNengDH+"."+caoZuoDH+")的on事件处理类("+gncz.getOnAction()+")不存在！");
+				}
+				
+			}
+			if(gncz.getAfterAction()!=null){
+				try {
+					afterAction = (AfterAction)Class.forName(gncz.getAfterAction()).newInstance();
+				} catch (ClassNotFoundException e) {
+					return new JSONDataResult("功能操作("+gongNengDH+"."+caoZuoDH+")的after事件处理类("+gncz.getAfterAction()+")不存在！");
+				}
 			}
 			
-			if(!execResult.isSuccess()){
-				ret = new JSONDataResult(execResult.getErrorMsg());
-			}else{
-				ret = new JSONDataResult(idArray,idArray.size(),0,0,null);
+				
+			for(int i=0;i<dataArray.size();i++){
+				NimJSONObject dataObj = dataArray.getJSONObject(i);
+				Integer id = dataObj.getInt(gncz.getGongNeng().getShiTiLei().getZhuJianLie());
+				
+				if(!AuthUtils.checkAuth(gncz, id, yongHuDM)){
+					return new JSONDataResult("记录("+gongNengDH+"."+caoZuoDH+"."+id+")不存在或用户对此记录没有操作权限！");
+				}
+				//调用原始操作对应的方法取得初始对象
+				EntityI entityI = (EntityI)DataUtils.getObjectByGNCZ(gncz,id,yongHuDM);
+				if(gncz.getGongNeng().getShiTiLei().getShiFouYWB()){
+					//为业务对象的业务字段赋值
+					BusinessI p = (BusinessI)entityI;
+					p.setXiuGaiRen(yh.getYongHuMC());
+					p.setXiuGaiRQ(Calendar.getInstance().getTime());
+				}
+				//检查功能action类中 是否实现了before方法
+				if(beforeAction!=null){
+					JSONMessageResult beforeActionResult = beforeAction.invoke(yh, gncz, entityI,null);
+					if(!beforeActionResult.isSuccess()){
+						return new JSONDataResult(beforeActionResult.getErrorMsg());
+					}
+				}
+				
+				if(onAction!=null){
+					//执行自定义代码
+					JSONMessageResult onActionResult = onAction.invoke(yh, gncz, entityI,null);
+					if(!onActionResult.isSuccess()){
+						return new JSONDataResult(onActionResult.getErrorMsg());
+					}
+				}else if("delete".equals(caoZuoDH) && gncz.getGongNeng().getShiTiLei().getShiFouYWB()){
+					//业务表 标记为删除
+					BusinessI busiI = (BusinessI)entityI;
+					busiI.setRelaShanChuZT(true);
+					busiI.setProcessInstanceId(null);
+					busiI.setProcessInstanceEnded(false);
+					busiI.setProcessInstanceTerminated(false);
+					sess.update(busiI);
+				}else if("delete".equals(caoZuoDH) && !gncz.getGongNeng().getShiTiLei().getShiFouYWB()){
+					//非业务表 删除数据
+					sess.delete(entityI);
+				}
+				
+				if(afterAction!=null){
+					JSONMessageResult afterActionResult = afterAction.invoke(yh, gncz, entityI,null);
+					if(!afterActionResult.isSuccess()){
+						return new JSONDataResult(afterActionResult.getErrorMsg());
+					}
+				}
 			}
-			
+			//是否成功完成 且为流程功能 
+			if(gncz.getGongNeng().getShiFouLCGN()==true){
+				//数据库先提交 重新取得数据库连接
+				HibernateSessionFactory.closeSession(true);
+				sess = HibernateSessionFactory.getSession();
+				//流程(这样批量执行的 不会是启动流程)
+				for(int i=0;i<dataArray.size();i++){
+					NimJSONObject dataObj = dataArray.getJSONObject(i);
+					Integer id = dataObj.getInt(gncz.getGongNeng().getShiTiLei().getZhuJianLie());
+					if("delete".equals(caoZuoDH)){
+						//需要删除流程实例
+						TaskUtils.removeProcessInstance(gncz.getGongNeng(), id, true);
+					}else{
+						//需要执行流程任务
+						BusinessI busiObj = (BusinessI)DataUtils.getObjectByGNCZ(gncz,id,yongHuDM);
+						TaskUtils.completeTask(busiObj,null, gncz, yh,false);
+					}
+				}
+			}
+			ret = new JSONDataResult(dataArray,dataArray.size(),0,0,null);
+		
 		}catch (InvocationTargetException e){
 			ret = new JSONDataResult(e.getTargetException().getMessage());
 			e.printStackTrace();
@@ -1049,15 +1119,102 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 			if(gncz==null){
 				return new JSONDataResult("功能操作（"+gongNengDH+"."+caoZuoDH+"）不存在！");
 			}
-			//保存数据
+			
+			//取得事件对象
+			PrepareAction prepareAction = null;
+			BeforeAction beforeAction = null;
+			OnAction onAction = null;
+			AfterAction afterAction = null;
+			
+			if(gncz.getPrepareAction()!=null){
+				try {
+					prepareAction = (PrepareAction)Class.forName(gncz.getPrepareAction()).newInstance();
+				} catch (ClassNotFoundException e) {
+					return new JSONDataResult("功能操作("+gongNengDH+"."+caoZuoDH+")的prepare事件处理类("+gncz.getPrepareAction()+")不存在！");
+				}
+			}
+			if(gncz.getBeforeAction()!=null){
+				try {
+					beforeAction = (BeforeAction)Class.forName(gncz.getBeforeAction()).newInstance();
+				} catch (ClassNotFoundException e) {
+					return new JSONDataResult("功能操作("+gongNengDH+"."+caoZuoDH+")的before事件处理类("+gncz.getBeforeAction()+")不存在！");
+				}
+			}
+			if(gncz.getOnAction()!=null){
+				try {
+					onAction = (OnAction)Class.forName(gncz.getOnAction()).newInstance();
+				} catch (ClassNotFoundException e) {
+					return new JSONDataResult("功能操作("+gongNengDH+"."+caoZuoDH+")的on事件处理类("+gncz.getOnAction()+")不存在！");
+				}
+			
+			}
+			if(gncz.getAfterAction()!=null){
+				try {
+					afterAction = (AfterAction)Class.forName(gncz.getAfterAction()).newInstance();
+				} catch (ClassNotFoundException e) {
+					return new JSONDataResult("功能操作("+gongNengDH+"."+caoZuoDH+")的after事件处理类("+gncz.getAfterAction()+")不存在！");
+				}
+			}
+			
+			//记录json对象和entity对象之间的关联
+			Map<JSONObject,EntityI> linkMap = new HashMap<JSONObject,EntityI>();
+			//记录json对象和old entity对象之间的关联
+			Map<JSONObject,EntityI> oldObjectMap = new HashMap<JSONObject,EntityI>();
+			//用户信息
 			Integer yhdm = this.getYongHuDM(wsContext,false);
+			YongHu yh = null;
+			if(yhdm != null ){
+				yh = (YongHu)sess.load(YongHu.class, yhdm);
+			}
+			
 			ShiTiLei stl = gncz.getGongNeng().getShiTiLei();
 			JSONObject submitDataObj = JSONObject.fromObject(submitData);
 			//当前处理的对象
 			List<EntityI> objs = new ArrayList<EntityI>();
-			List<EntityI> oldObjs = new ArrayList<EntityI>();
 			
-			JSONArray dataArray = new JSONArray();
+			//删除提交来的数据
+			if(submitDataObj.containsKey("deleted")){
+				JSONArray deletedDataArray = submitDataObj.getJSONArray("deleted");
+				for(int i=0;i<deletedDataArray.size();i++){
+					Integer deletedPkValue = deletedDataArray.getJSONObject(i).getInt(gncz.getGongNeng().getShiTiLei().getZhuJianLie());
+					EntityI entityI = (EntityI)DataUtils.getObjectByGNCZ(gncz, deletedPkValue, yhdm);
+					
+					//检查功能action类中 是否实现了before方法
+					if(beforeAction!=null){
+						JSONMessageResult beforeActionResult = beforeAction.invoke(yh, gncz, entityI,null);
+						if(!beforeActionResult.isSuccess()){
+							return new JSONDataResult(beforeActionResult.getErrorMsg());
+						}
+					}
+					//调用原始操作对应的方法取得初始对象
+					if(onAction!=null){
+						//执行自定义代码
+						JSONMessageResult onActionResult = onAction.invoke(yh, gncz, entityI,null);
+						if(!onActionResult.isSuccess()){
+							return new JSONDataResult(onActionResult.getErrorMsg());
+						}
+					}else if(gncz.getGongNeng().getShiTiLei().getShiFouYWB()){
+						//业务表 标记为删除
+						BusinessI busiI = (BusinessI)entityI;
+						busiI.setRelaShanChuZT(true);
+						busiI.setProcessInstanceId(null);
+						busiI.setProcessInstanceEnded(false);
+						busiI.setProcessInstanceTerminated(false);
+						sess.update(busiI);
+					}else {
+						//非业务表 删除数据
+						sess.delete(entityI);
+					}
+					
+					if(afterAction!=null){
+						JSONMessageResult afterActionResult = afterAction.invoke(yh, gncz, entityI,null);
+						if(!afterActionResult.isSuccess()){
+							return new JSONDataResult(afterActionResult.getErrorMsg());
+						}
+					}
+				}
+			}
+			//新增的数据
 			if(submitDataObj.containsKey("inserted")){
 				JSONArray insertedDataArray = submitDataObj.getJSONArray("inserted");
 				for(int i=0;i<insertedDataArray.size();i++){
@@ -1072,15 +1229,62 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 						return new JSONDataResult("保存失败:当前用户无此功能操作("+gncz.getGongNeng().getGongNengMC()+"."+gncz.getCaoZuoMC()+")的授权!");
 					}
 					//当前用户是否有权限 新增对象
-					EntityI obj = (EntityI)DataUtils.newObjectBySTL(stl);
-					objs.add(obj);
-					oldObjs.add(obj.clone());
+					EntityI entityI = (EntityI)DataUtils.getObjectByGNCZ(gncz, null, yhdm);
+					objs.add(entityI);
+					oldObjectMap.put(dataObj,(EntityI)entityI.clone());
 					
-					dataObj.put("_entity", obj);
-					dataArray.add(dataObj);
+					dataObj.put("_entity", entityI);
+					//保存数据
+					if(prepareAction!=null){
+						JSONMessageResult prepareActionResult = prepareAction.invoke(yh, gncz, entityI, dataObj);
+						if(!prepareActionResult.isSuccess()){
+							return new JSONDataResult(prepareActionResult.getErrorMsg());
+						}
+					}
+					//尝试将客户端传递来的变化 应用到对象
+					JSONConvertUtils.JSON2Entity(stl, entityI, dataObj,linkMap);
+					//为业务对象的业务字段赋值
+					if(entityI instanceof BusinessI){
+						BusinessI p = (BusinessI)entityI;
+						if(p.pkValue() == null){
+							//新增对象  保存的时候 为没有初值的业务字段赋值
+							if(p.getSuoYouZhe()==null && yh!=null) p.setSuoYouZhe(yh);
+							if(p.getSuoShuBM()==null && yh!=null) p.setSuoShuBM(yh.getBuMen());
+							if(p.getLuRuRen()==null && yh!=null){ p.setLuRuRen(yh.getYongHuMC()); }else {p.setLuRuRen("匿名");}
+							if(p.getLuRuRQ()==null) p.setLuRuRQ(Calendar.getInstance().getTime());
+						}else{
+							//编辑对象
+							if(p.getLuRuRen()==null && yh!=null){ p.setXiuGaiRen(yh.getYongHuMC()); }else {p.setXiuGaiRen("匿名");}
+							p.setXiuGaiRQ(Calendar.getInstance().getTime());
+						}
+					}
+					if(beforeAction!=null){
+						JSONMessageResult beforeActionResult = beforeAction.invoke(yh, gncz, entityI, dataObj);
+						if(!beforeActionResult.isSuccess()){
+							return new JSONDataResult(beforeActionResult.getErrorMsg());
+						}
+					}
+					
+					//功能action类中 是否实现了onXXX方法
+					if(onAction!=null){
+						JSONMessageResult onActionResult = onAction.invoke(yh, gncz, entityI, dataObj);
+						if(!onActionResult.isSuccess()){
+							return new JSONDataResult(onActionResult.getErrorMsg());
+						}
+					}else{
+						//保存新增和修改的数据
+						sess.save(entityI);
+					}
+					
+					if(afterAction!=null){
+						JSONMessageResult afterActionResult = afterAction.invoke(yh, gncz, entityI, dataObj);
+						if(!afterActionResult.isSuccess()){
+							return new JSONDataResult(afterActionResult.getErrorMsg());
+						}
+					}
 				}
 			}
-			
+			//修改的数据
 			if(submitDataObj.containsKey("modified")){
 				JSONArray modifiedDataArray = submitDataObj.getJSONArray("modified");
 				for(int i=0;i<modifiedDataArray.size();i++){
@@ -1099,42 +1303,100 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 						return new JSONDataResult("保存失败:记录"+objId+"不存在或用户对此记录没有“"+gncz.getCaoZuoMC()+"”权限！");
 					}
 					//调用原始操作对应的方法取得初始对象
-					EntityI obj = (EntityI)DataUtils.getObjectByGNCZ(gncz, objId, yhdm);
-					objs.add(obj);
-					oldObjs.add(obj.clone());
+					EntityI entityI = (EntityI)DataUtils.getObjectByGNCZ(gncz, objId, yhdm);
+					objs.add(entityI);
+					oldObjectMap.put(dataObj,(EntityI)entityI.clone());
 					
-					dataArray.add(dataObj);
+					//尝试将客户端传递来的变化 应用到对象
+					JSONConvertUtils.JSON2Entity(stl, entityI, dataObj,linkMap);
+					//为业务对象的业务字段赋值
+					if(entityI instanceof BusinessI){
+						BusinessI p = (BusinessI)entityI;
+						if(p.pkValue() == null){
+							//新增对象  保存的时候 为没有初值的业务字段赋值
+							if(p.getSuoYouZhe()==null && yh!=null) p.setSuoYouZhe(yh);
+							if(p.getSuoShuBM()==null && yh!=null) p.setSuoShuBM(yh.getBuMen());
+							if(p.getLuRuRen()==null && yh!=null){ p.setLuRuRen(yh.getYongHuMC()); }else {p.setLuRuRen("匿名");}
+							if(p.getLuRuRQ()==null) p.setLuRuRQ(Calendar.getInstance().getTime());
+						}else{
+							//编辑对象
+							if(p.getLuRuRen()==null && yh!=null){ p.setXiuGaiRen(yh.getYongHuMC()); }else {p.setXiuGaiRen("匿名");}
+							p.setXiuGaiRQ(Calendar.getInstance().getTime());
+						}
+					}
+					if(beforeAction!=null){
+						JSONMessageResult beforeActionResult = beforeAction.invoke(yh, gncz, entityI, dataObj);
+						if(!beforeActionResult.isSuccess()){
+							return new JSONDataResult(beforeActionResult.getErrorMsg());
+						}
+					}
+					
+					//功能action类中 是否实现了onXXX方法
+					if(onAction!=null){
+						JSONMessageResult onActionResult = onAction.invoke(yh, gncz, entityI, dataObj);
+						if(!onActionResult.isSuccess()){
+							return new JSONDataResult(onActionResult.getErrorMsg());
+						}
+					}else{
+						//保存新增和修改的数据
+						sess.saveOrUpdate(entityI);
+					}
+					
+					if(afterAction!=null){
+						JSONMessageResult afterActionResult = afterAction.invoke(yh, gncz, entityI, dataObj);
+						if(!afterActionResult.isSuccess()){
+							return new JSONDataResult(afterActionResult.getErrorMsg());
+						}
+					}
 				}
 			}
-
-			ObjectResult saveResult = saveData(gncz, objs, dataArray, submitDataObj, sess, yhdm);
-			if(!saveResult.isSuccess()){
-				HibernateSessionFactory.closeSession(false);
-				return new JSONDataResult(saveResult.getErrorMsg());
-			}
 			
+			//先提交保存结果 然后重新取得连接
 			HibernateSessionFactory.closeSession(true);
-			sess = null;
+			sess = HibernateSessionFactory.getSession();
 			
 			//提交工作流
-			if(gncz.getGongNeng().getShiFouLCGN().booleanValue()==true){
-				JSONDataResult taskResult = completeTask(gncz, objs, oldObjs, iscomplete, yhdm);
-				if(!taskResult.isSuccess() || taskResult.getTotalCount() == 0){
-					return new JSONDataResult("数据保存成功，工作流执行失败："+taskResult.getErrorMsg());
-				}else if(taskResult.getTotalCount() < objs.size()){
-					return new JSONDataResult("数据保存成功，部分工作流执行失败：成功"+taskResult.getTotalCount()+"条/共"+objs.size()+"条");
+			if(gncz.getGongNeng().getShiFouLCGN()){
+				//删除流程
+				if(submitDataObj.containsKey("deleted")){
+					JSONArray deletedDataArray = submitDataObj.getJSONArray("deleted");
+					for(int i=0;i<deletedDataArray.size();i++){
+						Integer deletedPkValue = deletedDataArray.getJSONObject(i).getInt(gncz.getGongNeng().getShiTiLei().getZhuJianLie());
+						//需要删除流程实例 和相关的流程检视
+						TaskUtils.removeProcessInstance(gncz.getGongNeng(), deletedPkValue, true);
+					}
+				}
+				//启动流程
+				if(submitDataObj.containsKey("inserted")){
+					JSONArray insertedDataArray = submitDataObj.getJSONArray("inserted");
+					for(int i=0;i<insertedDataArray.size();i++){
+						JSONObject jsonObj = insertedDataArray.getJSONObject(i);
+						BusinessI newObj = (BusinessI)linkMap.get(jsonObj);
+						BusinessI oldObj = (BusinessI)linkMap.get(jsonObj);
+						TaskUtils.completeTask(newObj,oldObj, gncz, yh,iscomplete);
+					}
+				}
+				//提交任务
+				if(submitDataObj.containsKey("modified")){
+					JSONArray modifiedDataArray = submitDataObj.getJSONArray("modified");
+					for(int i=0;i<modifiedDataArray.size();i++){
+						JSONObject jsonObj = modifiedDataArray.getJSONObject(i);
+						BusinessI newObj = (BusinessI)linkMap.get(jsonObj);
+						BusinessI oldObj = (BusinessI)linkMap.get(jsonObj);
+						TaskUtils.completeTask(newObj,oldObj, gncz, yh,iscomplete);
+					}
 				}
 			}
-			//返回值
-			JSONArray rows = new JSONArray();
 			
-			Map<JSONObject,EntityI> linkMap = (Map<JSONObject,EntityI>)saveResult.get("linkMap");
+			//返回值
+			NimJSONArray rows = new NimJSONArray();
+			
 			Iterator<JSONObject> linkKeys = linkMap.keySet().iterator();
 			while(linkKeys.hasNext()){
 				JSONObject keyObj = linkKeys.next();
 				EntityI val = linkMap.get(keyObj);
 				
-				JSONObject row = new JSONObject();
+				NimJSONObject row = new NimJSONObject();
 				row.put(val.pkName(), val.pkValue());
 				row.put("_record_id", keyObj.get("_record_id"));
 				rows.add(row);
@@ -1162,161 +1424,57 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 	}
 	
 	
-	//保存实体类数据 并记录保存对象的主键值（仅新增和修改的对象主键值）
-	private ObjectResult saveData(GongNengCZ gncz,List<EntityI> objs,JSONArray saveDataArray,JSONObject submitDataObj,Session sess,Integer yhdm) throws Exception{
-			ShiTiLei stl = gncz.getGongNeng().getShiTiLei();
-			
-			//是否存在功能Action类
-			//执行openGNDH 和execCZDH 指定的功能类和方法
-			Class<?> gnActionClass = null;
-			Object gnActionInstance = null;
-			try{
-				gnActionClass = Class.forName(gncz.getGongNeng().getGongNengClass());
-				gnActionInstance = gnActionClass.newInstance();
-			} catch (Exception e) {
-			}
-			String firstUpCZDH = gncz.getCaoZuoDH().replaceFirst(gncz.getCaoZuoDH().substring(0, 1),gncz.getCaoZuoDH().substring(0, 1).toUpperCase());
-			//功能action类中 是否实现了prepareSave方法
-			Method prepareSaveMethod = DataUtils.getPrepareMethod(gnActionClass,"prepare"+firstUpCZDH);
-			if(prepareSaveMethod!=null){
-				MethodResult prepareRet = (MethodResult)prepareSaveMethod.invoke(gnActionInstance, new Object[]{
-					gncz.getGongNeng().getGongNengDH(),gncz.getCaoZuoDH(),objs,submitDataObj,yhdm
-				});
-				if(!prepareRet.isSuccess()){
-					return new ObjectResult(prepareRet.getErrorMsg());
-				}
-			}
-			//尝试将客户端传递来的变化 应用到对象
-			Map<JSONObject,EntityI> linkMap = new HashMap<JSONObject,EntityI>();
-			for(int i=0;i<objs.size();i++){
-				EntityI obj = objs.get(i);
-				JSONConvertUtils.JSONObject2object(stl, obj, saveDataArray.getJSONObject(i),linkMap);
-			}
-			
-			//功能action类中 是否实现了beforeSave方法
-			Method beforeSaveMethod = DataUtils.getBeforeMethod(gnActionClass,"before"+firstUpCZDH);
-			if(beforeSaveMethod!=null){
-				MethodResult beforeRet = (MethodResult)beforeSaveMethod.invoke(gnActionInstance, new Object[]{
-						gncz.getGongNeng().getGongNengDH(),gncz.getCaoZuoDH(),objs,submitDataObj,yhdm
-				});
-				if(!beforeRet.isSuccess()){
-					return new ObjectResult(beforeRet.getErrorMsg());
-				}
-			}
-			
-			YongHu yh = null;
-			if(yhdm != null ){
-				yh = (YongHu)sess.load(YongHu.class, yhdm);
-			}
-			//记录必要的业务信息
-			for(EntityI entityI:objs){
-				if(entityI instanceof BusinessI){
-					//为业务对象的业务字段赋值
-					BusinessI p = (BusinessI)entityI;
-					if(p.pkValue() == null){
-						//新增对象  保存的时候 为没有初值的业务字段赋值
-						if(p.getSuoYouZhe()==null && yh!=null) p.setSuoYouZhe(yh);
-						if(p.getSuoShuBM()==null && yh!=null) p.setSuoShuBM(yh.getBuMen());
-						if(p.getLuRuRen()==null && yh!=null){ p.setLuRuRen(yh.getYongHuMC()); }else {p.setLuRuRen("匿名");}
-						if(p.getLuRuRQ()==null) p.setLuRuRQ(Calendar.getInstance().getTime());
-					}else{
-						//编辑对象
-						if(p.getLuRuRen()==null && yh!=null){ p.setXiuGaiRen(yh.getYongHuMC()); }else {p.setXiuGaiRen("匿名");}
-						p.setXiuGaiRQ(Calendar.getInstance().getTime());
-					}
-				}
-			}
-			
-			//功能action类中 是否实现了onXXX方法
-			Method onSaveMethod = DataUtils.getOnMethod(gnActionClass,"on"+firstUpCZDH);
-			if(onSaveMethod!=null){
-				MethodResult onRet = (MethodResult)onSaveMethod.invoke(gnActionInstance, new Object[]{
-					gncz.getGongNeng().getGongNengDH(),gncz.getCaoZuoDH(),objs,submitDataObj,yhdm
-				});
-				if(!onRet.isSuccess()){
-					return new ObjectResult(onRet.getErrorMsg());
-				}
-			}else{
-				//保存新增和修改的数据
-				for(EntityI entityI:objs){
-					sess.saveOrUpdate(entityI);
-				}
-				//删除提交来的数据
-				if(submitDataObj.containsKey("deleted")){
-					JSONArray deletedDataArray = submitDataObj.getJSONArray("deleted");
-					for(int i=0;i<deletedDataArray.size();i++){
-						Integer deletedPkValue = deletedDataArray.getJSONObject(i).getInt(gncz.getGongNeng().getShiTiLei().getZhuJianLie());
-						//调用原始操作对应的方法取得初始对象
-						EntityI deletedObj = (EntityI)DataUtils.getObjectByGNCZ(gncz,deletedPkValue,yhdm);
-						sess.delete(deletedObj);
-					}
-				}
-			}
-			//功能action类中 是否实现了afterSave方法
-			Method afterSaveMethod = DataUtils.getAfterMethod(gnActionClass,"after"+firstUpCZDH);
-			if(afterSaveMethod!=null){
-				MethodResult afterRet = (MethodResult)afterSaveMethod.invoke(gnActionInstance, new Object[]{
-						gncz.getGongNeng().getGongNengDH(),gncz.getCaoZuoDH(),objs,submitDataObj,yhdm
-				});
-				if(!afterRet.isSuccess()){
-					return new ObjectResult(afterRet.getErrorMsg());
-				}
-			}
-			//全部处理成功 
-			return new ObjectResult("linkMap",linkMap);
-	}
 	
-	
-	private JSONDataResult completeTask(GongNengCZ gncz,List<EntityI> objs,List<EntityI> oldObjs,boolean isComplete, Integer yhdm){
-		JSONDataResult taskRet = null;
-		try {
-			JSONArray taskRows = new JSONArray();
-
-			Session sess = HibernateSessionFactory.getSession();
-			YongHu yh = (YongHu)sess.load(YongHu.class,yhdm);
-			
-			for(int jj=0;jj<objs.size();jj++){
-				BusinessI newBusiObj = (BusinessI)objs.get(jj);
-				sess.refresh(newBusiObj);
-				JSONObject taskRow = new JSONObject();
-				taskRow.put(gncz.getGongNeng().getShiTiLei().getZhuJianLie(), newBusiObj.pkValue());
-				//
-				try {
-					if(newBusiObj.getProcessInstanceId()==null){
-						TaskUtils.startProcessInstance(newBusiObj,(BusinessI)oldObjs.get(jj), null, gncz, yh, isComplete);
-					}else if(isComplete){
-						TaskUtils.completeTask(newBusiObj,(BusinessI)oldObjs.get(jj), gncz, yh,true);
-					}else{
-						TaskUtils.claimTask(newBusiObj,(BusinessI)oldObjs.get(jj), gncz, yh);
-					}
-					//每个流程提交一次
-					HibernateSessionFactory.closeSession(true);
-					sess = null;
-					taskRow.put("success", true);
-				} catch (Exception e) {
-					if(sess!=null){
-						HibernateSessionFactory.closeSession(false);
-						sess = null;
-					}
-					taskRow.put("success", false);
-					taskRow.put("errorInfo", e.getMessage());
-					e.printStackTrace();
-				}finally{
-					if(sess!=null){
-						HibernateSessionFactory.closeSession(true);
-						sess = null;
-					}
-				}
-				taskRows.add(taskRow);
-				sess = HibernateSessionFactory.getSession();
-			}
-			taskRet = new JSONDataResult(taskRows,taskRows.size(),0,0,null);
-		} catch (HibernateException e) {
-			taskRet = new JSONDataResult(e.getMessage());
-			e.printStackTrace();
-		}
-		return taskRet;
-	}
+//	private JSONDataResult completeTask(GongNengCZ gncz,List<EntityI> objs,List<EntityI> oldObjs,boolean isComplete, Integer yhdm){
+//		JSONDataResult taskRet = null;
+//		try {
+//			JSONArray taskRows = new JSONArray();
+//
+//			Session sess = HibernateSessionFactory.getSession();
+//			YongHu yh = (YongHu)sess.load(YongHu.class,yhdm);
+//			
+//			for(int jj=0;jj<objs.size();jj++){
+//				BusinessI newBusiObj = (BusinessI)objs.get(jj);
+//				sess.refresh(newBusiObj);
+//				JSONObject taskRow = new JSONObject();
+//				taskRow.put(gncz.getGongNeng().getShiTiLei().getZhuJianLie(), newBusiObj.pkValue());
+//				//
+//				try {
+//					if(newBusiObj.getProcessInstanceId()==null){
+//						TaskUtils.startProcessInstance(newBusiObj,(BusinessI)oldObjs.get(jj), null, gncz, yh, isComplete);
+//					}else if(isComplete){
+//						TaskUtils.completeTask(newBusiObj,(BusinessI)oldObjs.get(jj), gncz, yh,true);
+//					}else{
+//						TaskUtils.claimTask(newBusiObj,(BusinessI)oldObjs.get(jj), gncz, yh);
+//					}
+//					//每个流程提交一次
+//					HibernateSessionFactory.closeSession(true);
+//					sess = null;
+//					taskRow.put("success", true);
+//				} catch (Exception e) {
+//					if(sess!=null){
+//						HibernateSessionFactory.closeSession(false);
+//						sess = null;
+//					}
+//					taskRow.put("success", false);
+//					taskRow.put("errorInfo", e.getMessage());
+//					e.printStackTrace();
+//				}finally{
+//					if(sess!=null){
+//						HibernateSessionFactory.closeSession(true);
+//						sess = null;
+//					}
+//				}
+//				taskRows.add(taskRow);
+//				sess = HibernateSessionFactory.getSession();
+//			}
+//			taskRet = new JSONDataResult(taskRows,taskRows.size(),0,0,null);
+//		} catch (HibernateException e) {
+//			taskRet = new JSONDataResult(e.getMessage());
+//			e.printStackTrace();
+//		}
+//		return taskRet;
+//	}
 	
 
 

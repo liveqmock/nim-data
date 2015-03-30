@@ -84,4 +84,6 @@ public interface BusinessI extends EntityI{
 	
 	//返回一个待办流程节点 （同时有多个待办task 取最早一个）
 	public LiuChengJS getTodoTask(String gndh);
+	
+	public void setRelaShanChuZT(boolean sczt);
 }

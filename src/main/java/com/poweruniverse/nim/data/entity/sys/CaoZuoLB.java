@@ -26,14 +26,9 @@ public class CaoZuoLB  extends BaseCaoZuoLB {
 	protected void initialize () {}
 	
 	public static int Json = 1;
-	public static int Form = 2;
+	public static int Page = 2;
 	public static int Status = 3;
-	public static int UserDefine = 5;
+	public static int Upload = 5;
 	public static int Export = 6;
-	public static int Report = 7;
-	
-	public static int ProcessFormView = 10;
-	public static int FormView = 11;
-	
 
 }

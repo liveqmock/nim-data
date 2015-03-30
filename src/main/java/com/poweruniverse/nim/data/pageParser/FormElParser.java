@@ -9,6 +9,7 @@ import net.sf.json.JSONObject;
 import org.dom4j.Element;
 
 import com.poweruniverse.nim.base.utils.FreemarkerUtils;
+import com.poweruniverse.nim.base.utils.NimJSONArray;
 import com.poweruniverse.nim.data.entity.sys.ShiTiLei;
 import com.poweruniverse.nim.data.service.utils.DataUtils;
 import com.poweruniverse.nim.data.service.utils.JSONConvertUtils;
@@ -532,7 +533,7 @@ public class FormElParser {
 			List<?> objs = (List<?>)result.get("objs");
 			int totalCount = (Integer)result.get("totalCount");
 
-			JSONArray jsonData = JSONConvertUtils.objectList2JSONArray(dataStl,objs,fieldJsonArray);
+			NimJSONArray jsonData = JSONConvertUtils.Entities2JSONArray(dataStl,objs,fieldJsonArray);
 			
 			dataScriptContent += varName+"_init_data = {\n" +
 					"start:0,\n"+

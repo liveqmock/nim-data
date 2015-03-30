@@ -19,6 +19,8 @@ import org.apache.commons.beanutils.PropertyUtils;
 import org.dom4j.Element;
 import org.dom4j.tree.DefaultAttribute;
 
+import com.poweruniverse.nim.base.utils.NimJSONArray;
+import com.poweruniverse.nim.base.utils.NimJSONObject;
 import com.poweruniverse.nim.data.entity.sys.ShiTiLei;
 import com.poweruniverse.nim.data.entity.sys.ZiDuan;
 import com.poweruniverse.nim.data.entity.sys.ZiDuanLX;
@@ -34,14 +36,14 @@ public class JSONConvertUtils {
 	private static SimpleDateFormat sbf = new SimpleDateFormat("MM-dd");
 
 	
-	public static JSONArray objectList2JSONArray(ShiTiLei stl,Collection<?> objs,JSONArray fields) throws Exception{
+	public static NimJSONArray Entities2JSONArray(ShiTiLei stl,Collection<?> objs,JSONArray fields) throws Exception{
 		//
-		JSONArray rows = new JSONArray();
+		NimJSONArray rows = new NimJSONArray();
 		//
 		if(objs!=null && objs.size()>0){
 			Iterator<?> objIts = objs.iterator();
 			while(objIts.hasNext()){
-				JSONObject row = object2JSONObject(stl, objIts.next(),fields);
+				NimJSONObject row = Entity2JSONObject(stl, objIts.next(),fields);
 				//如果需要功能操作权限信息
 				rows.add(row);
 			}
@@ -49,13 +51,13 @@ public class JSONConvertUtils {
 		return rows;
 	}
 	
-	public static JSONObject object2JSONObject(ShiTiLei stl,Object obj, JSONArray fields){
+	public static NimJSONObject Entity2JSONObject(ShiTiLei stl,Object obj, JSONArray fields){
 		//
 		//
 		Object value = null;
 		String fieldName = null;
 		JSONObject field = null;
-		JSONObject row = new JSONObject();
+		NimJSONObject row = new NimJSONObject();
 		//主键字段必须加入
 		try{
 			value = PropertyUtils.getProperty(obj,stl.getZhuJianLie());
@@ -99,22 +101,25 @@ public class JSONConvertUtils {
 					}
 					
 					if(ZiDuanLX.isObjectType(ziDuanlx.getZiDuanLXDH())){
-						value = object2JSONObject(glstl,value,subFields);
+						value = Entity2JSONObject(glstl,value,subFields);
 					}else if(ZiDuanLX.isSetType(ziDuanlx.getZiDuanLXDH())){
-						JSONArray data = new JSONArray();
+						NimJSONArray data = new NimJSONArray();
 						Iterator<?> objIts = ((Set<?>)value).iterator();
 						while(objIts.hasNext()){
-							data.add(object2JSONObject(glstl,objIts.next(),subFields));
+							data.add(Entity2JSONObject(glstl,objIts.next(),subFields));
 						}
 						value = data;
 					}else if(ziDuanlx.getZiDuanLXDM().intValue() == ZiDuanLX.ZiDuanLX_DATE){
 						value = dtf.format(value);
+//					}else if("null".equals(value)){
+//						//NimJSON toString 的时候 会替换为"null"
+//						value = "'null'";
 					}
 				}
 				//检查field是否nested (aa.bb.cc)
 				if(fieldName.indexOf("\\.")>0){
 					List<String> paths = new ArrayList<String>(Arrays.asList(fieldName.split("\\.")));
-					JSONObject tmpRow = row;
+					NimJSONObject tmpRow = row;
 					for(int ii=0;ii<paths.size()-1;ii++){
 						if(tmpRow.get(paths.get(ii))==null){
 							tmpRow.put(paths.get(ii), new JSONObject());
@@ -174,7 +179,7 @@ public class JSONConvertUtils {
 	}
 
 	//将客户端修改的值 应用到原始数据对象中 同时 记录
-	public static EntityI JSONObject2object(ShiTiLei stl,EntityI obj,JSONObject dataObj,Map<JSONObject,EntityI> linkMap) throws Exception{
+	public static EntityI JSON2Entity(ShiTiLei stl,EntityI obj,JSONObject dataObj,Map<JSONObject,EntityI> linkMap) throws Exception{
 		if(dataObj==null) return obj;
 		//在
 		linkMap.put(dataObj, obj);
@@ -196,8 +201,11 @@ public class JSONConvertUtils {
 					}
 					//
 					Object propertyValue = dataObj.get(propertyName);
+					if(propertyValue instanceof JSONNull){
+						propertyValue = null;
+					}
 					if(ZiDuanLX.isObjectType(zdlx.getZiDuanLXDH())){
-						if(propertyValue!=null && !(propertyValue instanceof JSONNull)){
+						if(propertyValue!=null ){
 							ShiTiLei substl = zd.getGuanLianSTL();
 							Object value = Class.forName(substl.getShiTiLeiClassName()).newInstance();
 							
@@ -245,7 +253,7 @@ public class JSONConvertUtils {
 									JSONObject subObjData = modified.getJSONObject(i);
 									Object subPrimaryValue = subObjData.get(substl.getZhuJianLie());
 									subObj = getMethod.invoke(obj, new Object[]{subPrimaryValue});
-									subObj = JSONObject2object(substl,(EntityI)subObj,subObjData,linkMap);
+									subObj = JSON2Entity(substl,(EntityI)subObj,subObjData,linkMap);
 								}
 							}
 							@SuppressWarnings("unchecked")
@@ -263,7 +271,7 @@ public class JSONConvertUtils {
 										PropertyUtils.setProperty(subObj,zd.getGuanLianFLZD().getZiDuanDH(),obj);
 									}
 									//填充子对象的内容
-									subObj = JSONObject2object(substl,(EntityI)subObj,subObjData,linkMap);
+									subObj = JSON2Entity(substl,(EntityI)subObj,subObjData,linkMap);
 									appendMethod.invoke(obj, new Object[]{obj,subObj});
 								}
 							}
@@ -292,7 +300,7 @@ public class JSONConvertUtils {
 										PropertyUtils.setProperty(subObj,zd.getGuanLianFLZD().getZiDuanDH(),obj);
 									}
 									//填充子对象的内容
-									subObj = JSONObject2object(substl,(EntityI)subObj,inserted.getJSONObject(i),linkMap);
+									subObj = JSON2Entity(substl,(EntityI)subObj,inserted.getJSONObject(i),linkMap);
 									appendMethod.invoke(obj, new Object[]{obj,subObj});
 								}
 							}

@@ -20,7 +20,7 @@ import org.hibernate.criterion.Restrictions;
 
 import com.poweruniverse.nim.base.bean.UserInfo;
 import com.poweruniverse.nim.base.message.JSONMessageResult;
-import com.poweruniverse.nim.base.webservice.BasePlateformWebservice;
+import com.poweruniverse.nim.baseClass.BasePlateformWebservice;
 import com.poweruniverse.nim.data.entity.sys.GongNeng;
 import com.poweruniverse.nim.data.entity.sys.GongNengCZ;
 import com.poweruniverse.nim.data.entity.sys.LiuChengJS;

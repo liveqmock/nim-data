@@ -24,7 +24,6 @@ import javax.tools.StandardJavaFileManager;
 import javax.tools.ToolProvider;
 
 import net.sf.json.JSONArray;
-import net.sf.json.JSONNull;
 import net.sf.json.JSONObject;
 
 import org.apache.commons.beanutils.PropertyUtils;
@@ -42,6 +41,7 @@ import org.hibernate.Session;
 import org.hibernate.criterion.Restrictions;
 
 import com.poweruniverse.nim.base.description.Application;
+import com.poweruniverse.nim.base.utils.NimJSONObject;
 import com.poweruniverse.nim.data.entity.sys.ShiTiLei;
 import com.poweruniverse.nim.data.entity.sys.XiTong;
 import com.poweruniverse.nim.data.entity.sys.ZiDuan;
@@ -381,7 +381,7 @@ public class EntityManager {
 				definePathFile.mkdirs();
 			}
 			//生成目标文件
-			JSONObject jsonData = JSONConvertUtils.object2JSONObject(stl, entityObj, fieldsArray);
+			NimJSONObject jsonData = JSONConvertUtils.Entity2JSONObject(stl, entityObj, fieldsArray);
 			jsonData.put("shiTiLeiBB", versionString);
 			//将文件写入
 			FileUtils.writeStringToFile(defineFile, jsonData.toString());
@@ -661,7 +661,17 @@ public class EntityManager {
 	public static boolean createTable(ShiTiLei obj,String tableName) throws Exception{
 		Session sess = HibernateSessionFactory.getSession();
 		String sql = null;
-
+		//检查是否需要新建数据库表
+		String tableCountSql = "select count(*) from user_tables where table_name = '"+tableName.toUpperCase()+"'";
+		int count = ((Number)sess.createSQLQuery(tableCountSql).uniqueResult()).intValue();
+		
+		System.out.print("正在处理实体类("+obj.getShiTiLeiMC()+")的数据库表结构...");
+		if(count==0){
+			System.out.println("新建 -> "+tableName);
+		}else{
+			System.out.println("更新 -> "+tableName);
+		}
+		//
 		sql = "comment on table "+tableName+" is '"+obj.getShiTiLeiMC()+"'";
 		sess.createSQLQuery(sql).executeUpdate();
 		//取得表中所有已存在的字段名 以及

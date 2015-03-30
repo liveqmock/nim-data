@@ -172,9 +172,9 @@ public class GridElParser {
 		
 		//注册
 		if(isIndependent){
-			gridScriptContent += "LUI.Page.instance.register('grid',"+gridVarName+");\n";
+			gridScriptContent += "LUI.Page.instance.register('"+gridEl.attributeValue("component")+"',"+gridVarName+");\n";
 		}else{
-			gridScriptContent += "LUI.Subpage.getInstance('"+pageName+"').register('grid',"+gridVarName+");\n";
+			gridScriptContent += "LUI.Subpage.getInstance('"+pageName+"').register('"+gridEl.attributeValue("component")+"',"+gridVarName+");\n";
 		}
 
 		JSONObject ret = new JSONObject();

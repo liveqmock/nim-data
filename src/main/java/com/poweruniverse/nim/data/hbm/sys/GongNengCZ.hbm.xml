@@ -2,7 +2,7 @@
 <!DOCTYPE hibernate-mapping PUBLIC 
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- version:2015-03-16 11:29:25 -->
+<!-- version:2015-03-29 03:04:12 -->
 <hibernate-mapping auto-import="false">  
     <class name="com.poweruniverse.nim.data.entity.sys.GongNengCZ" table="SYS_GongNengCZ" >
     	<!--主键-->
@@ -40,6 +40,26 @@
 		<!--功能操作序号-->
         <property name="gongNengCZXH" type="java.lang.Integer" lazy="false">
         	<column name="gongNengCZXH" precision="12" scale="0" not-null="false" />
+        </property>
+		<!--数据保存准备事件-->
+        <property name="prepareAction" type="java.lang.String" lazy="false">
+        	<column name="prepareAction" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--数据保存之前事件-->
+        <property name="beforeAction" type="java.lang.String" lazy="false">
+        	<column name="beforeAction" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--数据保存之后事件-->
+        <property name="afterAction" type="java.lang.String" lazy="false">
+        	<column name="afterAction" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--数据加载事件-->
+        <property name="loadAction" type="java.lang.String" lazy="false">
+        	<column name="loadAction" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--数据保存事件-->
+        <property name="onAction" type="java.lang.String" lazy="false">
+        	<column name="onAction" precision="200" scale="0" not-null="false" />
         </property>
      </class>
 </hibernate-mapping>

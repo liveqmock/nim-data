@@ -2,7 +2,7 @@
 <!DOCTYPE hibernate-mapping PUBLIC 
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- version:2015-03-16 11:30:25 -->
+<!-- version:2015-03-29 21:44:42 -->
 <hibernate-mapping auto-import="false">  
     <class name="com.poweruniverse.nim.data.entity.sys.GongNeng" table="SYS_GongNeng" >
     	<!--主键-->
@@ -18,10 +18,6 @@
 		<!--功能代号-->
         <property name="gongNengDH" type="java.lang.String" lazy="false">
         	<column name="gongNengDH" precision="200" scale="0" not-null="false" />
-        </property>
-		<!--功能实现类-->
-        <property name="gongNengClass" type="java.lang.String" lazy="false">
-        	<column name="gongNengClass" precision="200" scale="0" not-null="false" />
         </property>
 		<!--操作集合-->
         <set name="czs" inverse="true"  lazy="true" cascade="all-delete-orphan" order-by="gongNengCZXH" >
@@ -55,6 +51,14 @@
 		<!--是否流程功能-->
         <property name="shiFouLCGN" type="java.lang.Boolean" lazy="false">
         	<column name="shiFouLCGN" precision="1" scale="0" not-null="false" />
+        </property>
+		<!--流程完成事件-->
+        <property name="processEndAction" type="java.lang.String" lazy="false">
+        	<column name="processEndAction" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--流程开始事件-->
+        <property name="processStartAction" type="java.lang.String" lazy="false">
+        	<column name="processStartAction" precision="200" scale="0" not-null="false" />
         </property>
      </class>
 </hibernate-mapping>

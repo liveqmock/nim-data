@@ -11,6 +11,8 @@ import org.dom4j.Element;
 
 import com.poweruniverse.nim.base.bean.BaseJavaDatasource;
 import com.poweruniverse.nim.base.utils.FreemarkerUtils;
+import com.poweruniverse.nim.base.utils.NimJSONArray;
+import com.poweruniverse.nim.base.utils.NimJSONObject;
 import com.poweruniverse.nim.data.entity.sys.GongNeng;
 import com.poweruniverse.nim.data.entity.sys.ShiTiLei;
 import com.poweruniverse.nim.data.entity.sys.ZiDuan;
@@ -299,7 +301,7 @@ public class DatasourceElParser {
 				List<?> objs = (List<?>)result.get("objs");
 				int totalCount = (Integer)result.get("totalCount");
 
-				JSONArray jsonData = JSONConvertUtils.objectList2JSONArray(dataStl,objs,fieldJsonArray);
+				NimJSONArray jsonData = JSONConvertUtils.Entities2JSONArray(dataStl,objs,fieldJsonArray);
 				dataScriptContent += varName+"_init_data = {\n" +
 						"start:" +start+",\n"+
 						"limit:" +limit+",\n"+
@@ -379,7 +381,7 @@ public class DatasourceElParser {
 					List<EntityI> objs =  (List<EntityI>)listResult.get("objs");
 					Integer totalCount = (Integer)listResult.get("totalCount");
 					
-					JSONArray rows = JSONConvertUtils.objectList2JSONArray(dataGn.getShiTiLei(), objs, fieldJsonArray);
+					NimJSONArray rows = JSONConvertUtils.Entities2JSONArray(dataGn.getShiTiLei(), objs, fieldJsonArray);
 					
 					dataScriptContent += "var "+varName+"_init_data = {\n" +
 							"start:" +start+",\n"+
@@ -539,7 +541,7 @@ public class DatasourceElParser {
 			if("true".equals(autoLoad)){
 				Object obj = DataUtils.getObjectByGNCZ(gongNengDH,caoZuoDH,id,yongHuDM);
 				if(obj!=null){
-					JSONObject jsonData = JSONConvertUtils.object2JSONObject(dataGn.getShiTiLei(),obj,fieldJsonArray);
+					NimJSONObject jsonData = JSONConvertUtils.Entity2JSONObject(dataGn.getShiTiLei(),obj,fieldJsonArray);
 					dataScriptContent += ""+varName+"_init_data = {\n" +
 							"start:0,"+
 							"limit:1,"+
@@ -624,7 +626,7 @@ public class DatasourceElParser {
 			if("true".equals(autoLoad)){
 				Object obj = DataUtils.getObjectBySTL(shiTiLeiDH,id);
 				if(obj!=null){
-					JSONObject jsonData = JSONConvertUtils.object2JSONObject(dataStl,obj,fieldJsonArray);
+					NimJSONObject jsonData = JSONConvertUtils.Entity2JSONObject(dataStl,obj,fieldJsonArray);
 					dataScriptContent += ""+varName+"_init_data = {\n" +
 							"start:0,"+
 							"limit:1,"+

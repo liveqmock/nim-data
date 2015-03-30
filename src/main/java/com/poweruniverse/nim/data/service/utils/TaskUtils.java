@@ -1,11 +1,11 @@
 package com.poweruniverse.nim.data.service.utils;
 
-import java.lang.reflect.Method;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -17,6 +17,7 @@ import org.activiti.engine.ProcessEngine;
 import org.activiti.engine.ProcessEngines;
 import org.activiti.engine.RuntimeService;
 import org.activiti.engine.TaskService;
+import org.activiti.engine.history.HistoricProcessInstance;
 import org.activiti.engine.impl.RepositoryServiceImpl;
 import org.activiti.engine.impl.ServiceImpl;
 import org.activiti.engine.impl.bpmn.behavior.UserTaskActivityBehavior;
@@ -26,6 +27,7 @@ import org.activiti.engine.impl.persistence.entity.TaskEntity;
 import org.activiti.engine.impl.pvm.PvmTransition;
 import org.activiti.engine.impl.pvm.process.ActivityImpl;
 import org.activiti.engine.impl.pvm.process.ProcessDefinitionImpl;
+import org.activiti.engine.repository.ProcessDefinition;
 import org.activiti.engine.runtime.ProcessInstance;
 import org.activiti.engine.task.Task;
 import org.apache.commons.beanutils.PropertyUtils;
@@ -37,8 +39,11 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
 
+import com.poweruniverse.nim.base.message.JSONDataResult;
 import com.poweruniverse.nim.base.message.JSONMessageResult;
 import com.poweruniverse.nim.base.message.Result;
+import com.poweruniverse.nim.data.action.ProcessEndAction;
+import com.poweruniverse.nim.data.action.ProcessStartAction;
 import com.poweruniverse.nim.data.entity.sys.GongNeng;
 import com.poweruniverse.nim.data.entity.sys.GongNengCZ;
 import com.poweruniverse.nim.data.entity.sys.GongNengCZBL;
@@ -87,19 +92,10 @@ public class TaskUtils {
 			
 			Session sess = HibernateSessionFactory.getSession();
 			//取得流程扩展方法 备用
-			Method processInstanceEndedMethod=null;
-			Object gnActionInstance =null;
 			//如果功能定义了action类 取流程开始和流程结束方法备用
-			if(workFlowGNCZ.getGongNeng().getGongNengClass()!=null){
-				try {
-					Class<?> gnActionClass = Class.forName(workFlowGNCZ.getGongNeng().getGongNengClass());
-					gnActionInstance = gnActionClass.newInstance();
-					try {
-						processInstanceEndedMethod= gnActionClass.getMethod("processInstanceEnded",new Class[]{String.class,Integer.class,Integer.class});
-					} catch (Exception e) {
-					}
-				} catch (Exception e) {
-				}
+			ProcessEndAction peAction = null;
+			if(workFlowGNCZ.getGongNeng().getProcessEndAction()!=null){
+				peAction = (ProcessEndAction)Class.forName(workFlowGNCZ.getGongNeng().getProcessEndAction()).newInstance();
 			}
 			
 			//检查当前功能是否流程功能
@@ -120,6 +116,7 @@ public class TaskUtils {
 				logger.error("流程任务被忽略:数据("+workFlowGNCZ.getGongNeng().getGongNengDH()+":"+processObj.pkValue()+":"+processObj.getProcessInstanceStatus()+")没有对应的待办流程检视信息("+
 						workFlowGNCZ.getGongNeng().getGongNengDH()+"."+workFlowGNCZ.getCaoZuoDH()+"),无法执行流程任务！");
 				
+				@SuppressWarnings("unchecked")
 				List<LiuChengJS> currentLCJSs = (List<LiuChengJS>)sess.createCriteria(LiuChengJS.class)
 						.add(Restrictions.eq("gongNengDH",workFlowGNCZ.getGongNeng().getGongNengDH()))
 						.add(Restrictions.eq("gongNengObjId",processObj.pkValue()))
@@ -267,11 +264,10 @@ public class TaskUtils {
 						processObj.setProcessInstanceEnded(true);
 						sess.update(processObj);
 						//流程完成  执行可能存在的完成事件代码
-						if(processInstanceEndedMethod!=null ){
-							Result pRet =  (Result)processInstanceEndedMethod.invoke(gnActionInstance, new Object[]{workFlowGNCZ.getCaoZuoDH(),processObj.pkValue(),yh.getYongHuDM()});
-							if(!pRet.isSuccess()){
-								logger.error("	流程完成事件执行失败："+pRet.getErrorMsg());
-								throw new Exception("流程完成事件执行失败："+pRet.getErrorMsg());
+						if(peAction!=null ){
+							JSONMessageResult peActionResult = peAction.invoke(yh, workFlowGNCZ, processObj);
+							if(!peActionResult.isSuccess()){
+								throw new Exception(peActionResult.getErrorMsg());
 							}
 						}
 					}else {
@@ -315,6 +311,7 @@ public class TaskUtils {
 						//删除流程
 						myProcessEngine.getRuntimeService().deleteProcessInstance(processObj.getProcessInstanceId(), "并发节点之一终止了流程");
 						//查找当前在执行的流程检视
+						@SuppressWarnings("unchecked")
 						List<LiuChengJS> remainLCJSs = (List<LiuChengJS>)sess.createCriteria(LiuChengJS.class)
 								.add(Restrictions.eq("gongNengDH",workFlowGNCZ.getGongNeng().getGongNengDH()))
 								.add(Restrictions.eq("gongNengObjId",processObj.pkValue()))
@@ -474,26 +471,17 @@ public class TaskUtils {
 		}
 
 		//取得流程扩展方法 备用
-		Method processInstanceStartedMethod=null;
-		Method processInstanceEndedMethod=null;
-		Object gnActionInstance =null;
 		//如果功能定义了action类 取流程开始和流程结束方法备用
-		if(workFlowGNCZ.getGongNeng().getGongNengClass()!=null){
-			try {
-				Class<?> gnActionClass = Class.forName(workFlowGNCZ.getGongNeng().getGongNengClass());
-				gnActionInstance = gnActionClass.newInstance();
-				try {
-					processInstanceStartedMethod= gnActionClass.getMethod("processInstanceStarted",new Class[]{String.class,Integer.class,Integer.class});
-				} catch (Exception e) {
-				}
-				try {
-					processInstanceEndedMethod= gnActionClass.getMethod("processInstanceEnded",new Class[]{String.class,Integer.class,Integer.class});
-				} catch (Exception e) {
-				}
-			} catch (Exception e) {
-//				e.printStackTrace();
-			}
+		ProcessStartAction pStartAction = null;
+		if(workFlowGNCZ.getGongNeng().getProcessEndAction()!=null){
+			pStartAction = (ProcessStartAction)Class.forName(workFlowGNCZ.getGongNeng().getProcessStartAction()).newInstance();
 		}
+		
+		ProcessEndAction pEndAction = null;
+		if(workFlowGNCZ.getGongNeng().getProcessEndAction()!=null){
+			pEndAction = (ProcessEndAction)Class.forName(workFlowGNCZ.getGongNeng().getProcessEndAction()).newInstance();
+		}
+		
 		
 		//检查当前功能是否流程功能
 		ProcessEngine myProcessEngine = ProcessEngines.getDefaultProcessEngine();
@@ -521,13 +509,13 @@ public class TaskUtils {
 		}
 		
 		//执行可能存在的流程开始事件
-		if(processInstanceStartedMethod!=null){
-			Result pRet =  (Result)processInstanceStartedMethod
-					.invoke(gnActionInstance, new Object[]{workFlowGNCZ.getCaoZuoDH(),processObj.pkValue(),yh.getYongHuDM()});
-			if(!pRet.isSuccess()){
-				throw new Exception("流程开始事件执行失败："+pRet.getErrorMsg());
+		if(pStartAction!=null ){
+			JSONMessageResult pStartActionResult = pStartAction.invoke(yh, workFlowGNCZ, processObj);
+			if(!pStartActionResult.isSuccess()){
+				throw new Exception(pStartActionResult.getErrorMsg());
 			}
 		}
+		
 		//取启动任务（启动流程的操作 应该与流程图中开始节点后的第一个任务代号一致）
 		Task task = taskService.createTaskQuery()
 				.processInstanceId(processInstance.getId())
@@ -583,10 +571,10 @@ public class TaskUtils {
 							processObj.setProcessInstanceEnded(true);
 							sess.update(processObj);
 							//流程完成   执行可能存在的完成事件代码
-							if(processInstanceEndedMethod!=null ){
-								Result pRet =  (Result)processInstanceEndedMethod.invoke(gnActionInstance, new Object[]{workFlowGNCZ.getCaoZuoDH(),processObj.pkValue(),yh.getYongHuDM()});
-								if(!pRet.isSuccess()){
-									throw new Exception("流程完成事件执行失败："+pRet.getErrorMsg());
+							if(pEndAction!=null ){
+								JSONMessageResult pEndActionResult = pEndAction.invoke(yh, workFlowGNCZ, processObj);
+								if(!pEndActionResult.isSuccess()){
+									throw new Exception(pEndActionResult.getErrorMsg());
 								}
 							}
 						}else{
@@ -1173,4 +1161,152 @@ public class TaskUtils {
 		}
 		return true;
 	}
+	
+    public static boolean removeProcessInstance(GongNeng gn,BusinessI busiObj,boolean removeLcjs) throws Exception{
+		ProcessEngine myProcessEngine = ProcessEngines.getDefaultProcessEngine();
+		RuntimeService runtimeService = myProcessEngine.getRuntimeService();
+		HistoryService historyService = myProcessEngine.getHistoryService();
+		if(busiObj.getProcessInstanceId()==null){
+			//查找所有的流程
+			Set<String> pKeys = new HashSet<String>();
+			List<ProcessDefinition> pdefs = myProcessEngine.getRepositoryService().createProcessDefinitionQuery().processDefinitionKeyLike(gn.getGongNengDH()+"-%").list();
+			for(ProcessDefinition pdef:pdefs){
+				pKeys.add(pdef.getKey());
+			}
+			//根据business key 删除流程
+			for(String pKey:pKeys){
+//				ProcessInstance pInst = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(""+busiObj.pkValue(), pKey).list();
+				List<ProcessInstance> pInsts = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(""+busiObj.pkValue(), pKey).list();
+				for(ProcessInstance pInst:pInsts){
+					//先将流程中的business_Key_清空
+					((ServiceImpl)runtimeService).getCommandExecutor().execute(new ClearProcessInstanceBussinessKeyCmd(pInst.getProcessInstanceId()));
+					//删除流程
+					try {
+						runtimeService.deleteProcessInstance(pInst.getProcessInstanceId(), "用户移除流程");
+					} catch (Exception e) {
+						e.printStackTrace();
+					}
+				}
+				List<HistoricProcessInstance> pHisInsts = historyService.createHistoricProcessInstanceQuery()
+						.processDefinitionKey(pKey)
+						.processInstanceBusinessKey(""+busiObj.pkValue())
+						.list();
+				for(HistoricProcessInstance pHisInst:pHisInsts){
+					//先将流程中的business_Key_清空
+					((ServiceImpl)runtimeService).getCommandExecutor().execute(new ClearProcessInstanceBussinessKeyCmd(pHisInst.getId()));
+					//删除流程
+					historyService.deleteHistoricProcessInstance(pHisInst.getId());
+				}
+			}
+
+		}else{
+			//根据ProcessInstanceId删除流程
+			
+			//删除流程之前 先将流程中的business_Key_清空
+			try {
+				((ServiceImpl)runtimeService).getCommandExecutor().execute(new ClearProcessInstanceBussinessKeyCmd(busiObj.getProcessInstanceId()));
+			} catch (Exception e2) {
+				e2.printStackTrace();
+			}
+			//删除流程
+			if(busiObj.getProcessInstanceEnded()){
+				try {
+					historyService.deleteHistoricProcessInstance(busiObj.getProcessInstanceId());
+				} catch (Exception e) {
+					try {
+						runtimeService.deleteProcessInstance(busiObj.getProcessInstanceId(), "用户移除流程");
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}
+			}else{
+				try {
+					runtimeService.deleteProcessInstance(busiObj.getProcessInstanceId(), "用户移除流程");
+				} catch (Exception e) {
+					try {
+						historyService.deleteHistoricProcessInstance(busiObj.getProcessInstanceId());
+					} catch (Exception e1) {
+						e1.printStackTrace();
+					}
+				}
+			}
+		}
+		
+		
+		//删除流程检视
+		Session sess = HibernateSessionFactory.getSession();
+		if(removeLcjs){
+			@SuppressWarnings("unchecked")
+			List<LiuChengJS> lcjss = sess.createCriteria(LiuChengJS.class)
+					.add(Restrictions.eq("gongNengDH",gn.getGongNengDH()))
+					.add(Restrictions.eq("gongNengObjId",busiObj.pkValue()))
+					.list();
+			for(LiuChengJS lcjs:lcjss){
+				sess.delete(lcjs);
+			}
+		}
+		
+		//删除关联信息
+		busiObj.setProcessInstanceId(null);
+		busiObj.setProcessInstanceEnded(false);
+		busiObj.setProcessInstanceTerminated(false);
+		sess.update(busiObj);
+		return true;
+	}
+    
+    public static boolean removeProcessInstance(GongNeng gn,Integer id,boolean removeLcjs) throws Exception{
+		ProcessEngine myProcessEngine = ProcessEngines.getDefaultProcessEngine();
+		RuntimeService runtimeService = myProcessEngine.getRuntimeService();
+		HistoryService historyService = myProcessEngine.getHistoryService();
+
+		//查找所有的流程
+		Set<String> pKeys = new HashSet<String>();
+		List<ProcessDefinition> pdefs = myProcessEngine.getRepositoryService().createProcessDefinitionQuery().processDefinitionKeyLike(gn.getGongNengDH()+"-%").list();
+		for(ProcessDefinition pdef:pdefs){
+			pKeys.add(pdef.getKey());
+		}
+		//根据business key 删除流程
+		for(String pKey:pKeys){
+//			ProcessInstance pInst = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(""+busiObj.pkValue(), pKey).list();
+			List<ProcessInstance> pInsts = runtimeService.createProcessInstanceQuery().processInstanceBusinessKey(""+id, pKey).list();
+			for(ProcessInstance pInst:pInsts){
+				//先将流程中的business_Key_清空
+				((ServiceImpl)runtimeService).getCommandExecutor().execute(new ClearProcessInstanceBussinessKeyCmd(pInst.getProcessInstanceId()));
+				//删除流程
+				try {
+					runtimeService.deleteProcessInstance(pInst.getProcessInstanceId(), "用户移除流程");
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+			List<HistoricProcessInstance> pHisInsts = historyService.createHistoricProcessInstanceQuery()
+					.processDefinitionKey(pKey)
+					.processInstanceBusinessKey(""+id)
+					.list();
+			for(HistoricProcessInstance pHisInst:pHisInsts){
+				//先将流程中的business_Key_清空
+				((ServiceImpl)runtimeService).getCommandExecutor().execute(new ClearProcessInstanceBussinessKeyCmd(pHisInst.getId()));
+				//删除流程
+				historyService.deleteHistoricProcessInstance(pHisInst.getId());
+			}
+		}
+
+	
+		
+		//删除流程检视
+		Session sess = HibernateSessionFactory.getSession();
+		if(removeLcjs){
+			@SuppressWarnings("unchecked")
+			List<LiuChengJS> lcjss = sess.createCriteria(LiuChengJS.class)
+					.add(Restrictions.eq("gongNengDH",gn.getGongNengDH()))
+					.add(Restrictions.eq("gongNengObjId",id))
+					.list();
+			for(LiuChengJS lcjs:lcjss){
+				sess.delete(lcjs);
+			}
+		}
+		
+		return true;
+	}
+	
 }

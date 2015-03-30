@@ -78,14 +78,19 @@ public class AuthUtils {
 		return checkAuth(gncz,id,yhdm);
 	}
 	public static boolean checkAuth(GongNengCZ gncz,Integer id,Integer yhdm) throws Exception{
-		if(!gncz.getKeYiSQ() || YongHu.isSuperUser(yhdm)){
-			return true;
-		}
 		Session sess = HibernateSessionFactory.getSession();
 		YongHu yh = null;
 		if(yhdm!=null){
 			yh = (YongHu)sess.load(YongHu.class, yhdm);
 		}
+		return checkAuth(gncz,id,yh);
+	}
+	public static boolean checkAuth(GongNengCZ gncz,Integer id,YongHu yh) throws Exception{
+		if(!gncz.getKeYiSQ() || (yh!=null && YongHu.isSuperUser(yh.getYongHuDM()))){
+			return true;
+		}
+		
+		Session sess = HibernateSessionFactory.getSession();
 		//功能实体类
 		Class<?> gnStlClass = Class.forName(gncz.getGongNeng().getShiTiLei().getShiTiLeiClassName());
 		if(gncz.getKeYiSQ() && gncz.getDuiXiangXG()){

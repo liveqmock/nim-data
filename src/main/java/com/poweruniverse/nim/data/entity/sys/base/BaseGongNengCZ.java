@@ -6,7 +6,7 @@ import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 /*
 * 实体类：功能操作
 */
-@Version("2015-03-16 11:29:25")
+@Version("2015-03-29 03:04:12")
 public abstract class BaseGongNengCZ  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;
@@ -71,6 +71,36 @@ public abstract class BaseGongNengCZ  implements Serializable,Comparable<Object>
 	public java.lang.Integer getGongNengCZXH(){return this.gongNengCZXH ;}
 	public void setGongNengCZXH(java.lang.Integer gongNengCZXH){this.gongNengCZXH = gongNengCZXH;}
 	
+			
+	// 属性：数据保存准备事件 （prepareAction）
+	private java.lang.String prepareAction = null;
+	public java.lang.String getPrepareAction(){return this.prepareAction ;}
+	public void setPrepareAction(java.lang.String prepareAction){this.prepareAction = prepareAction;}
+	
+			
+	// 属性：数据保存之前事件 （beforeAction）
+	private java.lang.String beforeAction = null;
+	public java.lang.String getBeforeAction(){return this.beforeAction ;}
+	public void setBeforeAction(java.lang.String beforeAction){this.beforeAction = beforeAction;}
+	
+			
+	// 属性：数据保存之后事件 （afterAction）
+	private java.lang.String afterAction = null;
+	public java.lang.String getAfterAction(){return this.afterAction ;}
+	public void setAfterAction(java.lang.String afterAction){this.afterAction = afterAction;}
+	
+			
+	// 属性：数据加载事件 （loadAction）
+	private java.lang.String loadAction = null;
+	public java.lang.String getLoadAction(){return this.loadAction ;}
+	public void setLoadAction(java.lang.String loadAction){this.loadAction = loadAction;}
+	
+			
+	// 属性：数据保存事件 （onAction）
+	private java.lang.String onAction = null;
+	public java.lang.String getOnAction(){return this.onAction ;}
+	public void setOnAction(java.lang.String onAction){this.onAction = onAction;}
+	
 	public boolean equals (Object obj) {
 		if (null == obj) return false;
 		if (!(obj instanceof com.poweruniverse.nim.data.entity.sys.GongNengCZ)) return false;
@@ -126,6 +156,11 @@ public abstract class BaseGongNengCZ  implements Serializable,Comparable<Object>
 		gongNengCZ.setDuiXiangXG(duiXiangXG);
 		gongNengCZ.setKeYiSQ(keYiSQ);
 		gongNengCZ.setGongNengCZXH(gongNengCZXH);
+		gongNengCZ.setPrepareAction(prepareAction);
+		gongNengCZ.setBeforeAction(beforeAction);
+		gongNengCZ.setAfterAction(afterAction);
+		gongNengCZ.setLoadAction(loadAction);
+		gongNengCZ.setOnAction(onAction);
 		
 		return gongNengCZ;
 	}
