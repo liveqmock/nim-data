@@ -179,10 +179,12 @@ public class JSONConvertUtils {
 	}
 
 	//将客户端修改的值 应用到原始数据对象中 同时 记录
-	public static EntityI JSON2Entity(ShiTiLei stl,EntityI obj,JSONObject dataObj,Map<JSONObject,EntityI> linkMap) throws Exception{
+	public static EntityI JSON2Entity(ShiTiLei stl,EntityI obj,JSONObject dataObj,Map<JSONObject,EntityI> linkMap1) throws Exception{
 		if(dataObj==null) return obj;
 		//在
-		linkMap.put(dataObj, obj);
+		if(linkMap1!=null){
+			linkMap1.put(dataObj, obj);
+		}
 		//根据
 		Iterator<?> properties = dataObj.keys();
 		while(properties.hasNext()){
@@ -253,7 +255,7 @@ public class JSONConvertUtils {
 									JSONObject subObjData = modified.getJSONObject(i);
 									Object subPrimaryValue = subObjData.get(substl.getZhuJianLie());
 									subObj = getMethod.invoke(obj, new Object[]{subPrimaryValue});
-									subObj = JSON2Entity(substl,(EntityI)subObj,subObjData,linkMap);
+									subObj = JSON2Entity(substl,(EntityI)subObj,subObjData,linkMap1);
 								}
 							}
 							@SuppressWarnings("unchecked")
@@ -271,7 +273,7 @@ public class JSONConvertUtils {
 										PropertyUtils.setProperty(subObj,zd.getGuanLianFLZD().getZiDuanDH(),obj);
 									}
 									//填充子对象的内容
-									subObj = JSON2Entity(substl,(EntityI)subObj,subObjData,linkMap);
+									subObj = JSON2Entity(substl,(EntityI)subObj,subObjData,linkMap1);
 									appendMethod.invoke(obj, new Object[]{obj,subObj});
 								}
 							}
@@ -300,7 +302,7 @@ public class JSONConvertUtils {
 										PropertyUtils.setProperty(subObj,zd.getGuanLianFLZD().getZiDuanDH(),obj);
 									}
 									//填充子对象的内容
-									subObj = JSON2Entity(substl,(EntityI)subObj,inserted.getJSONObject(i),linkMap);
+									subObj = JSON2Entity(substl,(EntityI)subObj,inserted.getJSONObject(i),linkMap1);
 									appendMethod.invoke(obj, new Object[]{obj,subObj});
 								}
 							}

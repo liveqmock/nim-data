@@ -21,7 +21,7 @@ import org.hibernate.Session;
 import com.poweruniverse.nim.base.bean.UserInfo;
 import com.poweruniverse.nim.base.description.Application;
 import com.poweruniverse.nim.base.message.StringResult;
-import com.poweruniverse.nim.baseClass.BasePlateformWebservice;
+import com.poweruniverse.nim.base.webservice.AbstractWebservice;
 import com.poweruniverse.nim.data.entity.sys.YongHu;
 import com.poweruniverse.nim.data.pageParser.ActionElParser;
 import com.poweruniverse.nim.data.pageParser.DatasourceElParser;
@@ -40,7 +40,7 @@ import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
  *
  */
 @WebService
-public class AnalyseWebserviceImpl extends BasePlateformWebservice {
+public class AnalyseWebserviceImpl extends AbstractWebservice {
 	@Resource
 	private WebServiceContext wsContext;
 	protected static Logger logger = null;

@@ -32,7 +32,7 @@ import com.poweruniverse.nim.base.message.JSONDataResult;
 import com.poweruniverse.nim.base.message.JSONMessageResult;
 import com.poweruniverse.nim.base.utils.NimJSONArray;
 import com.poweruniverse.nim.base.utils.NimJSONObject;
-import com.poweruniverse.nim.baseClass.BasePlateformWebservice;
+import com.poweruniverse.nim.base.webservice.AbstractWebservice;
 import com.poweruniverse.nim.data.action.AfterAction;
 import com.poweruniverse.nim.data.action.BeforeAction;
 import com.poweruniverse.nim.data.action.LoadAction;
@@ -54,7 +54,7 @@ import com.poweruniverse.nim.data.service.utils.NativeSQLOrder;
 import com.poweruniverse.nim.data.service.utils.TaskUtils;
 
 @WebService
-public class DataWebserviceImpl extends BasePlateformWebservice {
+public class DataWebserviceImpl extends AbstractWebservice {
 	@Resource
 	private WebServiceContext wsContext;
 	
@@ -1101,7 +1101,7 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 	 * @param fieldString
 	 * @return
 	 */
-	public JSONDataResult save(
+	public JSONDataResult submit(
 			@WebParam(name="xiTongDH") String xiTongDH,
 			@WebParam(name="gongNengDH") String gongNengDH,
 			@WebParam(name="caoZuoDH") String caoZuoDH,
@@ -1423,6 +1423,108 @@ public class DataWebserviceImpl extends BasePlateformWebservice {
 		return ret;
 	}
 	
+	
+	//本系统的客户端 一般不使用此方法 主要用于远程接口传入数据
+	public String save(
+			@WebParam(name="xiTongDH") String xiTongDH,
+			@WebParam(name="shiTiLeiDH") String shiTiLeiDH,
+			@WebParam(name="submitData") String submitData){
+		JSONMessageResult ret = null;
+		Session sess = null;
+		
+		try {
+			Integer yhdm = this.getYongHuDM(wsContext,false);
+			
+			sess = HibernateSessionFactory.getSession();
+			ShiTiLei stl = (ShiTiLei)sess.createCriteria(ShiTiLei.class)
+					.add(Restrictions.eq("shiTiLeiDH", shiTiLeiDH))
+					.uniqueResult();
+			if(stl==null){
+				return new JSONMessageResult("实体类（"+shiTiLeiDH+"）不存在！").toString();
+			}
+			
+			//用户信息
+			
+			YongHu yh = null;
+			if(yhdm != null ){
+				yh = (YongHu)sess.load(YongHu.class, yhdm);
+			}
+			
+			//提交来的数据
+			JSONObject dataObj = JSONObject.fromObject(submitData);
+			
+			//新增数据要清除主键值
+			EntityI entityI = null;
+			if(dataObj.containsKey(stl.getZhuJianLie())){
+				Integer pkValue = dataObj.getInt(stl.getZhuJianLie());
+				dataObj.remove(stl.getZhuJianLie());
+				
+				entityI = (EntityI)DataUtils.getObjectBySTL(shiTiLeiDH, pkValue);
+			}else{
+				entityI = (EntityI)DataUtils.newObjectBySTLDH(shiTiLeiDH);
+			}
+			
+			//将客户端提交来的数据 应用到对象
+			JSONConvertUtils.JSON2Entity(stl, entityI, dataObj,null);
+			//为业务对象的业务字段赋值
+			if(entityI instanceof BusinessI){
+				BusinessI p = (BusinessI)entityI;
+				//新增对象  保存的时候 为没有初值的业务字段赋值
+				if(p.getSuoYouZhe()==null && yh!=null) p.setSuoYouZhe(yh);
+				if(p.getSuoShuBM()==null && yh!=null) p.setSuoShuBM(yh.getBuMen());
+				if(p.getLuRuRen()==null && yh!=null){ 
+					p.setLuRuRen(yh.getYongHuMC()); 
+				}else {
+					p.setLuRuRen("匿名");
+				}
+				if(p.getLuRuRQ()==null) p.setLuRuRQ(Calendar.getInstance().getTime());
+
+				//编辑对象
+				if(yh!=null){ 
+					p.setXiuGaiRen(yh.getYongHuMC()); 
+				}else {
+					p.setXiuGaiRen("匿名");
+				}
+				p.setXiuGaiRQ(Calendar.getInstance().getTime());
+			}
+			
+			//保存新增和修改的数据
+			sess.saveOrUpdate(entityI);
+			
+			//返回值
+			NimJSONArray rows = new NimJSONArray();
+			
+			NimJSONObject row = new NimJSONObject();
+			row.put(stl.getZhuJianLie(), entityI.pkValue());
+			rows.add(row);
+			
+//			ret = new JSONDataResult(rows,rows.size(),0,0,null);
+			
+			ret = new JSONMessageResult();
+			ret.put("rows", rows);
+			ret.put("totalCount", rows.size());
+			ret.put("start", 0);
+			ret.put("limit", 0);
+			ret.put("meta", null);
+		}catch (InvocationTargetException e){
+			ret = new JSONMessageResult(e.getTargetException().getMessage());
+			e.printStackTrace();
+			if (sess != null) {
+				HibernateSessionFactory.closeSession(false);
+			}
+		}catch (Exception e){
+			ret = new JSONMessageResult(e.getMessage());
+			e.printStackTrace();
+			if (sess != null) {
+				HibernateSessionFactory.closeSession(false);
+			}
+		}finally{
+			if (sess != null) {
+				HibernateSessionFactory.closeSession(true);
+			}
+		}
+		return ret.toString();
+	}
 	
 	
 //	private JSONDataResult completeTask(GongNengCZ gncz,List<EntityI> objs,List<EntityI> oldObjs,boolean isComplete, Integer yhdm){

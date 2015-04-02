@@ -52,7 +52,12 @@ import com.poweruniverse.nim.data.service.utils.JSONConvertUtils;
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 
-public class EntityManager {
+/**
+ * 生成功能定义文件 以及功能的同步（功能操作，功能流程、流程条件、流程变量等）
+ * @author Administrator
+ *
+ */
+public class GongNengManager {
 	private static String versionPattern = "version:";
 
 	private static SimpleDateFormat dateFm = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"); //日期格式化

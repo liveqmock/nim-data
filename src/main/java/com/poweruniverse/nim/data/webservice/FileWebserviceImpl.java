@@ -27,7 +27,7 @@ import org.hibernate.criterion.Restrictions;
 import com.poweruniverse.nim.base.bean.UserInfo;
 import com.poweruniverse.nim.base.description.Application;
 import com.poweruniverse.nim.base.message.JSONMessageResult;
-import com.poweruniverse.nim.baseClass.BasePlateformWebservice;
+import com.poweruniverse.nim.base.webservice.AbstractWebservice;
 import com.poweruniverse.nim.data.entity.sys.FuJian;
 import com.poweruniverse.nim.data.entity.sys.FuJianLX;
 import com.poweruniverse.nim.data.entity.sys.YongHu;
@@ -35,7 +35,7 @@ import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 
 @javax.xml.ws.soap.MTOM
 @WebService
-public class FileWebserviceImpl extends BasePlateformWebservice {
+public class FileWebserviceImpl extends AbstractWebservice {
 	@Resource
 	private WebServiceContext wsContext;
 	

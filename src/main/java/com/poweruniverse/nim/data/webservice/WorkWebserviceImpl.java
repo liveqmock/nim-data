@@ -16,7 +16,7 @@ import org.hibernate.Session;
 import com.poweruniverse.nim.base.bean.UserInfo;
 import com.poweruniverse.nim.base.message.JSONMessageResult;
 import com.poweruniverse.nim.base.message.Result;
-import com.poweruniverse.nim.baseClass.BasePlateformWebservice;
+import com.poweruniverse.nim.base.webservice.AbstractWebservice;
 import com.poweruniverse.nim.data.service.utils.AuthUtils;
 import com.poweruniverse.nim.data.service.utils.DataUtils;
 import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
@@ -26,7 +26,7 @@ import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
  *
  */
 @WebService
-public class WorkWebserviceImpl extends BasePlateformWebservice {
+public class WorkWebserviceImpl extends AbstractWebservice {
 	@Resource
 	private WebServiceContext wsContext;
 	

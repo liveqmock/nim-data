@@ -16,14 +16,14 @@ import com.poweruniverse.nim.base.bean.UserInfo;
 import com.poweruniverse.nim.base.message.JSONMessageResult;
 import com.poweruniverse.nim.base.utils.Encrypt;
 import com.poweruniverse.nim.base.utils.MD5Utils;
-import com.poweruniverse.nim.baseClass.BasePlateformWebservice;
+import com.poweruniverse.nim.base.webservice.AbstractWebservice;
 import com.poweruniverse.nim.data.entity.sys.YongHu;
 import com.poweruniverse.nim.data.entity.sys.YongHuZT;
 import com.poweruniverse.nim.data.service.utils.AuthUtils;
 import com.poweruniverse.nim.data.service.utils.HibernateSessionFactory;
 
 @WebService
-public class VerifyWebserviceImpl extends BasePlateformWebservice {
+public class VerifyWebserviceImpl extends AbstractWebservice {
 	@Resource
 	private WebServiceContext wsContext;
 	
