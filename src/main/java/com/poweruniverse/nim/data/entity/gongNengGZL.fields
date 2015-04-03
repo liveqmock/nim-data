@@ -1,0 +1,37 @@
+[{
+	"name":"gongNengGZLBB"
+},{
+	"name":"gongNengGZLBH"
+},{
+	"name":"gongNengGZLBH"
+},{
+	"name":"tiaoJianXS"
+},{
+	"name":"startGNCZ",
+	"fields":[{"name":"caoZuoDH"}]
+},{
+	"name":"gongNeng",
+	"fields":[{"name":"gongNengDH"}]
+},{
+	"name":"tjs",
+	"fields":[{
+		"name":"liuZhuanTJXS"
+	},{
+		"name":"gss",
+		"fields":[{
+			"name":"ziDuanSX"
+		},{
+			"name":"ziDuanCZF"
+		},{
+			"name":"ziDuanQZ"
+		},{
+			"name":"caoZuoQXXS"
+		},{
+			"name":"caoZuoQXGS"
+		},{
+			"name":"ziDuanMS"
+		}]
+	}]
+}]
+
+

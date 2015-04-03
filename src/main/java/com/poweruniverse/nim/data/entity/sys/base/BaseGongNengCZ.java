@@ -6,7 +6,7 @@ import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 /*
 * 实体类：功能操作
 */
-@Version("2015-03-29 03:04:12")
+@Version("2015-04-04 02:05:43")
 public abstract class BaseGongNengCZ  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;
@@ -66,10 +66,10 @@ public abstract class BaseGongNengCZ  implements Serializable,Comparable<Object>
 	public void setKeYiSQ(java.lang.Boolean keYiSQ){this.keYiSQ = keYiSQ;}
 	
 			
-	// 属性：功能操作序号 （gongNengCZXH）
-	private java.lang.Integer gongNengCZXH = new java.lang.Integer(0);
-	public java.lang.Integer getGongNengCZXH(){return this.gongNengCZXH ;}
-	public void setGongNengCZXH(java.lang.Integer gongNengCZXH){this.gongNengCZXH = gongNengCZXH;}
+	// 属性：操作序号 （caoZuoXH）
+	private java.lang.Integer caoZuoXH = new java.lang.Integer(0);
+	public java.lang.Integer getCaoZuoXH(){return this.caoZuoXH ;}
+	public void setCaoZuoXH(java.lang.Integer caoZuoXH){this.caoZuoXH = caoZuoXH;}
 	
 			
 	// 属性：数据保存准备事件 （prepareAction）
@@ -155,7 +155,7 @@ public abstract class BaseGongNengCZ  implements Serializable,Comparable<Object>
 		gongNengCZ.setCaoZuoMC(caoZuoMC);
 		gongNengCZ.setDuiXiangXG(duiXiangXG);
 		gongNengCZ.setKeYiSQ(keYiSQ);
-		gongNengCZ.setGongNengCZXH(gongNengCZXH);
+		gongNengCZ.setCaoZuoXH(caoZuoXH);
 		gongNengCZ.setPrepareAction(prepareAction);
 		gongNengCZ.setBeforeAction(beforeAction);
 		gongNengCZ.setAfterAction(afterAction);

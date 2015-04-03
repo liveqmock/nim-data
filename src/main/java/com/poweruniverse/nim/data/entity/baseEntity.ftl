@@ -33,7 +33,7 @@ public abstract class Base${className}  implements Serializable,Comparable<Objec
 	public java.lang.Integer get${zd.ziDuanDH?cap_first}(){return this.${zd.ziDuanDH} ;}
 	public void set${zd.ziDuanDH?cap_first}(java.lang.Integer ${zd.ziDuanDH}){this.${zd.ziDuanDH} = ${zd.ziDuanDH};}
 
-		<#elseif zd.ziDuanLX.ziDuanLXDH = 'set' || zd.ziDuanLX.ziDuanLXDH = 'attachset'>
+		<#elseif zd.ziDuanLX.ziDuanLXDH = 'set' || zd.ziDuanLX.ziDuanLXDH = 'fileset'>
 	// 集合：${zd.ziDuanBT} （${zd.ziDuanDH}）
 	<#if zd.guanLianSTL?? && zd.guanLianFLZD??>  
 	private java.util.Set<${zd.guanLianSTL.shiTiLeiClassName!'null'}> ${zd.ziDuanDH} = new java.util.TreeSet<${zd.guanLianSTL.shiTiLeiClassName!'null'}>();
@@ -73,7 +73,7 @@ public abstract class Base${className}  implements Serializable,Comparable<Objec
 	<#else>
 		guanLianSTL为空或guanLianFLZD为空！！！请修改字段定义后 重新生成
 	</#if>  
-		<#elseif zd.ziDuanLX.ziDuanLXDH = 'object'>
+		<#elseif zd.ziDuanLX.ziDuanLXDH = 'object' || zd.ziDuanLX.ziDuanLXDH = 'file'>
 	// 对象：${zd.ziDuanBT} （${zd.ziDuanDH}）
 	<#if zd.guanLianSTL??> 
 	<#if zd.guanLianSTL.shiTiLeiClassName = 'com.poweruniverse.oim.server.entity.sys.BiZhong'>
@@ -93,6 +93,9 @@ public abstract class Base${className}  implements Serializable,Comparable<Objec
 				<#assign columnType = "java.lang.String"/>
 				<#assign defaultValue = "null"/>
 			<#elseif zd.ziDuanLX.ziDuanLXDH = 'text'>
+				<#assign columnType = "java.lang.String"/>
+				<#assign defaultValue = "null"/>
+			<#elseif zd.ziDuanLX.ziDuanLXDH = 'dictionary'>
 				<#assign columnType = "java.lang.String"/>
 				<#assign defaultValue = "null"/>
 			<#elseif zd.ziDuanLX.ziDuanLXDH = 'date'>

@@ -6,7 +6,7 @@ import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 /*
 * 实体类：附件类型
 */
-@Version("2015-03-19 12:48:38")
+@Version("2015-04-04 02:05:43")
 public abstract class BaseFuJianLX  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;

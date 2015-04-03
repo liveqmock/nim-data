@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<gongNengs> 
+  <!-- 
+	<gongNeng resource="com/poweruniverse/nim/data/gn/sys/gn.def.json"/>
+	-->  
+  <gongNeng resource="com/poweruniverse/nim/data/gn/sys/gn.def.json"/>  
+  <gongNeng resource="com/poweruniverse/nim/data/gn/sys/xt.def.json"/>  
+  <gongNeng resource="com/poweruniverse/nim/data/gn/sys/stl.def.json"/>  
+  <gongNeng resource="com/poweruniverse/nim/data/gn/sys/yh.def.json"/>  
+  <gongNeng resource="com/poweruniverse/nim/data/gn/sys/gngzl.def.json"/>  
+  <gongNeng resource="com/poweruniverse/nim/data/gn/sys/lcjs.def.json"/>  
+  <gongNeng resource="com/poweruniverse/nim/data/gn/sys/gnlc.def.json"/>  
+  <gongNeng resource="com/poweruniverse/nim/data/gn/sys/bm.def.json"/>  
+  <gongNeng resource="com/poweruniverse/nim/data/gn/sys/js.def.json"/>
+</gongNengs>

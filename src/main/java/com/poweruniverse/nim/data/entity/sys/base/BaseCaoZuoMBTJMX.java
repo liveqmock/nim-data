@@ -6,7 +6,7 @@ import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 /*
 * 实体类：操作模板条件明细
 */
-@Version("2015-03-23 15:00:38")
+@Version("2015-04-04 02:05:43")
 public abstract class BaseCaoZuoMBTJMX  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;

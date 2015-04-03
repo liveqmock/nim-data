@@ -2,7 +2,7 @@
 <!DOCTYPE hibernate-mapping PUBLIC 
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- version:2015-03-16 11:15:59 -->
+<!-- version:2015-04-04 02:05:45 -->
 <hibernate-mapping auto-import="false">  
     <class name="com.poweruniverse.nim.data.entity.sys.LiuChengJS" table="SYS_LiuChengJS" >
     	<!--主键-->

@@ -6,7 +6,7 @@ import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 /*
 * 实体类：流程路径
 */
-@Version("2015-03-16 11:16:00")
+@Version("2015-04-04 02:05:45")
 public abstract class BaseLiuChengLJ  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;

@@ -1,5 +1,6 @@
 package com.poweruniverse.nim.data.entity.sys;
 
+import java.util.Iterator;
 import java.util.List;
 
 import org.hibernate.Criteria;
@@ -33,6 +34,9 @@ public class GongNeng  extends BaseGongNeng  {
 	}
 
 	protected void initialize () {}
+	
+	
+	
 	
 	public static GongNeng getGongNengByDH(String gndh){
 		GongNeng gn = null;
@@ -101,5 +105,25 @@ public class GongNeng  extends BaseGongNeng  {
 		return gncz;
 	}
 
+	//根据当前实体类定义  以及a.b.c类型的字段描述字符串 取得最终字段c的字段定义
+	public boolean hasCaoZuo(String caoZuoDH) throws Exception{
+		boolean ret = false;
+		if (!getCzs().isEmpty()){
+			if("id".equals(caoZuoDH)){
+				ret = true;
+			}else{
+				Iterator<GongNengCZ> czs = getCzs().iterator();
+				GongNengCZ cz = null;
+				while(czs.hasNext()){
+					cz = czs.next();
+					if(cz.getCaoZuoDH().equals(caoZuoDH)){
+						ret = true;
+						break;
+					}
+				}
+			}
+		}
+		return ret;
+	}
 	
 }

@@ -2,7 +2,7 @@
 <!DOCTYPE hibernate-mapping PUBLIC 
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- version:2015-03-29 03:04:12 -->
+<!-- version:2015-04-04 02:05:43 -->
 <hibernate-mapping auto-import="false">  
     <class name="com.poweruniverse.nim.data.entity.sys.GongNengCZ" table="SYS_GongNengCZ" >
     	<!--主键-->
@@ -37,9 +37,9 @@
         <property name="keYiSQ" type="java.lang.Boolean" lazy="false">
         	<column name="keYiSQ" precision="1" scale="0" not-null="false" />
         </property>
-		<!--功能操作序号-->
-        <property name="gongNengCZXH" type="java.lang.Integer" lazy="false">
-        	<column name="gongNengCZXH" precision="12" scale="0" not-null="false" />
+		<!--操作序号-->
+        <property name="caoZuoXH" type="java.lang.Integer" lazy="false">
+        	<column name="caoZuoXH" precision="12" scale="0" not-null="false" />
         </property>
 		<!--数据保存准备事件-->
         <property name="prepareAction" type="java.lang.String" lazy="false">

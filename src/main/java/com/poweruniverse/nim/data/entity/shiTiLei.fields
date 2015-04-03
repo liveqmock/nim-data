@@ -18,7 +18,7 @@
 	"name":"shiFouYWB"
 },{
 	"name":"xiTong",
-	"fields":[{"name":"xiTongDH"}]
+	"fields":[{"name":"xiTongDH"},{"name":"xiTongMC"}]
 },{
 	"name":"zds",
 	"fields":[{
@@ -44,7 +44,7 @@
 	},{
 		"name":"shiFouWY"
 	},{
-		"name":"ziDuanLX","fields":[{"name":"ziDuanLXDH"}]
+		"name":"ziDuanLX","fields":[{"name":"ziDuanLXDH"},{"name":"ziDuanLXMC"}]
 	},{
 		"name":"guanLianSTL","fields":[{"name":"shiTiLeiDH"},{"name":"shiTiLeiClassName"},{"name":"zhuJianLie"},{"name":"paiXuLie"},{"name":"shiFouYWB"}]
 	}]

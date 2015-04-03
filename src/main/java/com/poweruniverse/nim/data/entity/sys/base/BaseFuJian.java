@@ -6,7 +6,7 @@ import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 /*
 * 实体类：附件
 */
-@Version("2015-03-19 09:57:11")
+@Version("2015-04-04 02:05:43")
 public abstract class BaseFuJian  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;
@@ -50,7 +50,7 @@ public abstract class BaseFuJian  implements Serializable,Comparable<Object> ,En
 	public java.lang.String getShangChuanWJM(){return this.shangChuanWJM ;}
 	public void setShangChuanWJM(java.lang.String shangChuanWJM){this.shangChuanWJM = shangChuanWJM;}
 	
-	// 对象：fuJianLX （fuJianLX）
+	// 对象：附件类型 （fuJianLX）
 	private com.poweruniverse.nim.data.entity.sys.FuJianLX fuJianLX;
 	public com.poweruniverse.nim.data.entity.sys.FuJianLX getFuJianLX(){return this.fuJianLX ;}
 	public void setFuJianLX(com.poweruniverse.nim.data.entity.sys.FuJianLX fuJianLX){this.fuJianLX = fuJianLX;}
@@ -68,33 +68,10 @@ public abstract class BaseFuJian  implements Serializable,Comparable<Object> ,En
 	public void setXiuGaiRen(java.lang.String xiuGaiRen){this.xiuGaiRen = xiuGaiRen;}
 	
 			
-	// 属性：是否上传完成 （shiFouSCWC）
-	private java.lang.Boolean shiFouSCWC = new java.lang.Boolean(false);
-	public java.lang.Boolean getShiFouSCWC(){return this.shiFouSCWC ;}
-	public void setShiFouSCWC(java.lang.Boolean shiFouSCWC){this.shiFouSCWC = shiFouSCWC;}
-	
-	// 对象：上传用户 （shangChuanYH）
-	private com.poweruniverse.nim.data.entity.sys.YongHu shangChuanYH;
-	public com.poweruniverse.nim.data.entity.sys.YongHu getShangChuanYH(){return this.shangChuanYH ;}
-	public void setShangChuanYH(com.poweruniverse.nim.data.entity.sys.YongHu shangChuanYH){this.shangChuanYH = shangChuanYH;}
-
-			
-	// 属性：上传日期 （shangChuanRQ）
-	private java.util.Date shangChuanRQ = null;
-	public java.util.Date getShangChuanRQ(){return this.shangChuanRQ ;}
-	public void setShangChuanRQ(java.util.Date shangChuanRQ){this.shangChuanRQ = shangChuanRQ;}
-	
-			
 	// 属性：文件后缀 （wenJianHZ）
 	private java.lang.String wenJianHZ = null;
 	public java.lang.String getWenJianHZ(){return this.wenJianHZ ;}
 	public void setWenJianHZ(java.lang.String wenJianHZ){this.wenJianHZ = wenJianHZ;}
-	
-			
-	// 属性：上传用户名称 （shangChuanYHMC）
-	private java.lang.String shangChuanYHMC = null;
-	public java.lang.String getShangChuanYHMC(){return this.shangChuanYHMC ;}
-	public void setShangChuanYHMC(java.lang.String shangChuanYHMC){this.shangChuanYHMC = shangChuanYHMC;}
 	
 			
 	// 属性：文件长度 （wenJianCD）
@@ -119,35 +96,34 @@ public abstract class BaseFuJian  implements Serializable,Comparable<Object> ,En
 	public java.lang.String getCunChuWJM(){return this.cunChuWJM ;}
 	public void setCunChuWJM(java.lang.String cunChuWJM){this.cunChuWJM = cunChuWJM;}
 	
+			
+	// 属性：是否上传完成 （shiFouSCWC）
+	private java.lang.Boolean shiFouSCWC = new java.lang.Boolean(false);
+	public java.lang.Boolean getShiFouSCWC(){return this.shiFouSCWC ;}
+	public void setShiFouSCWC(java.lang.Boolean shiFouSCWC){this.shiFouSCWC = shiFouSCWC;}
+	
+	// 对象：上传用户 （shangChuanYH）
+	private com.poweruniverse.nim.data.entity.sys.YongHu shangChuanYH;
+	public com.poweruniverse.nim.data.entity.sys.YongHu getShangChuanYH(){return this.shangChuanYH ;}
+	public void setShangChuanYH(com.poweruniverse.nim.data.entity.sys.YongHu shangChuanYH){this.shangChuanYH = shangChuanYH;}
+
+			
+	// 属性：上传日期 （shangChuanRQ）
+	private java.util.Date shangChuanRQ = null;
+	public java.util.Date getShangChuanRQ(){return this.shangChuanRQ ;}
+	public void setShangChuanRQ(java.util.Date shangChuanRQ){this.shangChuanRQ = shangChuanRQ;}
+	
+			
+	// 属性：上传用户名称 （shangChuanYHMC）
+	private java.lang.String shangChuanYHMC = null;
+	public java.lang.String getShangChuanYHMC(){return this.shangChuanYHMC ;}
+	public void setShangChuanYHMC(java.lang.String shangChuanYHMC){this.shangChuanYHMC = shangChuanYHMC;}
+	
 	// 对象：上传部门 （shangChuanBM）
 	private com.poweruniverse.nim.data.entity.sys.BuMen shangChuanBM;
 	public com.poweruniverse.nim.data.entity.sys.BuMen getShangChuanBM(){return this.shangChuanBM ;}
 	public void setShangChuanBM(com.poweruniverse.nim.data.entity.sys.BuMen shangChuanBM){this.shangChuanBM = shangChuanBM;}
 
-			
-	// 属性：删除状态 （shanChuZT）
-	private java.lang.Boolean shanChuZT = new java.lang.Boolean(false);
-	public java.lang.Boolean getShanChuZT(){return this.shanChuZT ;}
-	public void setShanChuZT(java.lang.Boolean shanChuZT){this.shanChuZT = shanChuZT;}
-	
-			
-	// 属性：是否传输完成 （shiFouCSWC）
-	private java.lang.Boolean shiFouCSWC = new java.lang.Boolean(false);
-	public java.lang.Boolean getShiFouCSWC(){return this.shiFouCSWC ;}
-	public void setShiFouCSWC(java.lang.Boolean shiFouCSWC){this.shiFouCSWC = shiFouCSWC;}
-	
-			
-	// 属性：传输次数 （chuanShuCS）
-	private java.lang.Integer chuanShuCS = new java.lang.Integer(0);
-	public java.lang.Integer getChuanShuCS(){return this.chuanShuCS ;}
-	public void setChuanShuCS(java.lang.Integer chuanShuCS){this.chuanShuCS = chuanShuCS;}
-	
-			
-	// 属性：传输错误信息 （chuanShuCWXX）
-	private java.lang.String chuanShuCWXX = null;
-	public java.lang.String getChuanShuCWXX(){return this.chuanShuCWXX ;}
-	public void setChuanShuCWXX(java.lang.String chuanShuCWXX){this.chuanShuCWXX = chuanShuCWXX;}
-	
 	public boolean equals (Object obj) {
 		if (null == obj) return false;
 		if (!(obj instanceof com.poweruniverse.nim.data.entity.sys.FuJian)) return false;
@@ -203,19 +179,15 @@ public abstract class BaseFuJian  implements Serializable,Comparable<Object> ,En
 		fuJian.setFuJianLX(fuJianLX);
 		fuJian.setXiaZaiCS(xiaZaiCS);
 		fuJian.setXiuGaiRen(xiuGaiRen);
-		fuJian.setShiFouSCWC(shiFouSCWC);
-		fuJian.setShangChuanYH(shangChuanYH);
-		fuJian.setShangChuanRQ(shangChuanRQ);
 		fuJian.setWenJianHZ(wenJianHZ);
-		fuJian.setShangChuanYHMC(shangChuanYHMC);
 		fuJian.setWenJianCD(wenJianCD);
 		fuJian.setBeiZhu(beiZhu);
 		fuJian.setCunChuWJM(cunChuWJM);
+		fuJian.setShiFouSCWC(shiFouSCWC);
+		fuJian.setShangChuanYH(shangChuanYH);
+		fuJian.setShangChuanRQ(shangChuanRQ);
+		fuJian.setShangChuanYHMC(shangChuanYHMC);
 		fuJian.setShangChuanBM(shangChuanBM);
-		fuJian.setShanChuZT(shanChuZT);
-		fuJian.setShiFouCSWC(shiFouCSWC);
-		fuJian.setChuanShuCS(chuanShuCS);
-		fuJian.setChuanShuCWXX(chuanShuCWXX);
 		
 		return fuJian;
 	}

@@ -4,8 +4,10 @@ import java.io.File;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Set;
 
 import net.sf.json.JSONArray;
@@ -110,6 +112,18 @@ public class HibernateSessionFactory{
     
     public static JSONObject getConfiguration(){
     	return configuration;
+    }
+
+    public static JSONObject getConfiguration(String xiTongDH){
+    	JSONObject ret = null;
+    	JSONArray xiTongConfigs = configuration.getJSONArray("xiTongs");
+		for(int i=0;i<xiTongConfigs.size();i++){
+			JSONObject xiTongConfig = xiTongConfigs.getJSONObject(i);
+			if(xiTongDH.equals(xiTongConfig.getString("name"))){
+				ret = xiTongConfig;
+			}
+		}
+    	return ret;
     }
 
     public static Configuration getSessionConfiguration(){

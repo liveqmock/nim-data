@@ -18,7 +18,7 @@
 		<#list stl.zds as zd>
 		<#if zd.ziDuanDH !=  stl.zhuJianLie>
 		<!--${zd.ziDuanBT}-->
-			<#if zd.ziDuanLX.ziDuanLXDH = 'set' >
+			<#if zd.ziDuanLX.ziDuanLXDH = 'set' || zd.ziDuanLX.ziDuanLXDH = 'fileset'>
 		<#if zd.guanLianSTL?? && zd.guanLianFLZD??> 
         <set name="${zd.ziDuanDH}" inverse="true"  lazy="true" cascade="all-delete-orphan" order-by="${zd.guanLianSTL.paiXuLie}" <#if zd.guanLianSTL.shiFouYWB >where="shanChuZT = 0"</#if>>
         	<key>
@@ -29,7 +29,7 @@
         <#else>
 			guanLianSTL为空或guanLianFLZD为空！！！请修改字段定义后 重新生成
 		</#if> 
-			<#elseif zd.ziDuanLX.ziDuanLXDH = 'object'>
+			<#elseif zd.ziDuanLX.ziDuanLXDH = 'object' || zd.ziDuanLX.ziDuanLXDH = 'file'>
 		<#if zd.guanLianSTL?? > 
         <many-to-one name="${zd.ziDuanDH}" class="${zd.guanLianSTL.shiTiLeiClassName}" fetch="select">
             <column name="${zd.lieMing}" precision="12" scale="0" not-null="false" />
@@ -42,6 +42,8 @@
 				<#if zd.ziDuanLX.ziDuanLXDH = 'string'>
 					<#assign columnType = "java.lang.String"/>
 				<#elseif zd.ziDuanLX.ziDuanLXDH = 'text'>
+					<#assign columnType = "java.lang.String"/>
+				<#elseif zd.ziDuanLX.ziDuanLXDH = 'dictionary'>
 					<#assign columnType = "java.lang.String"/>
 				<#elseif zd.ziDuanLX.ziDuanLXDH = 'date'>
 					<#assign columnType = "java.util.Date"/>

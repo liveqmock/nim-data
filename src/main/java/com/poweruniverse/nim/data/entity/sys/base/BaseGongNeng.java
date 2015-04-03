@@ -6,7 +6,7 @@ import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 /*
 * 实体类：功能
 */
-@Version("2015-03-29 21:44:42")
+@Version("2015-04-04 02:05:43")
 public abstract class BaseGongNeng  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;
@@ -124,6 +124,12 @@ public abstract class BaseGongNeng  implements Serializable,Comparable<Object> ,
 	public java.lang.String getProcessStartAction(){return this.processStartAction ;}
 	public void setProcessStartAction(java.lang.String processStartAction){this.processStartAction = processStartAction;}
 	
+			
+	// 属性：功能版本 （gongNengBB）
+	private java.lang.String gongNengBB = null;
+	public java.lang.String getGongNengBB(){return this.gongNengBB ;}
+	public void setGongNengBB(java.lang.String gongNengBB){this.gongNengBB = gongNengBB;}
+	
 	public boolean equals (Object obj) {
 		if (null == obj) return false;
 		if (!(obj instanceof com.poweruniverse.nim.data.entity.sys.GongNeng)) return false;
@@ -185,6 +191,7 @@ public abstract class BaseGongNeng  implements Serializable,Comparable<Object> ,
 		gongNeng.setShiFouLCGN(shiFouLCGN);
 		gongNeng.setProcessEndAction(processEndAction);
 		gongNeng.setProcessStartAction(processStartAction);
+		gongNeng.setGongNengBB(gongNengBB);
 		
 		return gongNeng;
 	}

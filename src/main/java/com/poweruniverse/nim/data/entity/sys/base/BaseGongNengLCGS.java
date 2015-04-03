@@ -6,7 +6,7 @@ import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 /*
 * 实体类：功能流程公式
 */
-@Version("2015-03-16 11:15:59")
+@Version("2015-04-04 02:05:44")
 public abstract class BaseGongNengLCGS  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;

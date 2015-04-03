@@ -77,7 +77,8 @@ public class JSONConvertUtils {
 					value = PropertyUtils.getNestedProperty(obj, fieldName);
 				}catch (Exception e){
 					value= null;
-					e.printStackTrace();
+					System.err.println("JSONConvertUtils.Entity2JSONObject() -> 取对象的属性("+fieldName+")值失败:"+e.getMessage());
+//					e.printStackTrace();
 				}
 				try{
 					ziDuan = stl.getZiDuan(fieldName);

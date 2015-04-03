@@ -76,7 +76,7 @@ public class QueryUtils {
 			yh =(YongHu)sess.load(YongHu.class, yh.getYongHuDM());
 		}
 		List<Permit> ps = new ArrayList<Permit>();
-		Iterator<GongNengGZLTJ> gzltjmxs = gzl.getMxs().iterator();
+		Iterator<GongNengGZLTJ> gzltjmxs = gzl.getTjs().iterator();
 		GongNengGZLTJ gzltjmx = null;
 		while(gzltjmxs.hasNext()){
 			gzltjmx = gzltjmxs.next();

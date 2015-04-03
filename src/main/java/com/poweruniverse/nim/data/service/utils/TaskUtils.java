@@ -446,7 +446,7 @@ public class TaskUtils {
 				//根据条件定义 确定工作流
 				for(GongNengGZL temp_gnczl:gzls){
 					//只有设置了模板条件 且不是全部允许的(暂时) 进行条件判断
-					if(temp_gnczl.getMxs().size()>0 ){
+					if(temp_gnczl.getTjs().size()>0 ){
 						List<Permit> permits = QueryUtils.getPermitsByGZLTJ(yh, temp_gnczl);
 						if(AuthUtils.meetCondition(workFlowGNCZ.getGongNeng().getShiTiLei(), processObj.pkValue(), yh, permits)){
 							gnczl = temp_gnczl;

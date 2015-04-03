@@ -1,52 +1,51 @@
 [{
-	"name":"shiTiLeiBB"
+	"name":"gongNengBB"
 },{
-	"name":"shiTiLeiMC"
+	"name":"gongNengMC"
 },{
-	"name":"shiTiLeiDH"
+	"name":"gongNengDH"
 },{
-	"name":"zhuJianLie"
+	"name":"gongNengIMG"
 },{
-	"name":"xianShiLie"
+	"name":"gongNengText"
 },{
-	"name":"paiXuLie"
+	"name":"gongNengXH"
 },{
-	"name":"biaoMing"
+	"name":"shiFouLCGN"
 },{
-	"name":"shiTiLeiClassName"
+	"name":"processEndAction"
 },{
-	"name":"shiFouYWB"
+	"name":"processStartAction"
+},{
+	"name":"shiTiLei",
+	"fields":[{"name":"shiTiLeiDH"}]
 },{
 	"name":"xiTong",
-	"fields":[{"name":"xiTongDH"}]
+	"fields":[{"name":"xiTongDH"},{"name":"xiTongMC"}]
 },{
-	"name":"zds",
+	"name":"czs",
 	"fields":[{
-		"name":"ziDuanBT"
+		"name":"caoZuoDH"
 	},{
-		"name":"ziDuanSM"
+		"name":"caoZuoMC"
 	},{
-		"name":"lieMing"
+		"name":"duiXiangXG"
 	},{
-		"name":"ziDuanDH"
+		"name":"keYiSQ"
 	},{
-		"name":"guanLianFLZD","fields":[{"name":"ziDuanDH"},{"name":"lieMing"},{"name":"shiTiLei","fields":[{"name":"shiTiLeiDH"}]}]
+		"name":"caoZuoXH"
 	},{
-		"name":"ziDuanDM"
+		"name":"prepareAction"
 	},{
-		"name":"ziDuanCD"
+		"name":"beforeAction"
 	},{
-		"name":"ziDuanJD"
+		"name":"afterAction"
 	},{
-		"name":"yunXuKZ"
+		"name":"loadAction"
 	},{
-		"name":"yanChiJZ"
+		"name":"onAction"
 	},{
-		"name":"shiFouWY"
-	},{
-		"name":"ziDuanLX","fields":[{"name":"ziDuanLXDH"}]
-	},{
-		"name":"guanLianSTL","fields":[{"name":"shiTiLeiDH"},{"name":"shiTiLeiClassName"},{"name":"zhuJianLie"},{"name":"paiXuLie"},{"name":"shiFouYWB"}]
+		"name":"caoZuoLB","fields":[{"name":"caoZuoLBMC"},{"name":"caoZuoLBSM"}]
 	}]
 }]
 

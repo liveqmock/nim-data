@@ -2,7 +2,7 @@
 <!DOCTYPE hibernate-mapping PUBLIC 
 	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
-<!-- version:2015-03-19 09:57:11 -->
+<!-- version:2015-04-04 02:05:43 -->
 <hibernate-mapping auto-import="false">  
     <class name="com.poweruniverse.nim.data.entity.sys.FuJian" table="SYS_FuJian" >
     	<!--主键-->
@@ -27,7 +27,7 @@
         <property name="shangChuanWJM" type="java.lang.String" lazy="false">
         	<column name="shangChuanWJM" precision="200" scale="0" not-null="false" />
         </property>
-		<!--fuJianLX-->
+		<!--附件类型-->
         <many-to-one name="fuJianLX" class="com.poweruniverse.nim.data.entity.sys.FuJianLX" fetch="select">
             <column name="fuJianLXDM" precision="12" scale="0" not-null="false" />
         </many-to-one>
@@ -39,6 +39,22 @@
 		<!--修改人-->
         <property name="xiuGaiRen" type="java.lang.String" lazy="false">
         	<column name="xiuGaiRen" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--文件后缀-->
+        <property name="wenJianHZ" type="java.lang.String" lazy="false">
+        	<column name="wenJianHZ" precision="200" scale="0" not-null="false" />
+        </property>
+		<!--文件长度-->
+        <property name="wenJianCD" type="java.lang.Double" lazy="false">
+        	<column name="wenJianCD" precision="18" scale="6" not-null="false" />
+        </property>
+		<!--备注-->
+        <property name="beiZhu" type="java.lang.String" lazy="false">
+        	<column name="beiZhu" precision="1900" scale="0" not-null="false" />
+        </property>
+		<!--存储文件名-->
+        <property name="cunChuWJM" type="java.lang.String" lazy="false">
+        	<column name="cunChuWJM" precision="200" scale="0" not-null="false" />
         </property>
 		<!--是否上传完成-->
         <property name="shiFouSCWC" type="java.lang.Boolean" lazy="false">
@@ -53,46 +69,14 @@
         <property name="shangChuanRQ" type="java.util.Date" lazy="false">
         	<column name="shangChuanRQ" precision="7" scale="0" not-null="false" />
         </property>
-		<!--文件后缀-->
-        <property name="wenJianHZ" type="java.lang.String" lazy="false">
-        	<column name="wenJianHZ" precision="200" scale="0" not-null="false" />
-        </property>
 		<!--上传用户名称-->
         <property name="shangChuanYHMC" type="java.lang.String" lazy="false">
         	<column name="shangChuanYHMC" precision="200" scale="0" not-null="false" />
-        </property>
-		<!--文件长度-->
-        <property name="wenJianCD" type="java.lang.Double" lazy="false">
-        	<column name="wenJianCD" precision="18" scale="6" not-null="false" />
-        </property>
-		<!--备注-->
-        <property name="beiZhu" type="java.lang.String" lazy="false">
-        	<column name="beiZhu" precision="1900" scale="0" not-null="false" />
-        </property>
-		<!--存储文件名-->
-        <property name="cunChuWJM" type="java.lang.String" lazy="false">
-        	<column name="cunChuWJM" precision="200" scale="0" not-null="false" />
         </property>
 		<!--上传部门-->
         <many-to-one name="shangChuanBM" class="com.poweruniverse.nim.data.entity.sys.BuMen" fetch="select">
             <column name="shangChuanBMDM" precision="12" scale="0" not-null="false" />
         </many-to-one>
         
-		<!--删除状态-->
-        <property name="shanChuZT" type="java.lang.Boolean" lazy="false">
-        	<column name="shanChuZT" precision="2" scale="0" not-null="false" />
-        </property>
-		<!--是否传输完成-->
-        <property name="shiFouCSWC" type="java.lang.Boolean" lazy="false">
-        	<column name="shiFouCSWC" precision="1" scale="0" not-null="false" />
-        </property>
-		<!--传输次数-->
-        <property name="chuanShuCS" type="java.lang.Integer" lazy="false">
-        	<column name="chuanShuCS" precision="12" scale="0" not-null="false" />
-        </property>
-		<!--传输错误信息-->
-        <property name="chuanShuCWXX" type="java.lang.String" lazy="false">
-        	<column name="chuanShuCWXX" precision="200" scale="0" not-null="false" />
-        </property>
      </class>
 </hibernate-mapping>

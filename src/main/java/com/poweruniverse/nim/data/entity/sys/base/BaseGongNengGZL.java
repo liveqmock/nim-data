@@ -6,7 +6,7 @@ import com.poweruniverse.nim.data.entity.sys.base.EntityI;
 /*
 * 实体类：功能工作流
 */
-@Version("2015-03-16 11:15:59")
+@Version("2015-04-04 02:05:44")
 public abstract class BaseGongNengGZL  implements Serializable,Comparable<Object> ,EntityI {
 	private static final long serialVersionUID = 1L;
 	private int hashCode = Integer.MIN_VALUE;
@@ -26,24 +26,24 @@ public abstract class BaseGongNengGZL  implements Serializable,Comparable<Object
 
 	protected abstract void initialize ();
 	
-	// 集合：条件明细 （mxs）
-	private java.util.Set<com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ> mxs = new java.util.TreeSet<com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ>();
-	public java.util.Set<com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ> getMxs(){return this.mxs ;}
-	public void setMxs(java.util.Set<com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ> mxs){this.mxs = mxs;}
-	public void addTomxs(Object parent,Object detail){
+	// 集合：条件集合 （tjs）
+	private java.util.Set<com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ> tjs = new java.util.TreeSet<com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ>();
+	public java.util.Set<com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ> getTjs(){return this.tjs ;}
+	public void setTjs(java.util.Set<com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ> tjs){this.tjs = tjs;}
+	public void addTotjs(Object parent,Object detail){
 		com.poweruniverse.nim.data.entity.sys.GongNengGZL mainObj = (com.poweruniverse.nim.data.entity.sys.GongNengGZL)parent;
 		com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ subObj = (com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ)detail;
 		subObj.setGongNengGZL(mainObj);
-		mainObj.getMxs().add(subObj);
+		mainObj.getTjs().add(subObj);
 	}
-	public void removeFrommxs(Object parent,Object detail){
+	public void removeFromtjs(Object parent,Object detail){
 		com.poweruniverse.nim.data.entity.sys.GongNengGZL mainObj = (com.poweruniverse.nim.data.entity.sys.GongNengGZL)parent;
 		com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ subObj = (com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ)detail;
 		subObj.setGongNengGZL(null);
-		mainObj.getMxs().remove(subObj);
+		mainObj.getTjs().remove(subObj);
 	}
-	public Object getmxsById(Object id){
-		java.util.Iterator<com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ> ds = this.getMxs().iterator();
+	public Object gettjsById(Object id){
+		java.util.Iterator<com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ> ds = this.getTjs().iterator();
 		com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ d = null;
 		while(ds.hasNext()){
 			d = ds.next();
@@ -53,7 +53,7 @@ public abstract class BaseGongNengGZL  implements Serializable,Comparable<Object
 		}
 		return null;
 	}
-	public com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ newmxsByParent(com.poweruniverse.nim.data.entity.sys.GongNengGZL parent) throws Exception{
+	public com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ newtjsByParent(com.poweruniverse.nim.data.entity.sys.GongNengGZL parent) throws Exception{
 		com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ subObj = new com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ();
 		//
 		subObj.setGongNengGZL(parent);
@@ -94,6 +94,12 @@ public abstract class BaseGongNengGZL  implements Serializable,Comparable<Object
 	public java.lang.Integer getGongNengGZLDM(){return this.gongNengGZLDM ;}
 	public void setGongNengGZLDM(java.lang.Integer gongNengGZLDM){this.gongNengGZLDM = gongNengGZLDM;}
 
+			
+	// 属性：版本 （gongNengGZLBB）
+	private java.lang.String gongNengGZLBB = null;
+	public java.lang.String getGongNengGZLBB(){return this.gongNengGZLBB ;}
+	public void setGongNengGZLBB(java.lang.String gongNengGZLBB){this.gongNengGZLBB = gongNengGZLBB;}
+	
 	public boolean equals (Object obj) {
 		if (null == obj) return false;
 		if (!(obj instanceof com.poweruniverse.nim.data.entity.sys.GongNengGZL)) return false;
@@ -142,14 +148,15 @@ public abstract class BaseGongNengGZL  implements Serializable,Comparable<Object
 	public com.poweruniverse.nim.data.entity.sys.GongNengGZL clone(){
 		com.poweruniverse.nim.data.entity.sys.GongNengGZL gongNengGZL = new com.poweruniverse.nim.data.entity.sys.GongNengGZL();
 		
-		for(com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ subObj:this.getMxs()){
-			gongNengGZL.addTomxs(gongNengGZL, subObj.clone());
+		for(com.poweruniverse.nim.data.entity.sys.GongNengGZLTJ subObj:this.getTjs()){
+			gongNengGZL.addTotjs(gongNengGZL, subObj.clone());
 		}
 		gongNengGZL.setStartGNCZ(startGNCZ);
 		gongNengGZL.setTiaoJianXS(tiaoJianXS);
 		gongNengGZL.setGongNeng(gongNeng);
 		gongNengGZL.setGongNengGZLBH(gongNengGZLBH);
 		gongNengGZL.setGongNengGZLMC(gongNengGZLMC);
+		gongNengGZL.setGongNengGZLBB(gongNengGZLBB);
 		
 		return gongNengGZL;
 	}

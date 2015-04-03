@@ -253,6 +253,7 @@ public class EntityManager {
 				}
 				
 				//再循环一次 检查是否数据库中 是否缺少实体类
+				//避免后面创建实体类的时候 找不到关联实体类
 				for(int i=0;i<mappingEls.size();i++){
 					Element mappingEl = mappingEls.get(i) ;
 					String resourceName = mappingEl.attributeValue("resource");//hbm/sys/XiTong.hbm.xml
@@ -282,6 +283,8 @@ public class EntityManager {
 				}
 				
 				//第三次循环检查是否数据库中 是否实体类的版本早于定义文件中的版本号
+				//仍然会出现 关联父类字段找不到的情况
+				Map<ShiTiLei,JSONObject> reApplys = new HashMap<ShiTiLei,JSONObject>();
 				for(int i=0;i<mappingEls.size();i++){
 					Element mappingEl = mappingEls.get(i) ;
 					String resourceName = mappingEl.attributeValue("resource");//hbm/sys/XiTong.hbm.xml
@@ -311,7 +314,9 @@ public class EntityManager {
 						}
 						if(needsUpdate){
 							System.out.println("实体类("+resourceName+")的数据库版本为"+stl.getShiTiLeiBB()+"早于定义版本"+dateFm.format(defineVersion)+",需要更新！");
-							applyDef2Obj(stl, defJson);
+							if(applyDef2Obj(stl, defJson)){
+								reApplys.put(stl, defJson);
+							}
 							sess.update(stl);
 							
 							tobeCreated.add(stl);
@@ -320,7 +325,13 @@ public class EntityManager {
 						System.err.println("实体类("+resourceName+")的定义文件不存在,忽略数据库中实体类的版本检查");
 					}
 				}
+				//是否需要二次apply
+				for(ShiTiLei stl : reApplys.keySet()){
+					reApplys.put(stl, reApplys.get(stl));
+					sess.update(stl);
+				}
 			}
+			
 			//更新/创建表结构
 			for(ShiTiLei stl:tobeCreated){
 				createTable(stl,stl.getBiaoMing());
@@ -386,7 +397,7 @@ public class EntityManager {
 			//将文件写入
 			FileUtils.writeStringToFile(defineFile, jsonData.toString());
 			//将当前文件链接添加到hibernate.cfg.xml文件中
-			synchronized(EntityManager.class){
+			synchronized(entityObj.getXiTong()){
 				System.out.println("...............................处理:"+entityObj+"的hibernate配置信息");
 				
 				String mappingFileName = Application.getInstance().getContextPath()+ "WEB-INF/mapping."+entityObj.getXiTong().getXiTongDH()+".xml";
@@ -575,8 +586,10 @@ public class EntityManager {
 	
 	
 	//将定义信息中的实体类信息 更新到实体类对象中
-	public static Object applyDef2Obj(Object obj,JSONObject dataObject) throws Exception{
-		if(dataObject==null) return obj;
+	public static boolean applyDef2Obj(Object obj,JSONObject dataObject) throws Exception{
+		boolean reApply = false;
+		if(dataObject==null) return reApply;
+		
 		
 		Session sess = HibernateSessionFactory.getSession();
 		
@@ -593,12 +606,33 @@ public class EntityManager {
 				if(propertyName.equals("xiTong")){
 					String xiTongDH = ((JSONObject)propertyValue).getString("xiTongDH");
 					propertyObj = sess.createCriteria(XiTong.class).add(Restrictions.eq("xiTongDH", xiTongDH)).uniqueResult();
+					if(propertyObj == null){
+						String xiTongMC = ((JSONObject)propertyValue).getString("xiTongMC");
+						XiTong xiTong = new XiTong();
+						xiTong.setXiTongDH(xiTongDH);
+						xiTong.setXiTongMC(xiTongMC);
+						
+						sess.save(xiTong);
+						propertyObj = xiTong;
+					}
 				}else if(propertyName.equals("ziDuanLX")){
 					String ziDuanLXDH = ((JSONObject)propertyValue).getString("ziDuanLXDH");
 					propertyObj = sess.createCriteria(ZiDuanLX.class).add(Restrictions.eq("ziDuanLXDH", ziDuanLXDH)).uniqueResult();
+					if(propertyObj == null){
+						String ziDuanLXMC = ((JSONObject)propertyValue).getString("ziDuanLXMC");
+						ZiDuanLX ziDuanLX = new ZiDuanLX();
+						ziDuanLX.setZiDuanLXDH(ziDuanLXDH);
+						ziDuanLX.setZiDuanLXMC(ziDuanLXMC);
+						
+						sess.save(ziDuanLX);
+						propertyObj = ziDuanLX;
+					}
 				}else if(propertyName.equals("guanLianSTL")){
 					String shiTiLeiDH = ((JSONObject)propertyValue).getString("shiTiLeiDH");
 					propertyObj = sess.createCriteria(ShiTiLei.class).add(Restrictions.eq("shiTiLeiDH", shiTiLeiDH)).uniqueResult();
+					if(propertyObj == null){
+						reApply = true;
+					}
 				}else if(propertyName.equals("guanLianFLZD")){
 					String ziDuanDH = ((JSONObject)propertyValue).getString("ziDuanDH");
 					propertyObj = sess.createCriteria(ZiDuan.class)
@@ -606,6 +640,9 @@ public class EntityManager {
 							.createAlias("shiTiLei", "zd_stl")
 							.add(Restrictions.eq("zd_stl.shiTiLeiDH", ((JSONObject)propertyValue).getJSONObject("shiTiLei").getString("shiTiLeiDH")))
 							.uniqueResult();
+					if(propertyObj == null){
+						reApply = true;
+					}
 				}else{
 					throw new Exception("在更新实体类对象时，发现未定义处理方式的对象类型字段："+propertyName);
 				}
@@ -636,10 +673,14 @@ public class EntityManager {
 						String ziDuanDH = zdArray.getJSONObject(i).getString("ziDuanDH");
 						if(stl.hasZiDuan(ziDuanDH)){
 							ZiDuan zd = stl.getZiDuan(ziDuanDH);
-							applyDef2Obj(zd, zdArray.getJSONObject(i));
+							if(applyDef2Obj(zd, zdArray.getJSONObject(i))){
+								reApply = true;
+							}
 						}else{
 							ZiDuan zd = new ZiDuan();
-							applyDef2Obj(zd, zdArray.getJSONObject(i));
+							if(applyDef2Obj(zd, zdArray.getJSONObject(i))){
+								reApply = true;
+							}
 							zd.setShiTiLei(stl);
 							stl.getZds().add(zd);
 							System.out.println("<===添加字段："+stl.getShiTiLeiDH()+"."+zd.getZiDuanDH()+"("+stl.getShiTiLeiMC()+"."+zd.getZiDuanBT()+")");
@@ -655,7 +696,7 @@ public class EntityManager {
 				PropertyUtils.setProperty(obj,propertyName,propertyValue);
 			}
 		}
-		return obj;
+		return reApply;
 	}
 	
 	public static boolean createTable(ShiTiLei obj,String tableName) throws Exception{
@@ -723,6 +764,9 @@ public class EntityManager {
 				boolean typeOK = true;
 				//检查字段类型是否相符
 				String oracleType = ziDuan.getZiDuanLX().getOracleType();
+				if(ziDuan.getZiDuanLX() == null){
+					System.err.println("字段(id:"+ziDuan.getZiDuanDM()+")'"+ziDuan.getZiDuanBT()+"'的类型为空");
+				}
 				if(!oracleType.equals(colType)){
 					compareOK = false;
 					typeOK = false;
